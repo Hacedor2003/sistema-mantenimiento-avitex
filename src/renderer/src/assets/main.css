@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.fondo-areas {
+  background-image: url('../assets/logo-text.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}

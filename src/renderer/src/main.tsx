@@ -3,8 +3,7 @@ import './assets/main.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
-import { Area, Details, ErrorPage, Home, Login } from './pages'
-import { RootLayout } from './components/Root/AppLayout'
+import { Anadir, Area, Ayuda, Calendario, Details, ErrorPage, Home, Login } from './pages'
 
 const router = createHashRouter([
   {
@@ -26,13 +25,26 @@ const router = createHashRouter([
     path: '/home/:area/:details',
     element: <Details />,
     errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/anadir',
+    element: <Anadir />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/ayuda',
+    element: <Ayuda />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/calendario/:maquinaria',
+    element: <Calendario />,
+    errorElement: <ErrorPage />
   }
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <RootLayout>
-      <RouterProvider router={router} />
-    </RootLayout>
+    <RouterProvider router={router} />
   </React.StrictMode>
 )
