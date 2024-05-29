@@ -59,7 +59,7 @@ const Calendario = (): JSX.Element => {
       <div className="w-full p-4">
         <h2 className="text-2xl font-bold mb-4">Calendario de {maquinaria}:</h2>
         <div className="flex flex-col items-center justify-center mb-4">
-          <label htmlFor="inputDate">Seleccione la fecha:</label>
+          <label htmlFor="inputDate" className='border-b border-black text-xl font-serif mb-2'>Seleccione la fecha:</label>
           {selectedDate && (
             <div className="flex flex-col gap-y-2 items-center">
               <input
@@ -87,7 +87,7 @@ const Calendario = (): JSX.Element => {
                 .map((date, i) => (
                   <div
                     key={i}
-                    className={`min-w-2 h-fit p-1 border border-black rounded-md text-center font-mono ${
+                    className={`min-w-[45px] h-fit p-1 border border-black rounded-md text-center font-mono ${
                       events.some((event) => sameDate(event, date)) ? 'bg-yellow-300' : 'bg-white'
                     }`}
                     onClick={() => handleDateChange(date)}

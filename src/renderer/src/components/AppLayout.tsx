@@ -23,25 +23,25 @@ export const Sidebar = (): JSX.Element => {
       <header className="h-5/6 self-start bg-[#b70909] rounded-b-2xl flex flex-row items-center justify-center">
         <ul className="flex flex-row gap-x-3">
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2"
+            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate(-1)}
           >
             Atras
           </li>
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2"
+            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/home/anadir')}
           >
             Añadir
           </li>
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2"
+            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/home/ayuda')}
           >
             Ayuda
           </li>
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2"
+            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/')}
           >
             Salir
