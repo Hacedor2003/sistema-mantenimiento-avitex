@@ -10,7 +10,24 @@ const Login = (): JSX.Element => {
 
   const handleSubmit = (event): void => {
     event.preventDefault()
-    navigate('/home')
+    
+    window.context.getUsuarios_All()
+      .then(response => {
+        if (carnet === response[0].dataValues.identificacion && constrasena === response[0].dataValues.contrasena) {
+          const user = {
+            id: response[0].dataValues.ID_Usuario,
+            name: response[0].dataValues.identificacion,
+            role: response[0].dataValues.Rol
+          };
+          localStorage.setItem('user', JSON.stringify(user));
+          navigate('/home')
+        }
+        
+      })
+        .catch(error => error.log(error))
+      
+    
+    
   }
 
   return (
@@ -39,7 +56,7 @@ const Login = (): JSX.Element => {
             </label>
             <input
               className="border border-black p-1 rounded-md w-56"
-              type="text"
+              type="password"
               name="inputConstrasena"
               id="inputConstrasena"
               placeholder="Contraseña"
@@ -49,7 +66,7 @@ const Login = (): JSX.Element => {
           </section>
           <button
             type="submit"
-            className="self-center border border-black w-fit bg-white hover:bg-red-950 text-black hover:text-white transition-all duration-300 p-2"
+            className="self-center border border-black w-fit bg-white hover:bg-[#b70909] text-black hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm"
           >
             Ingresar
           </button>

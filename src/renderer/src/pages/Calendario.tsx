@@ -59,7 +59,9 @@ const Calendario = (): JSX.Element => {
       <div className="w-full p-4">
         <h2 className="text-2xl font-bold mb-4">Calendario de {maquinaria}:</h2>
         <div className="flex flex-col items-center justify-center mb-4">
-          <label htmlFor="inputDate" className='border-b border-black text-xl font-serif mb-2'>Seleccione la fecha:</label>
+          <label htmlFor="inputDate" className="border-b border-black text-xl font-serif mb-2">
+            Seleccione la fecha:
+          </label>
           {selectedDate && (
             <div className="flex flex-col gap-y-2 items-center">
               <input
@@ -80,24 +82,28 @@ const Calendario = (): JSX.Element => {
         </div>
         <div className="grid grid-cols-1 gap-4">
           {Array.from({ length: 12 }, (_, index) => index).map((month) => (
-            <div key={month} className="grid grid-cols-11 gap-2">
-              <div className="col-span-11 font-bold mb-2">{monthNames[month]}</div>
-              {dates
-                .filter((date) => date.month === month)
-                .map((date, i) => (
-                  <div
-                    key={i}
-                    className={`min-w-[45px] h-fit p-1 border border-black rounded-md text-center font-mono ${
-                      events.some((event) => sameDate(event, date)) ? 'bg-yellow-300' : 'bg-white'
-                    }`}
-                    onClick={() => handleDateChange(date)}
-                  >
-                    {date.day}
-                    <p className="w-full break-words">
-                      {events.some((event) => sameDate(event, date)) ? ' ⚙️' : null}
-                    </p>
-                  </div>
-                ))}
+            <div key={month} className="w-full flex flex-col items-center justify-center gap-2">
+              <header className="col-span-11 font-bold mb-2 text-xl font-serif">
+                {monthNames[month]}
+              </header>
+              <section className="w-full flex flex-row flex-wrap items-center justify-start gap-2 text-sm">
+                {dates
+                  .filter((date) => date.month === month)
+                  .map((date, i) => (
+                    <div
+                      key={i}
+                      className={`relative min-w-[45px] h-fit border border-black rounded-md text-center font-mono p-2 hover:bg-[#853232] hover:text-white duration-300 ${
+                        events.some((event) => sameDate(event, date)) ? 'bg-yellow-300' : 'bg-white'
+                      }`}
+                      onClick={() => handleDateChange(date)}
+                    >
+                      {date.day}
+                      <p className="w-full break-words absolute -top-2 -right-5">
+                        {events.some((event) => sameDate(event, date)) ? ' ⚙️' : null}
+                      </p>
+                    </div>
+                  ))}
+              </section>
             </div>
           ))}
         </div>

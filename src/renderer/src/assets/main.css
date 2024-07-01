@@ -8,3 +8,21 @@
   background-position: center;
   background-size: contain;
 }
+
+
+html::-webkit-scrollbar{
+  width: 20px;
+}
+
+html::-webkit-scrollbar-track {
+  /* background: rgb(197, 30, 25); */
+  background: black;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg,
+      rgba(197, 30, 25, 1) 38%,
+      rgb(54, 40, 36) 54%,
+      rgb(25, 24, 24) 71%);
+  border-radius: 100px;
+}

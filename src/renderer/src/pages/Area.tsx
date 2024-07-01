@@ -1,13 +1,36 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Categorias, Equipos } from 'src/main/db/Models'
 
 const Area = (): JSX.Element => {
+  const { area: categoriaID } = useParams()
+  const [producto, setProducto] = useState<Equipos[] | null>(null)
+  const [categoria, setCategoria] = useState<Categorias | null>(null)
+
+  useEffect(() => {
+    window.context
+      .getEquipos_By_Categoria(categoriaID)
+      .then((response) => {
+        setProducto(response)
+      })
+      .catch((error) => console.error(error))
+    window.context
+      .getCategorias_By_ID(Number(categoriaID))
+      .then((response) => {
+        setCategoria(response)
+      })
+      .catch((error) => console.log(error))
+  }, [])
+
   return (
     <RootLayout>
       <main className="w-full h-full px-2">
         <section className="w-full grid grid-cols-6 grid-rows-1 my-2">
-          <h4 className="text-2xl font-bold w-full col-span-2">Area - Equipos</h4>
+          <h4 className="text-2xl font-bold w-full col-span-2">
+            Area - {categoria?.dataValues.Nombre_Categoria}
+          </h4>
           <div className="col-span-4 w-full">
             <label className="text-lg" htmlFor="selectCiclo">
               Ciclo de{' '}
@@ -43,10 +66,19 @@ const Area = (): JSX.Element => {
             <th>Comentarios</th>
           </thead>
           <tbody>
-            <ItemOfList_ComponentsContent />
-            <ItemOfList_ComponentsContent />
-            <ItemOfList_ComponentsContentEsp indicador="warning" />
-            <ItemOfList_ComponentsContentEsp indicador="danger" />
+            {producto?.map((item:Equipos, index) => {
+              if (item.Estado === 1 || item.Estado === 2 || item.Estado === 3) {
+                return (
+                  <ItemOfList_ComponentsContentEsp indicador="warning" key={index} item={item} />
+                )
+              } else if (item.Estado === 5 || item.Estado === 6) {
+                return (
+                  <ItemOfList_ComponentsContentEsp indicador="danger" key={index} item={item} />
+                )
+              } else {
+                return <ItemOfList_ComponentsContent key={index} item={item} />
+              }
+            })}
           </tbody>
         </table>
       </main>
@@ -56,35 +88,31 @@ const Area = (): JSX.Element => {
 
 export default Area
 
-const ItemOfList_ComponentsContent = (): JSX.Element => {
+const ItemOfList_ComponentsContent = ({item}:{item: Equipos}): JSX.Element => {
   const navigate = useNavigate()
   return (
     <tr className="hover:bg-[#b70909] transition-all duration-300 cursor-pointer text-lg">
-      <td onClick={() => navigate('/home/a/a')}># Nombre</td>
-      <td onClick={() => navigate('/home/a/a')}>Identificación</td>
-      <td onClick={() => navigate('/home/a/a')}>Origen</td>
-      <td onClick={() => navigate('/home/a/a')}>Comentarios</td>
-      <td onClick={() => navigate('/home/calendario/sierra')}>Ver Fechas</td>
+      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}</td>
+      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Identificacion}</td>
+      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Origen}</td>
+      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Comentarios}</td>
+      <td onClick={() => navigate(`/home/calendario/${item.dataValues.CategoriasID}`)}>Ver Fechas</td>
     </tr>
   )
 }
 
-const ItemOfList_ComponentsContentEsp = ({
-  indicador
-}: {
-  indicador: 'warning' | 'danger'
-}): JSX.Element => {
+const ItemOfList_ComponentsContentEsp = ({   item,   indicador }: {   item: Equipos ,  indicador: 'warning' | 'danger' }): JSX.Element => {
   const navigate = useNavigate()
 
   return (
     <tr
       className={`cursor-pointer text-lg duration-300 ${indicador === 'warning' ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-red-500 hover:bg-red-700'}`}
-      onClick={() => navigate('/home/a/a')}
+      onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)}
     >
-      <td># Nombre</td>
-      <td>Identificación</td>
-      <td>Origen</td>
-      <td>Comentarios</td>
+      <td>{item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}</td>
+      <td>{item.dataValues.Identificacion}</td>
+      <td>{item.dataValues.Origen}</td>
+      <td>{item.dataValues.Comentarios}</td>
       <td onClick={() => navigate('/home/calendario/maquinaria')}>
         {indicador === 'warning' ? 'Mantenimiento - Ver Fechas' : 'Baja - Ver Fechas'}{' '}
         <span className={`rounded-sm ${indicador === 'warning' ? 'bg-yellow-200' : 'bg-red-200'}`}>

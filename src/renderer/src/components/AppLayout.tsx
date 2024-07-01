@@ -15,6 +15,8 @@ export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element =>
 
 export const Sidebar = (): JSX.Element => {
   const navigate = useNavigate()
+  const user = JSON.parse(localStorage.getItem('user'))
+
   return (
     <aside className="w-full h-24 overflow-auto bg-white grid items-center grid-cols-3 overflow-y-hidden">
       <Link to="/" className="w-28 h-20 col-span-1">
@@ -28,12 +30,14 @@ export const Sidebar = (): JSX.Element => {
           >
             Atras
           </li>
-          <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
-            onClick={() => navigate('/home/anadir')}
-          >
-            Añadir
-          </li>
+          {user.role === 'admin' && (
+            <li
+              className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+              onClick={() => navigate('/home/anadir')}
+            >
+              Añadir
+            </li>
+          )}
           <li
             className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/home/ayuda')}

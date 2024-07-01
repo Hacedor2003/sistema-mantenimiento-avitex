@@ -4,6 +4,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { Anadir, Area, Ayuda, Calendario, Details, ErrorPage, Home, Login } from './pages'
+import PrivateRoute from './components/PrivateRoute'
 
 const router = createHashRouter([
   {
@@ -13,32 +14,56 @@ const router = createHashRouter([
   },
   {
     path: '/home',
-    element: <Home />,
+    element: (
+      <PrivateRoute role="user">
+        <Home />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/:area',
-    element: <Area />,
+    element: (
+      <PrivateRoute role="user">
+        <Area />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/:area/:details',
-    element: <Details />,
+    element: (
+      <PrivateRoute role="user">
+        <Details />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/anadir',
-    element: <Anadir />,
+    element: (
+      <PrivateRoute role="admin">
+        <Anadir />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/ayuda',
-    element: <Ayuda />,
+    element: (
+      <PrivateRoute role="user">
+        <Ayuda />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/calendario/:maquinaria',
-    element: <Calendario />,
+    element: (
+      <PrivateRoute role="user">
+        <Calendario />
+      </PrivateRoute>
+    ),
     errorElement: <ErrorPage />
   }
 ])
