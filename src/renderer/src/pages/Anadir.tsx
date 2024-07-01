@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout'
+import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
 import { useEffect, useState } from 'react'
 import { Categorias, Estados_Revision, Tipo_Mantenimiento } from 'src/main/db/Models'
 
@@ -91,67 +92,19 @@ const Anadir = (): JSX.Element => {
       <main className="w-full flex flex-col items-center px-2 text-lg">
         <h4>Que desea añadir?</h4>
         <div className="p-1 flex items-center gap-x-4">
-          <button
-            onClick={() => setVer('area')}
-            className={`self-center border border-black w-fit hover:bg-[#b70909]  hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm ${ver === 'area' ? 'bg-[#b70909] text-white' : 'bg-white text-black'}`}
-            type="button"
-          >
-            Area
-          </button>
-          <button
-            onClick={() => setVer('maquinaria')}
-            className={`self-center border border-black w-fit hover:bg-[#b70909]  hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm ${ver === 'maquinaria' ? 'bg-[#b70909] text-white' : 'bg-white text-black'}`}
-            type="button"
-          >
-            Equipo
-          </button>
-          <button
-            onClick={() => setVer('usuario')}
-            className={`self-center border border-black w-fit hover:bg-[#b70909]  hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm ${ver === 'usuario' ? 'bg-[#b70909] text-white' : 'bg-white text-black'}`}
-            type="button"
-          >
-            Usuario
-          </button>
-          <button
-            onClick={() => setVer('mantenimiento')}
-            className={`self-center border border-black w-fit hover:bg-[#b70909]  hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm ${ver === 'mantenimiento' ? 'bg-[#b70909] text-white' : 'bg-white text-black'}`}
-            type="button"
-          >
-            Tipo de Mantenimiento
-          </button>
-          <button
-            onClick={() => setVer('estado')}
-            className={`self-center border border-black w-fit hover:bg-[#b70909]  hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm ${ver === 'estado' ? 'bg-[#b70909] text-white' : 'bg-white text-black'}`}
-            type="button"
-          >
-            Estado
-          </button>
+          <Button_UI funcion={() => setVer('area')} type='button' texto='Area' />
+          <Button_UI funcion={() => setVer('maquinaria')} type='button' texto='Equipo' />
+          <Button_UI funcion={() => setVer('usuario')} type='button' texto='Usuario' />
+          <Button_UI funcion={() => setVer('mantenimiento')} type='button' texto='Tipo de Mantenimiento' />
+          <Button_UI funcion={() => setVer('estado')} type='button' texto='Estado' />
         </div>
         {ver === 'area' && (
           <form
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputNombre">
-                Nombre:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputNombre"
-                id="inputNombre"
-                placeholder="Nombre:"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-              <button
-                className="border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm mt-4"
-                type="submit"
-              >
-                Crear Categoría
-              </button>
-            </section>
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+              <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
         {ver === 'maquinaria' && (
@@ -159,53 +112,10 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputNombre">
-                Nombre:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputNombre"
-                id="inputNombre"
-                placeholder="Nombre:"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-              <label className="text-2xl font-thin font-serif" htmlFor="inputIden">
-                Identificación:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputIden"
-                id="inputIden"
-                placeholder="Identificación:"
-                value={iden}
-                onChange={(e) => setIden(e.target.value)}
-              />
-              <label className="text-2xl font-thin font-serif" htmlFor="inputOrigen">
-                Origen:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputOrigen"
-                id="inputOrigen"
-                placeholder="Origen:"
-                value={origen}
-                onChange={(e) => setOrigen(e.target.value)}
-              />
-              <label className="text-2xl font-thin font-serif" htmlFor="inputComentarios">Comentarios:</label>
-              <textarea
-                className="border border-black p-1 rounded-md w-full"
-                name="inputComentarios"
-                id="inputComentarios"
-                rows={3}
-                placeholder="Comentarios:"
-                value={comentarios}
-                onChange={(e) => setcomentarios(e.target.value)}
-              />
+              <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+              <Input_UI value={iden} type='text' texto='Identificación:' funcion={setIden}  />
+              <Input_UI value={origen} type='text' texto='Origen:' funcion={setOrigen}  />
+              <Input_UI value={comentarios} type='text' texto='Comentarios:' funcion={setcomentarios}  />
 
               <label htmlFor="inputMantenimiento">Tipo de Mantenimiento</label>
               <select onChange={(e) => { console.log(e.target.value)
@@ -235,10 +145,7 @@ const Anadir = (): JSX.Element => {
                   </option>
                 ))}
               </select>
-            </section>
-            <button className="self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-[#b70909] text-white" type="submit">
-              Guardar
-            </button>
+            <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
         {ver === 'usuario' && (
@@ -246,40 +153,9 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputNombre">
-                Nombre:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputNombre"
-                id="inputNombre"
-                placeholder="Nombre:"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </section>
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputOrigen">
-                Contrasena:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputOrigen"
-                id="inputOrigen"
-                placeholder="Origen:"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
-              />
-            </section>
-            <button
-              className="self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-[#b70909] text-white"
-              type="submit"
-            >
-              Guardar
-            </button>
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+            <Input_UI value={contrasena} type='password' texto='Contrasena:' funcion={setContrasena}  />
+            <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
         {ver === 'estado' && (
@@ -287,26 +163,8 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputNombre">
-                Nombre:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputNombre"
-                id="inputNombre"
-                placeholder="Nombre:"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </section>
-            <button
-              className="self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-[#b70909] text-white"
-              type="submit"
-            >
-              Guardar
-            </button>
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+            <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
 
@@ -315,26 +173,8 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <section className="w-5/6 flex flex-col items-left justify-around m-2">
-              <label className="text-2xl font-thin font-serif" htmlFor="inputNombre">
-                Nombre:
-              </label>
-              <input
-                className="border border-black p-1 rounded-md w-32"
-                type="text"
-                name="inputNombre"
-                id="inputNombre"
-                placeholder="Nombre:"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-              />
-            </section>
-            <button
-              className="self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-[#b70909] text-white"
-              type="submit"
-            >
-              Guardar
-            </button>
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+            <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
       </main>
