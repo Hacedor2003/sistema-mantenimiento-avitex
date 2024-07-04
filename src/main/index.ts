@@ -104,7 +104,6 @@ app.whenReady().then(async () => {
 
   //Get
   ipcMain.handle('getEquipos_All', (_, ...args) => getEquipos_All(...args))
-  ipcMain.handle('getEquipos_Number_All', (_, ...args) => getEquipos_All(...args))
   ipcMain.handle('getEquipos_By_Id', (_, ...args) => getEquipos_By_Id(...args))
   ipcMain.handle('getEquipos_By_Categoria', (_, ...args) => getEquipos_By_Categoria(...args))
   ipcMain.handle('getCategorias_By_ID', (_, ...args) => getCategorias_By_ID(...args))

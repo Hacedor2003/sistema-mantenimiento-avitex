@@ -10,7 +10,7 @@ export const Button_UI = ({
   type: 'submit' | 'reset' | 'button' | undefined
 }) => (
   <button
-    className="self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-white text-black"
+    className="active:opacity-50 self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-white text-black"
     type={type}
     onClick={funcion}
   >
@@ -24,7 +24,7 @@ export const Input_UI = ({texto , type , value , funcion}:{texto:string , type:R
       {texto}
     </label>
     <input
-      className="border border-black p-1 rounded-md w-32"
+      className="border border-black p-1 rounded-md w-fit"
       type={type}
       name={`input${texto}`}
       id={`input${texto}`}

@@ -9,6 +9,15 @@
   background-size: contain;
 }
 
+.logo-login{
+  background-image: url('../assets/logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 50vw;
+  height: 20vh;
+}
+
 
 html::-webkit-scrollbar{
   width: 20px;

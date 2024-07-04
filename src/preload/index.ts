@@ -8,7 +8,6 @@ try {
   contextBridge.exposeInMainWorld('context', {
     //Get
     getEquipos_All: (...args) => ipcRenderer.invoke('getEquipos_All', ...args),
-    getEquipos_Number_All: (...args) => ipcRenderer.invoke('getEquipos_Number_All', ...args),
     getEquipos_By_Id: (...args) => ipcRenderer.invoke('getEquipos_By_Id', ...args),
     getEquipos_By_Categoria: (...args) => ipcRenderer.invoke('getEquipos_By_Categoria', ...args),
     getTipo_Mantenimiento_All: (...args) =>

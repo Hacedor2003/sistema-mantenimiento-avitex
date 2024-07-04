@@ -41,8 +41,6 @@ const Area = (): JSX.Element => {
               className="border-b border-black cursor-pointer"
             >
               <option value="">Lubricacion</option>
-              <option value="">Engrase</option>
-              <option value="">Lubricacion y Engrase</option>
               <option value="">Mantenimiento</option>
               <option value="">Todo</option>
             </select>

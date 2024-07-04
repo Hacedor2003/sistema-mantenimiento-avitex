@@ -3,11 +3,12 @@
 import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Categorias, Equipos } from 'src/main/db/Models'
+import { Categorias, Equipos, Estados_Revision } from 'src/main/db/Models'
 
 const Home = (): JSX.Element => {
   const [lista_areas, setLista_areas] = useState<Categorias[]>([])
-  const [productoCount, setProductoCount] = useState(0)
+  const [productos, setProductos] = useState<Equipos[]>([])
+  const [listEstados, setListEstados] = useState<Estados_Revision[]> ([])
 
   useEffect(() => {
     window.context
@@ -17,32 +18,35 @@ const Home = (): JSX.Element => {
       })
       .catch((error) => console.log(error))
     window.context
-      .getEquipos_Number_All()
+      .getEquipos_All()
       .then((response) => {
-        setProductoCount(response.rows.length)
+        setProductos(response)
+      })
+      .catch((error) => console.log(error))
+      window.context
+      .getEstados_Revision_All()
+      .then((response) => {
+        setListEstados(response)
       })
       .catch((error) => console.log(error))
   }, [])
 
   return (
     <RootLayout>
-      <main className="w-full h-full text-center">
-        <header className="w-full flex flex-row items-center justify-around">
-          <aside className="flex flex-row gap-x-2 my-10 font-normal border-b border-[#b70909]">
-            <p>
-              {productoCount}-<span>Equipos</span>
-            </p>
-            {/* <p>
-              8-<span>Funcionando</span>
-            </p>
-            <p>
-              4-<span>Mantenimiento</span>
-            </p>
-            <p>
-              4-<span>Baja</span>
-            </p> */}
-          </aside>
-        </header>
+      <main className="w-full h-full flex items-start justify-start text-center px-5">
+        <ul className="min-w-[301px] flex flex-col items-start gap-y-2 font-normal border-b-4 border-x-4 border-[#b70909] p-2">
+          <li className='text-2xl font-bold p-2 uppercase'>Resumen</li>
+          <li className='flex flex-col items-start border-b-2 border-[#b70909] w-full'>
+            <p className='font-bold'>Total de Equipos: </p>
+            <span>{productos.length}</span>
+          </li>
+          {listEstados.map((item, index) => {
+            let productLength = 0
+            productos.forEach(itemProduct => itemProduct.dataValues.Estado === item.dataValues.ID_Estado ? productLength+=1 : null)
+            return <li className='flex flex-col items-start border-b-2 border-[#b70909] w-full' key={index}><p className='font-bold first-letter:uppercase'>{item.dataValues.Nombre_Estado}</p><span>{productLength}</span></li>
+          })}
+            
+          </ul>
         <ul className="px-2 flex flex-row flex-wrap justify-around">
           {lista_areas.map((item, index) => (
             <ItemOfList_NavigationContent
@@ -78,10 +82,7 @@ const ItemOfList_NavigationContent = ({ nombre, id }: { nombre: string, id: numb
       >
         <h6 className="row-span-2 text-2xl text-left">{nombre}</h6>
         <aside className="row-span-3 w-full flex flex-row gap-x-2 text-sm py-2 p-2">
-          <p>{producto?.length} Equipos</p>
-          {/* <p>2 Funcionando</p>
-          <p>1 Mantenimiento</p>
-          <p>1 Baja</p> */}
+          <p>{producto?.length === 1 ? producto?.length + " Equipo" : producto?.length + " Equipos"}</p>
         </aside>
       </Link>
     </li>

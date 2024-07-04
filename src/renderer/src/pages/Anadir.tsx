@@ -118,8 +118,7 @@ const Anadir = (): JSX.Element => {
               <Input_UI value={comentarios} type='text' texto='Comentarios:' funcion={setcomentarios}  />
 
               <label htmlFor="inputMantenimiento">Tipo de Mantenimiento</label>
-              <select onChange={(e) => { console.log(e.target.value)
-               setTipoMantenimiento(Number(e.target.value))}} id="inputMantenimiento" >
+              <select onChange={(e) => {setTipoMantenimiento(Number(e.target.value))}} id="inputMantenimiento" className='w-fit border border-black p-2 rounded-md cursor-pointer'>
                 <option value={-1}> Tipo de Mantenimiento </option>
                 {tipoMantenimientoData.map((mantenimientoItem, index) => (
                   <option key={index} value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}>
@@ -128,7 +127,7 @@ const Anadir = (): JSX.Element => {
                 ))}
               </select>
               <label htmlFor="inputEstado">Estado</label>
-              <select onChange={(e) => setEstado(Number(e.target.value))} name="" id="inputEstado">
+              <select onChange={(e) => setEstado(Number(e.target.value))} name="" id="inputEstado" className='w-fit border border-black p-2 rounded-md cursor-pointer'>
               <option value={-1}> Tipo de Estado </option>
                 {estadoData.map((estadoItem, index) => (
                   <option key={index} value={estadoItem.dataValues.ID_Estado}>
@@ -137,7 +136,7 @@ const Anadir = (): JSX.Element => {
                 ))}
               </select>
               <label htmlFor="inputCategoria">Categoria</label>
-              <select onChange={(e) => setCategorias(Number(e.target.value))} id="inputCategoria">
+              <select onChange={(e) => setCategorias(Number(e.target.value))} id="inputCategoria" className='w-fit border border-black p-2 rounded-md cursor-pointer'>
               <option value={-1}> Tipo de Area </option>
                 {categoriaData.map((categoriaItem, index) => (
                   <option key={index} value={categoriaItem.dataValues.ID_Categoria}>
@@ -167,7 +166,6 @@ const Anadir = (): JSX.Element => {
             <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
-
         {ver === 'mantenimiento' && (
             <form
             className="w-full flex flex-col items-left justify-around m-2"

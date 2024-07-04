@@ -19,10 +19,6 @@ declare global {
   interface Window {
     context: {
       getEquipos_All: () => Promise<Equipos[]>
-      getEquipos_Number_All: () => Promise<{
-        rows: Equipos[]
-        count: number
-      }>
       getEquipos_By_Id: (id) => Promise<Equipos | null>
       getEquipos_By_Categoria: (categoriasid) => Promise<Equipos[] | null>
       getTipo_Mantenimiento_All: () => Promise<Tipo_Mantenimiento[]>

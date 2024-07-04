@@ -12,17 +12,6 @@ export const getEquipos_All = async () => {
     throw error
   }
 }
-
-export const getEquipos_Number_All = async () => {
-  try {
-    const equipos = await Equipos.findAndCountAll()
-    return equipos
-  } catch (error) {
-    console.error('Error al obtener todos los equipos:', error)
-    throw error
-  }
-}
-
 export const getEquipos_By_Id = async (id) => {
   try {
     const equipo = await Equipos.findByPk(id)
