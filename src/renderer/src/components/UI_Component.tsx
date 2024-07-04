@@ -18,7 +18,16 @@ export const Button_UI = ({
   </button>
 )
 
-export const Input_UI = ({texto , type , value , funcion}:{texto:string , type:React.HTMLInputTypeAttribute , value:string , funcion:React.Dispatch<React.SetStateAction<string>>}) => (
+/**
+ * Componente con label y input-type
+ * @param texto: Texto del label , id placeholder
+ * @param type: del input
+ * @param value: del input
+ * @param funcion: que se va a usar en el onChange
+ * @param name: del input
+ * @returns 
+ */
+export const Input_UI = ({texto , type , value ,name , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value:string , funcion:React.Dispatch<React.SetStateAction<string>>}) => (
   <section className="w-5/6 flex flex-col items-left justify-around m-2">
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}
@@ -26,10 +35,10 @@ export const Input_UI = ({texto , type , value , funcion}:{texto:string , type:R
     <input
       className="border border-black p-1 rounded-md w-fit"
       type={type}
-      name={`input${texto}`}
       id={`input${texto}`}
       placeholder={texto}
       value={value}
+      name={name}
       onChange={(e)=>funcion(e.target.value)}
     />
   </section>

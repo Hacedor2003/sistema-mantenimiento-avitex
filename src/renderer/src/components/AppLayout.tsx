@@ -1,6 +1,7 @@
 import { ComponentProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
+import { Icon } from '@iconify/react'
 
 export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element => {
   return (
@@ -15,43 +16,84 @@ export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element =>
 
 export const Sidebar = (): JSX.Element => {
   const navigate = useNavigate()
-  const user = JSON.parse(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem('user')!)
 
   return (
     <aside className="w-full h-24 overflow-auto bg-white grid items-center grid-cols-3 overflow-y-hidden">
-      <Link to="/" className="w-28 h-20 col-span-1">
-        <img src={logo} alt="Logo" />
-      </Link>
-      <header className="h-5/6 self-start bg-[#b70909] rounded-b-2xl flex flex-row items-center justify-center">
-        <ul className="flex flex-row gap-x-3">
+      <header className="col-span-2 w-full h-5/6 self-start bg-[#b70909] flex flex-row items-center justify-center p-3 rounded-br-xl">
+        <ul className="w-full flex flex-row items-center justify-around gap-x-3">
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300 w-max flex items-center gap-x-2"
             onClick={() => navigate(-1)}
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              viewBox="0 0 1024 1024"
+            >
+              <path fill="currentColor" d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64" />
+              <path
+                fill="currentColor"
+                d="m237.248 512l265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312z"
+              />
+            </svg>
             Atras
+          </li>
+          <li
+            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+            onClick={() => navigate('/home')}
+          >
+            Áreas
           </li>
           {user.role === 'admin' && (
             <li
-              className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+              className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300 w-max flex items-center gap-x-2"
               onClick={() => navigate('/home/anadir')}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
+                <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="4">
+                  <rect width="36" height="36" x="6" y="6" rx="3" />
+                  <path strokeLinecap="round" d="M24 16v16m-8-8h16" />
+                </g>
+              </svg>
               Añadir
             </li>
           )}
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/home/ayuda')}
           >
             Ayuda
           </li>
           <li
-            className="cursor-pointer text-xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
+            onClick={() => navigate('/home/orden')}
+          >
+            Orden de Mantenimiento
+          </li>
+          <li
+            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300 w-max flex items-center gap-x-2"
             onClick={() => navigate('/')}
           >
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+              <path
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19.285 12h-8.012m5.237 3.636L20 12l-3.49-3.636M13.455 7V4H4v16h9.455v-3"
+              />
+            </svg>
             Salir
           </li>
         </ul>
       </header>
+      <div className="w-full col-span-1 flex justify-end">
+        <Link to="/" className=" w-28 h-20 ">
+          <img src={logo} alt="Logo" />
+        </Link>
+      </div>
     </aside>
   )
 }

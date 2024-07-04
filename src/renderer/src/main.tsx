@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { Anadir, Area, Ayuda, Calendario, Details, ErrorPage, Home, Login } from './pages'
 import PrivateRoute from './components/PrivateRoute'
+import { Orden } from './pages/Orden'
 
 const router = createHashRouter([
   {
@@ -62,6 +63,15 @@ const router = createHashRouter([
     element: (
       <PrivateRoute role="user">
         <Calendario />
+      </PrivateRoute>
+    ),
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/orden',
+    element: (
+      <PrivateRoute role="user">
+        <Orden />
       </PrivateRoute>
     ),
     errorElement: <ErrorPage />

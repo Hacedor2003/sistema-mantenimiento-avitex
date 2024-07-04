@@ -35,7 +35,6 @@ const Home = (): JSX.Element => {
     <RootLayout>
       <main className="w-full h-full flex items-start justify-start text-center px-5">
         <ul className="min-w-[301px] flex flex-col items-start gap-y-2 font-normal border-b-4 border-x-4 border-[#b70909] p-2">
-          <li className='text-2xl font-bold p-2 uppercase'>Resumen</li>
           <li className='flex flex-col items-start border-b-2 border-[#b70909] w-full'>
             <p className='font-bold'>Total de Equipos: </p>
             <span>{productos.length}</span>

@@ -36,10 +36,12 @@ const Login = (): JSX.Element => {
       <div className='logo-login' />
       <section className="md:w-10/12 lg:w-1/2 h-1/2 flex flex-col items-center justify-evenly border-2 border-black bg-[#b70909] p-5 rounded-lg">
         <h3 className="text-4xl mb-3 font-mono font-bold">Bienvenido al sistema de mantenimiento</h3>
-        <h3 className="text-2xl mb-10 font-mono font-bold">Iniciar Sesión:</h3>
-        <form className="w-5/6 flex flex-col items-left justify-around m-2" onSubmit={handleSubmit}>
-        <Input_UI value={carnet} type='text' texto='Carnet de Identidad:' funcion={setCarnet}  />
-        <Input_UI value={constrasena} type='password' texto='Contraseña:' funcion={setConstrasena}  />
+        <h4 className="text-3xl mb-1 font-mono font-bold">Iniciar Sesión:</h4>
+        <form className="w-full flex flex-col items-center justify-around m-2" onSubmit={handleSubmit}>
+          <div className='w-[38%] flex flex-col items-center'>
+        <Input_UI value={carnet} type='text' texto='Carnet de Identidad:' funcion={setCarnet} name='' />
+        <Input_UI value={constrasena} type='password' texto='Contraseña:' funcion={setConstrasena} name='' />
+        </div>
         <Button_UI type='submit' texto='Entrar' funcion={()=>{}} />
         </form>
       </section>
