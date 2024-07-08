@@ -1,9 +1,23 @@
 /* eslint-disable prettier/prettier */
 
-import { DataTypes, Model, Optional } from 'sequelize'
+import { DataTypes, Model, Association } from 'sequelize'
+import {
+  CategoriasAttributes,
+  CategoriasCreationAttributes,
+  Ciclos_MantenimientoAttributes,
+  Ciclos_MantenimientoAttributesCreation,
+  EquiposAttributes,
+  EquiposCreationAttributes,
+  Estados_RevisionAttributes,
+  Estados_RevisionCreationAttributes,
+  Orden_MantenimientoAttributes,
+  Orden_MantenimientoCreationAttributes,
+  Tipo_MantenimientoAttributes,
+  Tipo_MantenimientoCreationAttributes,
+  UsuariosAttributes,
+  UsuariosCreationAttributes
+} from 'src/shared/types'
 import { sequelize } from './config'
-import { EquiposAttributes,Tipo_MantenimientoAttributes ,CategoriasAttributes,Estados_RevisionAttributes ,UsuariosAttributes,Orden_MantenimientoAttributes } from '@shared/types'
-
 
 export class Equipos
   extends Model<EquiposAttributes, EquiposCreationAttributes>
@@ -17,6 +31,12 @@ export class Equipos
   public TipoMantenimiento!: number
   public CategoriasID!: number
   public Estado!: number
+
+  public static associations: {
+    TipoMantenimiento: Association<Equipos, Tipo_Mantenimiento>
+    Categorias: Association<Equipos, Categorias>
+    Estados_Revision: Association<Equipos, Estados_Revision>
+  }
 }
 
 export class Tipo_Mantenimiento
@@ -65,6 +85,24 @@ export class Orden_Mantenimiento
   public Presupuesto!: number
   public ID_Equipo!: number
   public ID_Usuario!: number
+  public estado!: string
+  public fecha_inicio!: Date
+  public fecha_fin!: Date
+  
+  
+
+  public static associations: {
+    Equipos: Association<Orden_Mantenimiento, Equipos>
+    Usuarios: Association<Orden_Mantenimiento, Usuarios>
+  }
+
+  set setEquipo(id) {
+    this.ID_Equipo = id
+  }
+
+  set setUsuario(id) {
+    this.ID_Usuario = id
+  }
 }
 
 Categorias.init(
@@ -175,7 +213,10 @@ Orden_Mantenimiento.init(
         model: 'Usuarios',
         key: 'ID_Usuario'
       }
-    }
+    },
+    fecha_inicio: DataTypes.DATE,
+    fecha_fin: DataTypes.DATE,
+    estado:DataTypes.STRING
   },
   {
     tableName: 'Orden_Mantenimiento',
@@ -258,6 +299,7 @@ Equipos.init(
   }
 )
 
+// Associations
 Equipos.belongsTo(Tipo_Mantenimiento, { foreignKey: 'TipoMantenimiento' })
 Equipos.belongsTo(Categorias, { foreignKey: 'CategoriasID' })
 Equipos.belongsTo(Estados_Revision, { foreignKey: 'Estado' })
@@ -265,17 +307,3 @@ Equipos.belongsTo(Estados_Revision, { foreignKey: 'Estado' })
 Orden_Mantenimiento.belongsTo(Equipos, { foreignKey: 'ID_Equipo' })
 Orden_Mantenimiento.belongsTo(Usuarios, { foreignKey: 'ID_Usuario' })
 
-interface EquiposCreationAttributes extends Optional<EquiposAttributes, 'ID_Equipo'> {}
-
-interface Tipo_MantenimientoCreationAttributes
-  extends Optional<Tipo_MantenimientoAttributes, 'ID_Tipo_Mantenimiento'> {}
-
-interface CategoriasCreationAttributes extends Optional<CategoriasAttributes, 'ID_Categoria'> {}
-
-interface Estados_RevisionCreationAttributes
-  extends Optional<Estados_RevisionAttributes, 'ID_Estado'> {}
-
-interface UsuariosCreationAttributes extends Optional<UsuariosAttributes, 'ID_Usuario'> {}
-
-interface Orden_MantenimientoCreationAttributes
-  extends Optional<Orden_MantenimientoAttributes, 'ID_Orden'> {}

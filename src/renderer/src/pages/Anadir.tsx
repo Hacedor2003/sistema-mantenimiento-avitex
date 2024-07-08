@@ -90,7 +90,7 @@ const Anadir = (): JSX.Element => {
   return (
     <RootLayout>
       <main className="w-full flex flex-col items-center px-2 text-lg">
-        <h4>Que desea añadir?</h4>
+        <h4 className='text-4xl font-serif font-bold my-2'>Que desea añadir?</h4>
         <div className="p-1 flex items-center gap-x-4">
           <Button_UI funcion={() => setVer('area')} type='button' texto='Area' />
           <Button_UI funcion={() => setVer('maquinaria')} type='button' texto='Equipo' />
@@ -162,7 +162,7 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre} name='nombre'/>
             <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
         )}
@@ -171,10 +171,10 @@ const Anadir = (): JSX.Element => {
             className="w-full flex flex-col items-left justify-around m-2"
             onSubmit={handleSubmit}
           >
-            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  />
+            <Input_UI value={nombre} type='text' texto='Nombre:' funcion={setNombre}  name='nombre'/>
             <Button_UI type='submit' texto='Guardar' funcion={()=>{}} />
           </form>
-        )}
+        )} 
       </main>
     </RootLayout>
   )

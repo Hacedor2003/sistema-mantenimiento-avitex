@@ -27,7 +27,7 @@ export const Button_UI = ({
  * @param name: del input
  * @returns 
  */
-export const Input_UI = ({texto , type , value ,name , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value:string , funcion:React.Dispatch<React.SetStateAction<string>>}) => (
+export const Input_UI = ({texto , type , value ,name , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value:any , funcion:React.Dispatch<React.SetStateAction<any>>}) => (
   <section className="w-5/6 flex flex-col items-left justify-around m-2">
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}

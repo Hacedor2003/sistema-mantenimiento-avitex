@@ -1,0 +1,22 @@
+h3 {
+  @apply w-full text-center text-3xl border-b-2 border-[#b70909] my-3
+}
+
+h4 {
+  @apply w-full text-2xl font-semibold font-mono
+}
+
+h6 {
+  @apply w-full text-xl border-b border-black font-serif
+}
+
+p {
+  @apply w-full text-base font-sans
+}
+
+span{
+  @apply text-3xl font-thin 
+}
+span::after{
+  content: '-';
+}
