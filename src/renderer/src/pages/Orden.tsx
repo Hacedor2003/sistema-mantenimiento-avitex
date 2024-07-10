@@ -12,12 +12,15 @@ export const Orden = () => {
   const [areas, setAreas] = useState<Categorias[]>([])
   const [estados, setEstados] = useState<Estados_Revision[]>([])
   
+  const [tipo_trabajo, setTipo_trabajo] = useState('')
   const [empresa, setEmpresa] = useState('')
   const [unidad, setUnidad] = useState('')
-  const [fecha, setFecha] = useState<Date>(new Date())
+  const fecha = new Date()
   const [organismo, setOrganismo] = useState('')
   const [horarioParada, setHorarioParada] = useState('')
   const [horarioComienzo, setHorarioComienzo] = useState('')
+  const [horarioPuestaMarcha, setHorarioPuestaMarcha] = useState('')
+  const [horarioCulminacion, setHorarioCulminacion] = useState('')
   const [materialesUsados, setMaterialesUsados] = useState('')
   const [observaciones ,setObservaciones] = useState('')
   const [solicitadoPor, setSolicitadoPor] = useState('')
@@ -26,6 +29,7 @@ export const Orden = () => {
   const [revisadoPor, setRevisadoPor] = useState('')
   const [valeSalida, setValeSalida] = useState('')
   const [objetivos, setObjetivos] = useState('')
+  const [numeroOrden, setNumeroOrden] = useState('')
   
   const [ID_Equipo, setID_Equipo] = useState(0)
   const [ID_Usuario, setID_Usuario] = useState(0)
@@ -81,7 +85,8 @@ export const Orden = () => {
     //window.context.imprimirOrden()
     const contenido = document.getElementById('orden-imprimir').innerHTML;
      const contenidoOriginal= document.body.innerHTML;
-     document.body.innerHTML = contenido;
+    document.body.innerHTML = contenido;
+    document.body.className = 'imprimible'
      window.print();
      document.body.innerHTML = contenidoOriginal;
   }
@@ -147,7 +152,6 @@ export const Orden = () => {
               <Input_UI type='text' value={organismo} texto='Organismo:' name='organismo' funcion={setOrganismo} />
               <Input_UI type='text' value={empresa} texto='Empresa:' name='empresa' funcion={setEmpresa} />
               <Input_UI type='text' value={unidad} texto='Unidad:' name='unidad' funcion={setUnidad} />
-              <Input_UI type='date' value={fecha} texto='Fecha:' name='fecha' funcion={setFecha} />
               <section className='flex flex-row gap-x-10 mb-5'>
               <SelectComponent options={estados.map((estado) => (<option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>{estado.dataValues.Nombre_Estado}</option>))} value={ID_Estado} required onChange={setID_Estado} name='idestado' label='Estado:' id='idEstado' className='' />
 
@@ -156,8 +160,11 @@ export const Orden = () => {
                 <SelectComponent options={areas.map((area) => (<option key={area.dataValues.ID_Categoria} value={area.dataValues.ID_Categoria}>{area.dataValues.Nombre_Categoria}</option>))} value={ID_Area} required onChange={setID_Area} name='idArea' label='Area:' id='idArea' className='' />
               </section>
               <Input_UI type='text' value={objetivos} texto='Objetivos Planificados:' name='objetivos' funcion={setObjetivos} />
+              <SelectComponent options={['Planificado','Imprevisto','Correctivo'].map((trabajo,index) => (<option key={index} value={trabajo}>{trabajo}</option>))} value={tipo_trabajo} required onChange={setTipo_trabajo} name='trabajo' label='Tipo de Trabajo:' id='idTrabajo' className='' />
               <Input_UI type='text' value={horarioParada} texto='Horario de Maquina Parada:' name='horarioParada' funcion={setHorarioParada} />
               <Input_UI type='text' value={horarioComienzo} texto='Horario de Comienzo:' name='horarioComienzo' funcion={setHorarioComienzo} />
+              <Input_UI type='text' value={horarioPuestaMarcha} texto='Horario de Puesta en Marcha:' name='horarioPuestaMarcha' funcion={setHorarioPuestaMarcha} />
+              <Input_UI type='text' value={horarioCulminacion} texto='Horario de Culminación:' name='horarioCulminacion' funcion={setHorarioCulminacion} />
               <Input_UI type='text' value={materialesUsados} texto='Materiales Usados:' name='materialeUsados' funcion={setMaterialesUsados} />
               
               <Input_UI type='text' value={observaciones} texto='Observaciones:' name='observaciones' funcion={setObservaciones} />
@@ -168,7 +175,10 @@ export const Orden = () => {
               <Input_UI type='text' value={valeSalida} texto='Vale de Salida:' name='valeSalida' funcion={setValeSalida} />
               
               
+              <div className='w-full flex items-center justify-center gap-x-2'>
+              <Button_UI type="submit" texto="Crear Orden" funcion={() =>{}} />
               <Button_UI type='button' texto='Vista Previa' funcion={() => setVer('imprimir-orden')} />
+              </div>
               </form>
           </div>
         </>
@@ -176,85 +186,66 @@ export const Orden = () => {
       
       {ver === 'imprimir-orden' && (
           <div className='w-full flex flex-col items-center p-2'>
-          <div className="w-full flex flex-col items-center p-2 gap-y-2" id="orden-imprimir">
-              <h3>Orden de Trabajo de Mantenimiento</h3>
-              <br />
-              <h4>
-                <span>1</span>Datos:
-              </h4>
-              <section className="w-full flex flex-row items-start justify-around">
-                <div className="w-full">
-                  <h6>Equipos:</h6>
-                  <table className="w-full">
-                    <thead>
-                      <th>Nombre</th>
-                      <th>Identificación</th>
-                      <th>Area</th>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Nombre</td>
-                        <td>ID</td>
-                        <td>Area</td>
-                      </tr>
-                    </tbody>
-                  </table>
+          <div className="w-full grid grid-rows-5 imprimible" id="orden-imprimir">
+            
+            <h4 className='border-b border-black w-full text-center'>ORDEN DE TRABAJO DE MANTENIMIENTO</h4>
+            
+            {/* Header */}
+            <ul className='w-full grid grid-cols-4 border border-black'>
+              <li className='border-r border-black'><h4>ORGANISMO</h4><p>{organismo}</p></li>
+              <li className='border-r border-black'><h4>EMPRESA</h4><p>{empresa}</p></li>
+              <li className='border-r border-black'><h4>UNIDAD</h4><p>{unidad}</p></li>
+              <li>
+                <section>
+                  <ul className='w-full flex justify-around'>
+                    <li className='border-r border-black w-full'> <h4>D</h4><p>{fecha.getDate()}</p></li>
+                    <li className='border-r border-black w-full'> <h4>M</h4><p>{fecha.getMonth()+1}</p></li>
+                    <li className='border-r border-black w-full'> <h4>A</h4><p>{fecha.getFullYear()}</p></li>
+                  </ul>
+                </section>
+              </li>
+            </ul>
+            {/* Body */}
+            <ul className='w-full border border-black grid grid-cols-6 grid-rows-1'>
+              <li className='col-span-1 border-r border-black'>
+                <h3>TIPO DE TRABAJO</h3>
+                <p>{tipo_trabajo}</p>
+              </li>
+              <li className='col-span-1 border-r border-black'>
+                <h3>CRONOGRAMA</h3>
+                <p>{ID_Estado}</p>
+              </li>
+              <li className='col-span-4 border-r border-black'>
+                <h3>OBJETIVOS DEL MANTENIMIENTO:{objetivos}</h3>
+                <div className='w-full grid grid-cols-2'>
+                  <ul>
+                    <li>Area:{ID_Area}</li>
+                    <li>Horario de Maquina de Parada:{horarioParada}</li>
+                    <li>Horario de Comienzo:{horarioComienzo}</li>
+                  </ul>
+                  <ul>
+                    <li>Equipo:{ID_Equipo}</li>
+                    <li>Horario de Puesta en Marcha:{horarioPuestaMarcha}</li>
+                    <li>Horario de Culminación:{horarioCulminacion}</li>
+                  </ul>
                 </div>
-              </section>
-              <h6>Fecha de Inicio:</h6>
-              <p>{fecha_inicio.toLocaleString()}</p>
-              <br />
-              <h4>
-                <span>2</span>Antes de iniciar la ejecución del mantenimiento:
-              </h4>
-              <p>2.1 SOLCITAR LOS PERMISOS DE TRABAJOS PERTINENTES</p>
-              <p>2.2 ASEGURAR QUE EL EQUIPO CUMPLE CON EL PROGRAMA DE LIMPIEZA Y DESINFECIÓN</p>
-              <p>2.3 ASEGURAR EL BLOQUEO Y LETRERO DE EQUIPO/ÁREA EN MANTENIMIENTO</p>
-              <p>
-                2.4 UTILIZAR LOS EQUIPOS DE SEGURIDAD Y PROTECCION PERSONAL APROPIADOS PARA LA
-                ACTIVIDAD DE MANTENIMIENTO
-              </p>
-              <p>2.5 ANTES DEL MANTENIMIENTO</p>
-              <br />
-              <h6>Herramientas:</h6>
-              <p>{herramientas}</p>
-              <h6>Equipos:</h6>
-              <p>{equiposUsar}</p>
-              <br />
-              <h4>
-                <span>3</span>Durante la ejecución del mantenimiento:
-              </h4>
-              <p>{duranteMantenimiento}</p>
-              <br />
-              <h4>
-                <span>4</span>Despues de los trabajos de mantenimiento asegurese de que:
-              </h4>
-              <p>
-                4.1 SEAN RETIRADOS QUIMICOS COMO LUBRICANTES, SOLVENTES, ETC,. Y SE COLOQUEN EN UN
-                LUGAR DEFINIDO DE CONFINAMIENTO.
-              </p>
-              <p>
-                4.2 EL EQUIPO O INSTALACION QUEDE LIBRE DE FRAGMENTOS O RESIDUOS DE METAL, PINTURA
-                OXIDO, ETC.
-              </p>
-              <p>4.3 TODA HERRAMIENTA SEA RETIRADA DEL ÁREA.</p>
-              <p>4.4 EL EQUIPO O INSTALACION QUEDE LIMPIO</p>
-              <br />
-              <h4>
-                <span>5</span>REPUESTOS
-              </h4>
-              <p>{repuestos}</p>
-              <br />
-              <h4>
-                <span>6</span>ENTREGA DE EQUIPO
-              </h4>
-              <p>{tecnico}</p>
-              <br />
-              <h4>
-                <span>7</span>Fecha de Terminacion
-              </h4>
-              <p>{fecha_fin.toLocaleString()}</p>
+                <h4>Materiales utilizados:{materialesUsados}</h4>
+              </li>
+            </ul>
+            <div className='w-full flex flex-col items-start border border-black'>
+              <h4>Observaciones:</h4>
+              <p>{observaciones}</p>
             </div>
+            <ul className='w-full border border-black grid grid-cols-6'>
+              <li className='border-r border-black flex flex-col'><h4>Solicitado por:</h4> <p>{solicitadoPor}</p></li>
+              <li className='border-r border-black flex flex-col'><h4>Aprobado por:</h4> <p>{aprobadoPor}</p></li>
+              <li className='border-r border-black flex flex-col'><h4>Terminado por:</h4> <p>{terminadoPor}</p></li>
+              <li className='border-r border-black flex flex-col'><h4>Revisado por:</h4> <p>{revisadoPor}</p></li>
+              <li className='border-r border-black flex flex-col'><h4>Vale de Salida:</h4> <p>{valeSalida}</p></li>
+              <li className='border-r border-black flex flex-col'><h4>Numero de Orden:</h4> <p>{numeroOrden}</p></li>
+            </ul>
+            
+          </div>
             <Button_UI type="button" texto="Imprimir Orden" funcion={() => imprimirOrden()} />
           </div>
         )}
