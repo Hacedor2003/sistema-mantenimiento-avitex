@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-
+import React from 'react'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -17,18 +17,18 @@ const Home = (): JSX.Element => {
         setLista_areas(response)
       })
       .catch((error) => console.log(error))
-    window.context
-      .getEquipos_All()
-      .then((response) => {
-        setProductos(response)
-      })
-      .catch((error) => console.log(error))
       window.context
       .getEstados_Revision_All()
       .then((response) => {
         setListEstados(response)
       })
-      .catch((error) => console.log(error))
+        .catch((error) => console.log(error))
+        window.context
+        .getEquipos_All()
+        .then((response) => {
+          setProductos(response)
+        })
+        .catch((error) => console.log(error))
   }, [])
 
   return (

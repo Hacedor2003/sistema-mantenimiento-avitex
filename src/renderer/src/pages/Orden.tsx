@@ -3,41 +3,55 @@ import React from 'react'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
 import { useEffect, useState } from 'react'
-import { Equipos, Orden_Mantenimiento, Usuarios } from 'src/main/db/Models'
+import { Categorias, Equipos, Estados_Revision, Orden_Mantenimiento, Usuarios } from 'src/main/db/Models'
 import '../styles/orden.styles.css'
 
 export const Orden = () => {
   const [equipos, setEquipos] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
+  const [areas, setAreas] = useState<Categorias[]>([])
+  const [estados, setEstados] = useState<Estados_Revision[]>([])
+  
+  const [empresa, setEmpresa] = useState('')
+  const [unidad, setUnidad] = useState('')
+  const [fecha, setFecha] = useState<Date>(new Date())
+  const [organismo, setOrganismo] = useState('')
+  const [horarioParada, setHorarioParada] = useState('')
+  const [horarioComienzo, setHorarioComienzo] = useState('')
+  const [materialesUsados, setMaterialesUsados] = useState('')
+  const [observaciones ,setObservaciones] = useState('')
+  const [solicitadoPor, setSolicitadoPor] = useState('')
+  const [aprobadoPor, setAprobadoPor] = useState('')
+  const [terminadoPor, setTerminadoPor] = useState('')
+  const [revisadoPor, setRevisadoPor] = useState('')
+  const [valeSalida, setValeSalida] = useState('')
+  const [objetivos, setObjetivos] = useState('')
+  
   const [ID_Equipo, setID_Equipo] = useState(0)
   const [ID_Usuario, setID_Usuario] = useState(0)
-  const [fecha_inicio, setFecha_inicio] = useState<Date>(new Date())
-  const [fecha_fin, setFecha_fin] = useState<Date>(new Date())
-  const [herramientas, setHerramientas] = useState<string>('')
-  const [equiposUsar, setEquiposUsar] = useState<string>('')
-  const [duranteMantenimiento, setduranteMantenimiento] = useState<string>('')
-  const [repuestos, setRepuestos] = useState<string>('')
-  const [tecnico, setTecnico] = useState<string>('')
+  const [ID_Estado, setID_Estado] = useState('')
+  const [ID_Area, setID_Area] = useState('')
 
   const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>('')
   const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([])
 
   useEffect(() => {
-    // Obtener los equipos y usuarios de la base de datos
     const obtenerDatos = async () => {
       try {
-        const responseEquipos = await window.context.getEquipos_All()
-        setEquipos(responseEquipos)
-        const responseUsuarios = await window.context.getUsuarios_All()
-        setUsuarios(responseUsuarios)
-        const responseOrdenes = await window.context.getOrden_Mantenimiento_All()
-        setOrdenes(responseOrdenes)
+        const [responseEquipos,responseUsuarios,responseOrdenes,responseCategorias_All,responseEstados_Revision_All] = await Promise.all([window.context.getEquipos_All(),window.context.getUsuarios_All(),window.context.getOrden_Mantenimiento_All(),window.context.getCategorias_All(),window.context.getEstados_Revision_All()]);
+
+        setEquipos(responseEquipos);
+        setUsuarios(responseUsuarios);
+        setOrdenes(responseOrdenes);
+        setAreas(responseCategorias_All);
+        setEstados(responseEstados_Revision_All);
       } catch (error) {
-        console.error('Error al obtener los datos:', error)
+        console.error('Error al obtener los datos:', error);
       }
-    }
-    obtenerDatos()
-  }, [])
+    };
+
+    obtenerDatos();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -124,38 +138,35 @@ export const Orden = () => {
           </h2>
           <div className="w-full flex flex-col items-center justify-center">
             <form onSubmit={handleSubmit} className='w-1/2 flex flex-col items-center p-2 gap-y-2'>
+              {/* Seleccionar Tecnico y Equipo */}
               <section className='flex flex-row gap-x-10 mb-5'>
-                <div className='flex flex-col gap-y-2'>
-                  <label htmlFor="idEquipo">Equipo:</label>
-                  <select id="idEquipo" name="idEquipo" value={ID_Equipo} onChange={(e)=>setID_Equipo(Number(e.target.value))} required className='w-fit border border-black p-2 rounded-md cursor-pointer'>
-                    <option value="">Selecciona un equipo</option>
-                    {equipos.map((equipo) => (
-                      <option key={equipo.dataValues.ID_Equipo} value={equipo.dataValues.ID_Equipo}>
-                        {equipo.dataValues.Nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className='flex flex-col gap-y-2'>
-                  <label htmlFor="idUsuario">Usuario:</label>
-                  <select id="idUsuario" name="idUsuario" value={ID_Usuario} onChange={(e)=>setID_Usuario(Number(e.target.value))} required className='w-fit border border-black p-2 rounded-md cursor-pointer' >
-                    <option value="">Selecciona un usuario</option>
-                    {usuarios.map((usuario) => (
-                      <option key={usuario.dataValues.ID_Usuario} value={usuario.dataValues.ID_Usuario}>
-                        {usuario.dataValues.identificacion}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <SelectComponent options={equipos.map((equipo) => (<option key={equipo.dataValues.ID_Equipo} value={equipo.dataValues.ID_Equipo}>{equipo.dataValues.Nombre}</option>))} value={ID_Equipo} required onChange={setID_Equipo} name='idEquipo' label='Equipo:' id='idEquipo' className='' />
+              <SelectComponent options={usuarios.map((usuario) => (<option key={usuario.dataValues.ID_Usuario} value={usuario.dataValues.ID_Usuario}>{usuario.dataValues.identificacion}</option>))} value={ID_Usuario} required onChange={setID_Usuario} name='idUsuario' label='Usuario:' id='idUsuario' className='' />
               </section>
               
-              <Input_UI type='date' value={fecha_inicio} texto='Fecha de Inicio:' name='fechainicio' funcion={setFecha_inicio} />
-              <Input_UI type='date' value={fecha_fin} texto='Fecha Fin:' name='fechafin' funcion={setFecha_fin} />
-              <Input_UI type='text' value={herramientas} texto='Herramientas:' name='herramientas' funcion={setHerramientas} />
-              <Input_UI type='text' value={equiposUsar} texto='Equipos a usar:' name='equiposusar' funcion={setEquiposUsar} />
-              <Input_UI type='text' value={duranteMantenimiento} texto='Durante la Ejecución del Mantenimiento:' name='durantemantenimiento' funcion={setduranteMantenimiento} />
-              <Input_UI type='text' value={repuestos} texto='Repuestos:' name='durantemantenimiento' funcion={setRepuestos} />
-              <Input_UI type='text' value={tecnico} texto='Tecnico:' name='tecnico' funcion={setTecnico} />
+              <Input_UI type='text' value={organismo} texto='Organismo:' name='organismo' funcion={setOrganismo} />
+              <Input_UI type='text' value={empresa} texto='Empresa:' name='empresa' funcion={setEmpresa} />
+              <Input_UI type='text' value={unidad} texto='Unidad:' name='unidad' funcion={setUnidad} />
+              <Input_UI type='date' value={fecha} texto='Fecha:' name='fecha' funcion={setFecha} />
+              <section className='flex flex-row gap-x-10 mb-5'>
+              <SelectComponent options={estados.map((estado) => (<option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>{estado.dataValues.Nombre_Estado}</option>))} value={ID_Estado} required onChange={setID_Estado} name='idestado' label='Estado:' id='idEstado' className='' />
+
+              
+              {/* Objetivos del Mantenimiento */}
+                <SelectComponent options={areas.map((area) => (<option key={area.dataValues.ID_Categoria} value={area.dataValues.ID_Categoria}>{area.dataValues.Nombre_Categoria}</option>))} value={ID_Area} required onChange={setID_Area} name='idArea' label='Area:' id='idArea' className='' />
+              </section>
+              <Input_UI type='text' value={objetivos} texto='Objetivos Planificados:' name='objetivos' funcion={setObjetivos} />
+              <Input_UI type='text' value={horarioParada} texto='Horario de Maquina Parada:' name='horarioParada' funcion={setHorarioParada} />
+              <Input_UI type='text' value={horarioComienzo} texto='Horario de Comienzo:' name='horarioComienzo' funcion={setHorarioComienzo} />
+              <Input_UI type='text' value={materialesUsados} texto='Materiales Usados:' name='materialeUsados' funcion={setMaterialesUsados} />
+              
+              <Input_UI type='text' value={observaciones} texto='Observaciones:' name='observaciones' funcion={setObservaciones} />
+              <Input_UI type='text' value={solicitadoPor} texto='Solicitado Por:' name='solicitadoPor' funcion={setSolicitadoPor} />
+              <Input_UI type='text' value={aprobadoPor} texto='Aprobado Por:' name='aprobadoPor' funcion={setAprobadoPor} />
+              <Input_UI type='text' value={terminadoPor} texto='Terminado Por:' name='terminadoPor' funcion={setTerminadoPor} />
+              <Input_UI type='text' value={revisadoPor} texto='Revisado Por:' name='revisadoPor' funcion={setRevisadoPor} />
+              <Input_UI type='text' value={valeSalida} texto='Vale de Salida:' name='valeSalida' funcion={setValeSalida} />
+              
               
               <Button_UI type='button' texto='Vista Previa' funcion={() => setVer('imprimir-orden')} />
               </form>
@@ -166,7 +177,7 @@ export const Orden = () => {
       {ver === 'imprimir-orden' && (
           <div className='w-full flex flex-col items-center p-2'>
           <div className="w-full flex flex-col items-center p-2 gap-y-2" id="orden-imprimir">
-              <h3>Orden de Mantenimiento</h3>
+              <h3>Orden de Trabajo de Mantenimiento</h3>
               <br />
               <h4>
                 <span>1</span>Datos:
@@ -250,3 +261,22 @@ export const Orden = () => {
     </RootLayout>
   )
 }
+
+const SelectComponent = ({ id, name, label, options, value, onChange, required = false, className }: { id: string; name: string; label: string; options: Array; value: any; onChange: React.Dispatch<React.SetStateAction<any>>  ; required: boolean; className:string}) => {
+  return (
+    <div className='flex flex-col gap-y-2'>
+      <label htmlFor={id}>{label}</label>
+      <select
+        id={id}
+        name={name}
+        value={value}
+        onChange={(e)=>onChange(e.target.value)}
+        required={required}
+        className={className + ' w-fit border border-black p-2 rounded-md cursor-pointer'}
+      >
+        <option value="">Selecciona una opción</option>
+        {options}
+      </select>
+    </div>
+  );
+};
