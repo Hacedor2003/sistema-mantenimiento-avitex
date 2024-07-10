@@ -10,6 +10,8 @@ export interface EquiposAttributes {
   TipoMantenimiento: number
   CategoriasID: number
   Estado: number
+  fecha_mantenimiento: string
+  fecha_lubricamiento: string
 }
 
 export interface Tipo_MantenimientoAttributes {
@@ -36,16 +38,15 @@ export interface UsuariosAttributes {
 
 export interface Orden_MantenimientoAttributes {
   ID_Orden?: number
-  Descripcion: string
-  Recursos_Humanos: string
-  Materiales: string
-  Observaciones: string
-  Presupuesto: number
   ID_Equipo: number
   ID_Usuario: number
-  estado: string
   fecha_inicio: Date
   fecha_fin: Date
+  herramientas: string
+  equiposUsar: string
+  duranteMantenimiento: string
+  repuestos: string
+  tecnico: string
 }
 
 export interface EquiposCreationAttributes extends Optional<EquiposAttributes, 'ID_Equipo'> {}

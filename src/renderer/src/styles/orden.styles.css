@@ -9,7 +9,7 @@ h4 {
 h6 {
   @apply w-full text-xl border-b border-black font-serif
 }
-
+/* 
 p {
   @apply w-full text-base font-sans
 }
@@ -19,4 +19,4 @@ span{
 }
 span::after{
   content: '-';
-}
+} */

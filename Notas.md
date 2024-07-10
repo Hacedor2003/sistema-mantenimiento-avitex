@@ -47,6 +47,8 @@ Tabla: Equipos
 - Identificación
 - Origen
 - Comentarios
+- mantenimiento_lubricante
+- mantenimiento
 - Tipo_Mantenimiento (FK, Tabla Tipo_Mantenimiento)
 - Categoria (FK, Tabla Categorias)
 - Estado (FK, Tabla Estados_Revision)
@@ -71,9 +73,17 @@ Tabla: Usuarios
 Tabla: Orden_Mantenimiento
 - ID_Orden (PK)
 - Descripcion
-- Recursos_Humanos
-- Materiales
-- Observaciones
-- Presupuesto
+- tecnico
+- repuestos
+- duranteMantenimiento
+- equiposUsar
+- herramientas
+- fecha_inicio
+- fecha_fin
 - ID_Equipo (FK, Tabla Equipos)
 - ID_Usuario (FK, Tabla Usuarios)
+
+
+
+
+

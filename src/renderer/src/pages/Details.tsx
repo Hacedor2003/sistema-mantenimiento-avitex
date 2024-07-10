@@ -4,6 +4,7 @@ import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Equipos } from 'src/main/db/Models'
+import React from 'react'
 
 const Details = (): JSX.Element => {
   const { details: productID } = useParams()
@@ -30,19 +31,7 @@ const Details = (): JSX.Element => {
           <p>{producto?.dataValues.Origen}</p>
           <h5 className='text-3xl font-bold font-serif my-2'>Comentarios:</h5>
           <p>{producto?.dataValues.Comentarios}</p>
-        </section>
-        <section>
-          <table className="w-full mt-2 text-left">
-            <thead>
-              <th>Fechas</th>
-            </thead>
-            <tbody>
-              <ItemOfList_ComponentsContent />
-              <ItemOfList_ComponentsContent />
-              <ItemOfList_ComponentsContentEsp indicador="warning" />
-              <ItemOfList_ComponentsContentEsp indicador="danger" />
-            </tbody>
-          </table>
+          <ItemOfList_ComponentsContent id={producto?.dataValues.ID_Equipo ?? -1} />
         </section>
       </main>
     </RootLayout>
@@ -51,33 +40,12 @@ const Details = (): JSX.Element => {
 
 export default Details
 
-const ItemOfList_ComponentsContent = (): JSX.Element => {
+const ItemOfList_ComponentsContent = ({id}:{id:number}): JSX.Element => {
   const navigate = useNavigate()
 
   return (
     <tr className="hover:bg-[#b70909] transition-all duration-300 cursor-pointer">
-      <td onClick={() => navigate('/home/calendario/sierra')}>Ver Fechas</td>
-    </tr>
-  )
-}
-
-const ItemOfList_ComponentsContentEsp = ({
-  indicador
-}: {
-  indicador: 'warning' | 'danger'
-}): JSX.Element => {
-  const navigate = useNavigate()
-
-  return (
-    <tr
-      className={`cursor-pointer ${indicador === 'warning' ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-red-500 hover:bg-red-700'}`}
-    >
-      <td onClick={() => navigate('/home/calendario/sierra')}>
-        {indicador === 'warning' ? 'Mantenimiento' : 'Baja'}{' '}
-        <span className={`rounded-sm ${indicador === 'warning' ? 'bg-yellow-200' : 'bg-red-200'}`}>
-          {indicador === 'warning' ? '⚠️' : '💀'}
-        </span>
-      </td>
+      <td onClick={() => navigate(`/home/calendario/${id}`)}>Ver Fechas</td>
     </tr>
   )
 }

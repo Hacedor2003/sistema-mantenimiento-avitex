@@ -3,6 +3,7 @@ import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Categorias, Equipos } from 'src/main/db/Models'
+import React from 'react'
 
 const Area = (): JSX.Element => {
   const { area: categoriaID } = useParams()
@@ -22,7 +23,7 @@ const Area = (): JSX.Element => {
         setCategoria(response)
       })
       .catch((error) => console.log(error))
-  }, [])
+  }, [producto,categoria])
 
   return (
     <RootLayout>
@@ -94,7 +95,8 @@ const ItemOfList_ComponentsContent = ({item}:{item: Equipos}): JSX.Element => {
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Identificacion}</td>
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Origen}</td>
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Comentarios}</td>
-      <td onClick={() => navigate(`/home/calendario/${item.dataValues.CategoriasID}`)}>Ver Fechas</td>
+      <td onClick={() => navigate(`/home/calendario/${item.dataValues.ID_Equipo}`)}>Ver Fechas</td>
+      { JSON.parse(localStorage.getItem('user') ?? '').role === 'admin' && <td onClick={() => window.context.deleteEquipos_By_Id(item.dataValues.ID_Equipo ?? -1)}>Borrar</td>}
     </tr>
   )
 }

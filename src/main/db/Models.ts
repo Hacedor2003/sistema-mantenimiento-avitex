@@ -4,8 +4,6 @@ import { DataTypes, Model, Association } from 'sequelize'
 import {
   CategoriasAttributes,
   CategoriasCreationAttributes,
-  Ciclos_MantenimientoAttributes,
-  Ciclos_MantenimientoAttributesCreation,
   EquiposAttributes,
   EquiposCreationAttributes,
   Estados_RevisionAttributes,
@@ -31,6 +29,8 @@ export class Equipos
   public TipoMantenimiento!: number
   public CategoriasID!: number
   public Estado!: number
+  public fecha_lubricamiento!: string
+  public fecha_mantenimiento!: string
 
   public static associations: {
     TipoMantenimiento: Association<Equipos, Tipo_Mantenimiento>
@@ -78,30 +78,19 @@ export class Orden_Mantenimiento
   implements Orden_MantenimientoAttributes
 {
   public ID_Orden!: number
-  public Descripcion!: string
-  public Recursos_Humanos!: string
-  public Materiales!: string
-  public Observaciones!: string
-  public Presupuesto!: number
   public ID_Equipo!: number
   public ID_Usuario!: number
-  public estado!: string
   public fecha_inicio!: Date
   public fecha_fin!: Date
-  
-  
+  public herramientas!: string
+  public equiposUsar!: string
+  public duranteMantenimiento!: string
+  public repuestos!: string
+  public tecnico!: string
 
   public static associations: {
     Equipos: Association<Orden_Mantenimiento, Equipos>
     Usuarios: Association<Orden_Mantenimiento, Usuarios>
-  }
-
-  set setEquipo(id) {
-    this.ID_Equipo = id
-  }
-
-  set setUsuario(id) {
-    this.ID_Usuario = id
   }
 }
 
@@ -216,7 +205,7 @@ Orden_Mantenimiento.init(
     },
     fecha_inicio: DataTypes.DATE,
     fecha_fin: DataTypes.DATE,
-    estado:DataTypes.STRING
+    estado: DataTypes.STRING
   },
   {
     tableName: 'Orden_Mantenimiento',
@@ -290,6 +279,14 @@ Equipos.init(
         model: 'Estados_Revision',
         key: 'ID_Estado'
       }
+    },
+    fecha_mantenimiento: {
+      type: DataTypes.JSONB,
+      allowNull: false
+    },
+    fecha_lubricamiento: {
+      type: DataTypes.JSONB,
+      allowNull: false
     }
   },
   {
@@ -306,4 +303,3 @@ Equipos.belongsTo(Estados_Revision, { foreignKey: 'Estado' })
 
 Orden_Mantenimiento.belongsTo(Equipos, { foreignKey: 'ID_Equipo' })
 Orden_Mantenimiento.belongsTo(Usuarios, { foreignKey: 'ID_Usuario' })
-

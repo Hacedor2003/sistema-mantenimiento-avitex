@@ -27,6 +27,7 @@
     "electron-updater": "^6.1.7",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
+    "react-date-range": "^2.0.1",
     "react-router-dom": "^6.23.1",
     "sequelize": "^6.37.3"
   },

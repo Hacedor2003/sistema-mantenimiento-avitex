@@ -1,119 +1,97 @@
 /* eslint-disable prettier/prettier */
-import { RootLayout } from '@renderer/components/AppLayout'
-import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { RootLayout } from '@renderer/components/AppLayout';
+import { useParams } from 'react-router-dom';
+import { Equipos } from 'src/main/db/Models';
+import { Button_UI } from '@renderer/components/UI_Component';
+import { fechaType } from './Anadir';
+import { DateRange } from 'react-date-range';
 
-interface Date {
-  month: number
-  day: number
-  year: number
-}
-
-const monthNames = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre'
-]
-
-const Calendario = (): JSX.Element => {
-  const [dates, setDates] = useState<Date[]>([])
-  const [events, setEvents] = useState<Date[]>([])
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const { maquinaria } = useParams()
+const Calendario: React.FC = () => {
+  const [ciclo, setCiclo] = useState<'lubricamiento' | 'mantenimiento'>('lubricamiento');
+  const [fechas, setFechas] = useState<fechaType[]>([]);
+  const [maquina, setMaquina] = useState<Equipos | null>(null);
+  const [modoVista, setModoVista] = useState<'lista' | 'fecha'>('lista');
+  const { maquinaria } = useParams<{ maquinaria: string }>();
 
   useEffect(() => {
-    const today = new Date()
-    const year = today.getFullYear()
-    const allDates: Date[] = []
-    for (let month = 0; month < 12; month++) {
-      const daysInMonth = new Date(year, month + 1, 0).getDate()
-      for (let day = 1; day <= daysInMonth; day++) {
-        allDates.push({ month, day, year })
-      }
-    }
-    setDates(allDates)
-
-    const eventDates: Date[] = [
-      { month: 3, day: 15, year },
-      { month: 7, day: 1, year },
-      { month: 11, day: 25, year }
-    ]
-    setEvents(eventDates)
-  }, [])
-
-  const handleDateChange = (date: Date): void => {
-    setSelectedDate(date)
-  }
+    const fetchEquipo = async () => {
+      const response = await window.context.getEquipos_By_Id(maquinaria);
+      setMaquina(response);
+      setFechas(
+        ciclo === 'lubricamiento'
+          ? response.dataValues.fecha_lubricamiento.map((item: fechaType) => ({
+              startDate: new Date(item.startDate),
+              endDate: new Date(item.endDate),
+              key: item.key,
+            }))
+          : response.dataValues.fecha_mantenimiento.map((item: fechaType) => ({
+              startDate: new Date(item.startDate),
+              endDate: new Date(item.endDate),
+              key: item.key,
+            }))
+      );
+    };
+    fetchEquipo();
+  }, [ciclo, maquinaria]);
 
   return (
     <RootLayout>
       <div className="w-full p-4">
-        <h2 className="text-2xl font-bold mb-4">Calendario de {maquinaria}:</h2>
-        <div className="flex flex-col items-center justify-center mb-4">
-          <label htmlFor="inputDate" className="border-b border-black text-xl font-serif mb-2">
-            Seleccione la fecha:
-          </label>
-          {selectedDate && (
-            <div className="flex flex-col gap-y-2 items-center">
-              <input
-                id="inputDate"
-                type="date"
-                className="px-4 py-2 border border-black rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={`${selectedDate.year}-${String(selectedDate.month + 1).padStart(2, '0')}-${String(selectedDate.day).padStart(2, '0')}`}
-                onChange={(e) =>
-                  handleDateChange({
-                    year: parseInt(e.target.value.split('-')[0]),
-                    month: parseInt(e.target.value.split('-')[1]) - 1,
-                    day: parseInt(e.target.value.split('-')[2])
-                  })
-                }
-              />
-            </div>
-          )}
+        <h2 className="text-2xl font-bold mb-4">Calendario de {maquina?.dataValues.Nombre}:</h2>
+        <div className="w-full flex items-start justify-center gap-x-4">
+          <Button_UI
+            type="button"
+            texto="Cambiar Vista"
+            funcion={() => setModoVista(modoVista === 'fecha' ? 'lista' : 'fecha')}
+          />
+          <div className="flex flex-col items-start">
+            <label htmlFor="inputCiclo" className="text-xl">
+              Selecccione el Ciclo:
+            </label>
+            <select
+              name=""
+              id="inputCiclo"
+              className="border border-black p-2 rounded-md"
+              onChange={(e) => setCiclo(e.target.value as 'lubricamiento' | 'mantenimiento')}
+            >
+              <option value="lubricamiento">Lubricamiento</option>
+              <option value="mantenimiento">Mantenimiento</option>
+            </select>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-4">
-          {Array.from({ length: 12 }, (_, index) => index).map((month) => (
-            <div key={month} className="w-full flex flex-col items-center justify-center gap-2">
-              <header className="col-span-11 font-bold mb-2 text-xl font-serif">
-                {monthNames[month]}
-              </header>
-              <section className="w-full flex flex-row flex-wrap items-center justify-start gap-2 text-sm">
-                {dates
-                  .filter((date) => date.month === month)
-                  .map((date, i) => (
-                    <div
-                      key={i}
-                      className={`relative min-w-[45px] h-fit border border-black rounded-md text-center font-mono p-2 hover:bg-[#853232] hover:text-white duration-300 ${
-                        events.some((event) => sameDate(event, date)) ? 'bg-yellow-300' : 'bg-white'
-                      }`}
-                      onClick={() => handleDateChange(date)}
-                    >
-                      {date.day}
-                      <p className="w-full break-words absolute -top-2 -right-5">
-                        {events.some((event) => sameDate(event, date)) ? ' ⚙️' : null}
-                      </p>
+
+        {modoVista === 'fecha' && <div className='w-full flex justify-center m-5'>
+          <DateRange
+            editableDateInputs={true}
+            onChange={()=>{}}
+            moveRangeOnFirstSelection={false}
+            ranges={fechas}
+          />
+        </div>}
+        {modoVista === 'lista' && (
+          <ul className='w-full flex flex-col justify-center items-center my-2'>
+            {fechas.map((item, index) => (
+              <li key={index} className="p-1 flex flex-row items-center">
+                <div className="flex flex-row items-center mx-2">
+                  <div className='flex flex-col'>
+                  <h6>Fecha Inicial</h6>
+                    <p>{item.startDate.toLocaleDateString() ?? ''}</p>
                     </div>
-                  ))}
-              </section>
-            </div>
-          ))}
-        </div>
+                  {item.startDate.getTime() !== item.endDate.getTime() && (
+                    <div className="flex flex-col items-center mx-2">
+                      <h6>Fecha Final</h6>
+                      <p>{item.endDate.toLocaleDateString() ?? ''}</p>
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </RootLayout>
-  )
-}
+  );
+};
 
-const sameDate = (date1: Date, date2: Date): boolean => {
-  return date1.year === date2.year && date1.month === date2.month && date1.day === date2.day
-}
-
-export default Calendario
+export default Calendario;

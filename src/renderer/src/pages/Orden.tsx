@@ -87,25 +87,29 @@ export const Orden = () => {
           <table className="w-full my-2 text-left text-lg">
             <thead>
               <th>ID_Orden</th>
-              <th>Descripcion</th>
-              <th>Recursos_Humanos</th>
-              <th>Materiales</th>
-              <th>Observaciones</th>
-              <th>Presupuesto</th>
               <th>ID_Equipo</th>
               <th>ID_Usuario</th>
+              <th>fecha_inicio</th>
+              <th>fecha_fin</th>
+              <th>herramientas</th>
+              <th>equiposUsar</th>
+              <th>duranteMantenimiento</th>
+              <th>repuestos</th>
+              <th>tecnico</th>
             </thead>
             <tbody>
               {ordenes.map((itemOrden, index) => (
                 <tr key={index}>
                   <td>{itemOrden.dataValues.ID_Orden}</td>
-                  <td>{itemOrden.dataValues.Descripcion}</td>
-                  <td>{itemOrden.dataValues.Recursos_Humanos}</td>
-                  <td>{itemOrden.dataValues.Materiales}</td>
-                  <td>{itemOrden.dataValues.Observaciones}</td>
-                  <td>{itemOrden.dataValues.Presupuesto}</td>
                   <td>{itemOrden.dataValues.ID_Equipo}</td>
                   <td>{itemOrden.dataValues.ID_Usuario}</td>
+                  <td>{itemOrden.dataValues.fecha_inicio.toLocaleDateString()}</td>
+                  <td>{itemOrden.dataValues.fecha_fin.toLocaleDateString()}</td>
+                  <td>{itemOrden.dataValues.herramientas}</td>
+                  <td>{itemOrden.dataValues.equiposUsar}</td>
+                  <td>{itemOrden.dataValues.duranteMantenimiento}</td>
+                  <td>{itemOrden.dataValues.repuestos}</td>
+                  <td>{itemOrden.dataValues.tecnico}</td>
                 </tr>
               ))}
             </tbody>
@@ -146,12 +150,12 @@ export const Orden = () => {
               </section>
               
               <Input_UI type='date' value={fecha_inicio} texto='Fecha de Inicio:' name='fechainicio' funcion={setFecha_inicio} />
+              <Input_UI type='date' value={fecha_fin} texto='Fecha Fin:' name='fechafin' funcion={setFecha_fin} />
               <Input_UI type='text' value={herramientas} texto='Herramientas:' name='herramientas' funcion={setHerramientas} />
               <Input_UI type='text' value={equiposUsar} texto='Equipos a usar:' name='equiposusar' funcion={setEquiposUsar} />
               <Input_UI type='text' value={duranteMantenimiento} texto='Durante la Ejecución del Mantenimiento:' name='durantemantenimiento' funcion={setduranteMantenimiento} />
               <Input_UI type='text' value={repuestos} texto='Repuestos:' name='durantemantenimiento' funcion={setRepuestos} />
               <Input_UI type='text' value={tecnico} texto='Tecnico:' name='tecnico' funcion={setTecnico} />
-              <Input_UI type='date' value={fecha_fin} texto='Fecha Fin:' name='fechafin' funcion={setFecha_fin} />
               
               <Button_UI type='button' texto='Vista Previa' funcion={() => setVer('imprimir-orden')} />
               </form>
@@ -159,8 +163,7 @@ export const Orden = () => {
         </>
       )}
       
-      {
-        ver === 'imprimir-orden' && (
+      {ver === 'imprimir-orden' && (
           <div className='w-full flex flex-col items-center p-2'>
           <div className="w-full flex flex-col items-center p-2 gap-y-2" id="orden-imprimir">
               <h3>Orden de Mantenimiento</h3>
@@ -243,8 +246,7 @@ export const Orden = () => {
             </div>
             <Button_UI type="button" texto="Imprimir Orden" funcion={() => imprimirOrden()} />
           </div>
-        )
-      }
+        )}
     </RootLayout>
   )
 }
