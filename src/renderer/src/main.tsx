@@ -3,9 +3,9 @@ import './assets/main.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
-import { Anadir, Area, Ayuda, Calendario, Details, ErrorPage, Home, Login } from './pages'
-import PrivateRoute from './components/PrivateRoute'
+import { Anadir, Area, Calendario, Details, ErrorPage, Home, Login } from './pages'
 import { Orden } from './pages/Orden'
+import { PrivateRouteAdmin, PrivateRouteUser } from './components/PrivateRoute'
 
 const router = createHashRouter([
   {
@@ -16,54 +16,54 @@ const router = createHashRouter([
   {
     path: '/home',
     element: (
-      <PrivateRoute role="user">
+      <PrivateRouteUser role="user">
         <Home />
-      </PrivateRoute>
+      </PrivateRouteUser>
     ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/:area',
     element: (
-      <PrivateRoute role="user">
+      <PrivateRouteUser role="user">
         <Area />
-      </PrivateRoute>
+      </PrivateRouteUser>
     ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/:area/:details',
     element: (
-      <PrivateRoute role="user">
+      <PrivateRouteUser role="user">
         <Details />
-      </PrivateRoute>
+      </PrivateRouteUser>
     ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/anadir',
     element: (
-      <PrivateRoute role="admin">
+      <PrivateRouteAdmin role="admin">
         <Anadir />
-      </PrivateRoute>
+      </PrivateRouteAdmin>
     ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/calendario/:maquinaria',
     element: (
-      <PrivateRoute role="user">
+      <PrivateRouteUser role="user">
         <Calendario />
-      </PrivateRoute>
+      </PrivateRouteUser>
     ),
     errorElement: <ErrorPage />
   },
   {
     path: '/home/orden',
     element: (
-      <PrivateRoute role="user">
+      <PrivateRouteUser role="user">
         <Orden />
-      </PrivateRoute>
+      </PrivateRouteUser>
     ),
     errorElement: <ErrorPage />
   }

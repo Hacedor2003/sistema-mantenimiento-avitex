@@ -3,6 +3,7 @@ import {
   Equipos,
   Estados_Revision,
   Orden_Mantenimiento,
+  Presupuesto,
   Tipo_Mantenimiento,
   Usuarios
 } from 'src/main/db/Models'
@@ -31,6 +32,8 @@ declare global {
       getUsuarios_All: () => Promise<Usuarios[]>
       getUsuarios_By_Rol: (rol: string) => Promise<Usuarios[]>
       getOrden_Mantenimiento_All: () => Promise<Orden_Mantenimiento[]>
+      getPresupuestos_All: () => Promise<Presupuesto[]>
+      getPresupuestos_By_Id: (id: number) => Promise<Presupuesto>
 
       editEquipos_By_Id: (id: number, updatedEquipoData: Equipos) => Promise<Equipos>
       editTipo_Mantenimiento_By_Id: (
@@ -47,6 +50,7 @@ declare global {
         id: number,
         updatedOrdenMantenimientoData: Orden_Mantenimiento
       ) => Promise<Orden_Mantenimiento>
+      editPresupuesto_By_Id: (id: number, updatedPresupuesto: Presupuesto) => Promise<Presupuesto>
 
       deleteEquipos_By_Id: (id: number) => Promise<void>
       deleteTipo_Mantenimiento_By_Id: (id: number) => Promise<void>

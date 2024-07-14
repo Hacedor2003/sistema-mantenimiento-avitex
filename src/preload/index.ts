@@ -24,6 +24,8 @@ try {
     getUsuarios_By_Rol: (...args) => ipcRenderer.invoke('getUsuarios_By_Rol', ...args),
     getOrden_Mantenimiento_All: (...args) =>
       ipcRenderer.invoke('getOrden_Mantenimiento_All', ...args),
+    getPresupuestos_All: (...args) => ipcRenderer.invoke('getPresupuestos_All', ...args),
+    getPresupuestos_By_Id: (...args) => ipcRenderer.invoke('getPresupuestos_By_Id', ...args),
 
     //Delete
     deleteEquipos_By_Id: (...args) => ipcRenderer.invoke('deleteEquipos_By_Id', ...args),
@@ -46,6 +48,7 @@ try {
     editUsuarios_By_Id: (...args) => ipcRenderer.invoke('editUsuarios_By_Id', ...args),
     editOrden_Mantenimiento_By_Id: (...args) =>
       ipcRenderer.invoke('editOrden_Mantenimiento_By_Id', ...args),
+    editPresupuesto_By_Id: (...args) => ipcRenderer.invoke('editPresupuesto_By_Id', ...args),
 
     //Create
     createEquipos: (...args) => ipcRenderer.invoke('createEquipos', ...args),

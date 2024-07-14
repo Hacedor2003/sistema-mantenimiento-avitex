@@ -8,6 +8,7 @@ import {
   Estados_Revision,
   Usuarios,
   Orden_Mantenimiento,
+  Presupuesto,
 } from '../db/Models'
 
 export const editEquipos_By_Id = async (id, updatedEquipoData) => {
@@ -135,3 +136,29 @@ export const editOrden_Mantenimiento_By_Id = async (id, updatedOrdenMantenimient
     throw error
   }
 }
+
+export const editPresupuesto_By_Id = async (id, updatedPresupuestoData) => {
+  try {
+    const [updatedCount, [updatedPresupuesto]] = await Presupuesto.update(
+      updatedPresupuestoData,
+      {
+        where: { ID_Presupuesto: id },
+        returning: true
+      }
+    );
+
+    if (updatedCount === 0) {
+      console.log(`No se encontró un presupuesto con ID ${id} para actualizar.`);
+    } else {
+      console.log(
+        `Se actualizó el presupuesto con ID ${id}:`,
+        updatedPresupuesto.toJSON()
+      );
+    }
+
+    return updatedPresupuesto;
+  } catch (error) {
+    console.error(`Error al actualizar el presupuesto con ID ${id}:`, error);
+    throw error;
+  }
+};

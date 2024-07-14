@@ -28,7 +28,7 @@ export const Button_UI = ({
  * @param name: del input
  * @returns 
  */
-export const Input_UI = ({texto , type , value ,name , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value: undefined | string, funcion:React.Dispatch<React.SetStateAction<any>>}) => (
+export const Input_UI = ({texto , type , value ,name , required , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value: undefined | string,required:boolean ,funcion:React.Dispatch<React.SetStateAction<any>>}) => (
   <section className="w-5/6 flex flex-col items-left justify-around m-2">
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}
@@ -40,7 +40,8 @@ export const Input_UI = ({texto , type , value ,name , funcion}:{texto:string ,n
       placeholder={texto}
       value={value}
       name={name}
-      onChange={(e)=>funcion(e.target.value)}
+      onChange={(e) => funcion(e.target.value)}
+      required={required}
     />
   </section>
 )

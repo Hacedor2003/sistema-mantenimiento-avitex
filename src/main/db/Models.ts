@@ -10,6 +10,8 @@ import {
   Estados_RevisionCreationAttributes,
   Orden_MantenimientoAttributes,
   Orden_MantenimientoCreationAttributes,
+  PresupuestoAttributes,
+  PresupuestoCreationAttributes,
   Tipo_MantenimientoAttributes,
   Tipo_MantenimientoCreationAttributes,
   UsuariosAttributes,
@@ -82,11 +84,12 @@ export class Orden_Mantenimiento
   public ID_Usuario!: number
   public ID_Estado!: number
   public ID_Area!: number
+  public ID_Presupuesto!: number
   public organismo!: string
-  public horarioParada!: Date
-  public horarioComienzo!: Date
-  public horarioPuestaMarcha!: Date
-  public horarioCulminacion!: Date
+  public horarioParada!: string
+  public horarioComienzo!: string
+  public horarioPuestaMarcha!: string
+  public horarioCulminacion!: string
   public materialesUsados!: string
   public observaciones!: string
   public solicitadoPor!: string
@@ -103,8 +106,48 @@ export class Orden_Mantenimiento
   public static associations: {
     Equipos: Association<Orden_Mantenimiento, Equipos>
     Usuarios: Association<Orden_Mantenimiento, Usuarios>
+    Presupuesto: Association<Orden_Mantenimiento, Presupuesto>
   }
 }
+export class Presupuesto extends Model<PresupuestoAttributes,PresupuestoCreationAttributes> {
+  public ID_Presupuesto!: number;
+  public Tipo!: string;
+  public monto!: number;
+  public Fecha!: Date;
+
+  public static associations: {
+    Orden_Mantenimiento: Association<Presupuesto, Orden_Mantenimiento>;
+  };
+}
+
+Presupuesto.init(
+  {
+    ID_Presupuesto: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    Tipo: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    monto: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+    Fecha: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+  },
+  {
+    tableName: 'Presupuesto',
+    sequelize: sequelize,
+    timestamps: false,
+  }
+);
+
+
 
 
 Categorias.init(
@@ -204,6 +247,14 @@ Orden_Mantenimiento.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    ID_Presupuesto: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Presupuesto',
+        key: 'ID_Presupuesto'
+      }
+    },
     organismo: {
       type: DataTypes.STRING,
       allowNull: true
@@ -271,6 +322,10 @@ Orden_Mantenimiento.init(
     fecha: {
       type: DataTypes.DATE,
       allowNull: false
+    },
+    presupuesto: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   },
   {
@@ -279,6 +334,7 @@ Orden_Mantenimiento.init(
     timestamps: false
   }
 )
+
 
 Tipo_Mantenimiento.init(
   {
@@ -369,3 +425,6 @@ Equipos.belongsTo(Estados_Revision, { foreignKey: 'Estado' })
 
 Orden_Mantenimiento.belongsTo(Equipos, { foreignKey: 'ID_Equipo' })
 Orden_Mantenimiento.belongsTo(Usuarios, { foreignKey: 'ID_Usuario' })
+Orden_Mantenimiento.belongsTo(Presupuesto, { foreignKey: 'ID_Presupuesto', as: 'Presupuesto', });
+
+Presupuesto.hasMany(Orden_Mantenimiento, { foreignKey: 'ID_Presupuesto', as: 'Ordenes_Mantenimiento',});

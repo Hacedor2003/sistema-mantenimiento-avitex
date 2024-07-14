@@ -37,30 +37,41 @@ export interface UsuariosAttributes {
 }
 
 export interface Orden_MantenimientoAttributes {
-  ID_Orden?: number
-  ID_Equipo: number
-  ID_Usuario: number
-  ID_Estado: number
-  ID_Area: number
-  organismo?: string
-  horarioParada?: string
-  horarioComienzo?: string
-  horarioPuestaMarcha?: string
-  horarioCulminacion?: string
-  materialesUsados: string
-  observaciones?: string
-  solicitadoPor: string
-  aprobadoPor: string
-  terminadoPor: string
-  revisadoPor: string
-  valeSalida?: string
-  objetivos: string
-  tipo_trabajo: string
-  empresa?: string
-  unidad?: string
-  fecha: Date
+  ID_Orden?: number;
+  ID_Equipo: number;
+  ID_Usuario: number;
+  ID_Estado: number;
+  ID_Area: number;
+  ID_Presupuesto: number;
+  organismo: string;
+  horarioParada: string;
+  horarioComienzo: string;
+  horarioPuestaMarcha: string;
+  horarioCulminacion: string;
+  materialesUsados: string;
+  observaciones: string;
+  solicitadoPor: string;
+  aprobadoPor: string;
+  terminadoPor: string;
+  revisadoPor: string;
+  valeSalida: string;
+  objetivos: string;
+  tipo_trabajo: string;
+  empresa: string;
+  unidad: string;
+  fecha: Date;
+  presupuesto:number
 }
 
+export interface PresupuestoAttributes {
+  ID_Presupuesto: number;
+  Tipo: string;
+  monto: number;
+  Fecha: Date;
+}
+
+
+export interface PresupuestoCreationAttributes extends Optional<PresupuestoAttributes, 'ID_Presupuesto'> {}
 
 export interface EquiposCreationAttributes extends Optional<EquiposAttributes, 'ID_Equipo'> {}
 

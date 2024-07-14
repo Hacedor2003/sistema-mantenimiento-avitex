@@ -1,7 +1,15 @@
 /* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
-import { Categorias, Equipos, Estados_Revision, Orden_Mantenimiento, Tipo_Mantenimiento, Usuarios } from '../db/Models'
+import {
+  Categorias,
+  Equipos,
+  Estados_Revision,
+  Orden_Mantenimiento,
+  Presupuesto,
+  Tipo_Mantenimiento,
+  Usuarios
+} from '../db/Models'
 
 export const getEquipos_All = async () => {
   try {
@@ -26,7 +34,7 @@ export const getEquipos_By_Categoria = async (categoriasid) => {
   try {
     const equipo = await Equipos.findAll({
       where: {
-        CategoriasID:categoriasid
+        CategoriasID: categoriasid
       }
     })
     return equipo
@@ -68,22 +76,22 @@ export const getCategorias_All = async () => {
 
 export const getCategorias_By_Nombre = async (nombre) => {
   try {
-    const categoria = await Categorias.findOne({ where: { Nombre_Categoria: nombre } });
-    return categoria;
+    const categoria = await Categorias.findOne({ where: { Nombre_Categoria: nombre } })
+    return categoria
   } catch (error) {
-    console.error(`Error al obtener la categoría por nombre "${nombre}":`, error);
-    throw error;
+    console.error(`Error al obtener la categoría por nombre "${nombre}":`, error)
+    throw error
   }
-};
+}
 export const getCategorias_By_ID = async (id) => {
   try {
-    const categoria = await Categorias.findOne({ where: { ID_Categoria: id } });
-    return categoria;
+    const categoria = await Categorias.findOne({ where: { ID_Categoria: id } })
+    return categoria
   } catch (error) {
-    console.error(`Error al obtener la categoría por id "${id}":`, error);
-    throw error;
+    console.error(`Error al obtener la categoría por id "${id}":`, error)
+    throw error
   }
-};
+}
 
 export const getEstados_Revision_All = async () => {
   try {
@@ -97,13 +105,13 @@ export const getEstados_Revision_All = async () => {
 
 export const getEstados_Revision_By_Nombre = async (nombre) => {
   try {
-    const estadoRevision = await Estados_Revision.findOne({ where: { Nombre_Estado: nombre } });
-    return estadoRevision;
+    const estadoRevision = await Estados_Revision.findOne({ where: { Nombre_Estado: nombre } })
+    return estadoRevision
   } catch (error) {
-    console.error(`Error al obtener el estado de revisión por nombre "${nombre}":`, error);
-    throw error;
+    console.error(`Error al obtener el estado de revisión por nombre "${nombre}":`, error)
+    throw error
   }
-};
+}
 
 export const getUsuarios_All = async () => {
   try {
@@ -117,13 +125,13 @@ export const getUsuarios_All = async () => {
 
 export const getUsuarios_By_Rol = async (rol) => {
   try {
-    const usuarios = await Usuarios.findAll({ where: { Rol: rol } });
-    return usuarios;
+    const usuarios = await Usuarios.findAll({ where: { Rol: rol } })
+    return usuarios
   } catch (error) {
-    console.error(`Error al obtener los usuarios por rol "${rol}":`, error);
-    throw error;
+    console.error(`Error al obtener los usuarios por rol "${rol}":`, error)
+    throw error
   }
-};
+}
 
 export const getOrden_Mantenimiento_All = async () => {
   try {
@@ -131,6 +139,24 @@ export const getOrden_Mantenimiento_All = async () => {
     return equipos
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
+    throw error
+  }
+}
+
+export const getPresupuestos_All = async () => {
+  try {
+    return await Presupuesto.findAll()
+  } catch (error) {
+    console.error('Error al obtener todos los presupuestos:', error)
+    throw error
+  }
+}
+
+export const getPresupuestos_By_Id = async (id:number) => {
+  try {
+    return await Presupuesto.findOne({ where: { ID_Presupuesto: id } })
+  } catch (error) {
+    console.error(`Error al obtener el presupuestos por id "${id}":`, error)
     throw error
   }
 }

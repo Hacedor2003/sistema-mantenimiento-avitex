@@ -6,6 +6,7 @@ import {
   Equipos,
   Estados_Revision,
   Orden_Mantenimiento,
+  Presupuesto,
   Tipo_Mantenimiento,
   Usuarios
 } from './Models'
@@ -21,6 +22,7 @@ export default async function connectDB(): Promise<void> {
     await Estados_Revision.sync()
     await Equipos.sync()
     await Orden_Mantenimiento.sync()
+    await Presupuesto.sync()
 
     console.log('Conexion a la base de datos establecida correctamente.')
   } catch (error) {

@@ -25,7 +25,8 @@ import {
   editCategorias_By_Id,
   editEstados_Revision_By_Id,
   editUsuarios_By_Id,
-  editOrden_Mantenimiento_By_Id
+  editOrden_Mantenimiento_By_Id,
+  editPresupuesto_By_Id
 } from './lib/Hook_Edit'
 import {
   getEquipos_All,
@@ -40,7 +41,9 @@ import {
   getUsuarios_By_Rol,
   getOrden_Mantenimiento_All,
   getEquipos_By_Categoria,
-  getCategorias_By_ID
+  getCategorias_By_ID,
+  getPresupuestos_All,
+  getPresupuestos_By_Id
 } from './lib/Hook_Get'
 
 function createWindow(): void {
@@ -120,6 +123,8 @@ app.whenReady().then(async () => {
   ipcMain.handle('getUsuarios_All', (_, ...args) => getUsuarios_All(...args))
   ipcMain.handle('getUsuarios_By_Rol', (_, ...args) => getUsuarios_By_Rol(...args))
   ipcMain.handle('getOrden_Mantenimiento_All', (_, ...args) => getOrden_Mantenimiento_All(...args))
+  ipcMain.handle('getPresupuestos_All', (_, ...args) => getPresupuestos_All(...args))
+  ipcMain.handle('getPresupuestos_By_Id', (_, ...args) => getPresupuestos_By_Id(...args))
 
   //Delete
   ipcMain.handle('deleteEquipos_By_Id', (_, ...args) => deleteEquipos_By_Id(...args))
@@ -146,6 +151,7 @@ app.whenReady().then(async () => {
   ipcMain.handle('editOrden_Mantenimiento_By_Id', (_, ...args) =>
     editOrden_Mantenimiento_By_Id(...args)
   )
+  ipcMain.handle('editPresupuesto_By_Id', (_, ...args) => editPresupuesto_By_Id(...args))
 
   //Create
   ipcMain.handle('createEquipos', (_, ...args) => createEquipos(...args))
