@@ -90,7 +90,7 @@ export default Area
 const ItemOfList_ComponentsContent = ({item}:{item: Equipos}): JSX.Element => {
   const navigate = useNavigate()
   return (
-    <tr className="hover:bg-[#b70909] transition-all duration-300 cursor-pointer text-lg">
+    <tr className="hover:bg-[#b70909] hover:text-white p-2 transition-all duration-300 cursor-pointer text-lg">
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}</td>
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Identificacion}</td>
       <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Origen}</td>

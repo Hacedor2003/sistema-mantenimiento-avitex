@@ -83,7 +83,17 @@ Tabla: Orden_Mantenimiento
 - ID_Equipo (FK, Tabla Equipos)
 - ID_Usuario (FK, Tabla Usuarios)
 
+Tabla: Presupuesto
+- presupuesto_planificados
+- presupuesto_imprevistos
+- presupuesto_correctivo
 
 
 
 
+
+* El antiguo modelo , funcional
+* Distintos montos de presupuestos 
+* ALERTA de deuda , arreglar para no error 
+// Organizar las ordenes por sus distintos tipos de datos
+*** Arbol de jerarquia con usuarios

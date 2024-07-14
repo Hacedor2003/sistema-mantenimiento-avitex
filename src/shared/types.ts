@@ -40,14 +40,27 @@ export interface Orden_MantenimientoAttributes {
   ID_Orden?: number
   ID_Equipo: number
   ID_Usuario: number
-  fecha_inicio: Date
-  fecha_fin: Date
-  herramientas: string
-  equiposUsar: string
-  duranteMantenimiento: string
-  repuestos: string
-  tecnico: string
+  ID_Estado: number
+  ID_Area: number
+  organismo?: string
+  horarioParada?: string
+  horarioComienzo?: string
+  horarioPuestaMarcha?: string
+  horarioCulminacion?: string
+  materialesUsados: string
+  observaciones?: string
+  solicitadoPor: string
+  aprobadoPor: string
+  terminadoPor: string
+  revisadoPor: string
+  valeSalida?: string
+  objetivos: string
+  tipo_trabajo: string
+  empresa?: string
+  unidad?: string
+  fecha: Date
 }
+
 
 export interface EquiposCreationAttributes extends Optional<EquiposAttributes, 'ID_Equipo'> {}
 

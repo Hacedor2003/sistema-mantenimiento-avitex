@@ -80,19 +80,32 @@ export class Orden_Mantenimiento
   public ID_Orden!: number
   public ID_Equipo!: number
   public ID_Usuario!: number
-  public fecha_inicio!: Date
-  public fecha_fin!: Date
-  public herramientas!: string
-  public equiposUsar!: string
-  public duranteMantenimiento!: string
-  public repuestos!: string
-  public tecnico!: string
+  public ID_Estado!: number
+  public ID_Area!: number
+  public organismo!: string
+  public horarioParada!: Date
+  public horarioComienzo!: Date
+  public horarioPuestaMarcha!: Date
+  public horarioCulminacion!: Date
+  public materialesUsados!: string
+  public observaciones!: string
+  public solicitadoPor!: string
+  public aprobadoPor!: string
+  public terminadoPor!: string
+  public revisadoPor!: string
+  public valeSalida!: string
+  public objetivos!: string
+  public tipo_trabajo!: string
+  public empresa!: string
+  public unidad!: string
+  public fecha!: Date
 
   public static associations: {
     Equipos: Association<Orden_Mantenimiento, Equipos>
     Usuarios: Association<Orden_Mantenimiento, Usuarios>
   }
 }
+
 
 Categorias.init(
   {
@@ -167,26 +180,6 @@ Orden_Mantenimiento.init(
       autoIncrement: true,
       primaryKey: true
     },
-    Descripcion: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    Recursos_Humanos: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    Materiales: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    Observaciones: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    Presupuesto: {
-      type: DataTypes.FLOAT,
-      allowNull: false
-    },
     ID_Equipo: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -203,9 +196,82 @@ Orden_Mantenimiento.init(
         key: 'ID_Usuario'
       }
     },
-    fecha_inicio: DataTypes.DATE,
-    fecha_fin: DataTypes.DATE,
-    estado: DataTypes.STRING
+    ID_Estado: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    ID_Area: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    organismo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    horarioParada: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    horarioComienzo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    horarioPuestaMarcha: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    horarioCulminacion: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    materialesUsados: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    observaciones: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    solicitadoPor: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    aprobadoPor: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    terminadoPor: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    revisadoPor: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    valeSalida: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    objetivos: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    tipo_trabajo: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    empresa: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    unidad: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    fecha: {
+      type: DataTypes.DATE,
+      allowNull: false
+    }
   },
   {
     tableName: 'Orden_Mantenimiento',

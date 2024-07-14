@@ -50,15 +50,6 @@ const router = createHashRouter([
     errorElement: <ErrorPage />
   },
   {
-    path: '/home/ayuda',
-    element: (
-      <PrivateRoute role="user">
-        <Ayuda />
-      </PrivateRoute>
-    ),
-    errorElement: <ErrorPage />
-  },
-  {
     path: '/home/calendario/:maquinaria',
     element: (
       <PrivateRoute role="user">

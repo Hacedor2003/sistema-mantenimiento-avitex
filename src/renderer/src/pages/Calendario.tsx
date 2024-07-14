@@ -7,7 +7,7 @@ import { Button_UI } from '@renderer/components/UI_Component';
 import { fechaType } from './Anadir';
 import { DateRange } from 'react-date-range';
 
-const Calendario: React.FC = () => {
+const Calendario = (): JSX.Element => {
   const [ciclo, setCiclo] = useState<'lubricamiento' | 'mantenimiento'>('lubricamiento');
   const [fechas, setFechas] = useState<fechaType[]>([]);
   const [maquina, setMaquina] = useState<Equipos | null>(null);

@@ -1,7 +1,7 @@
 import { ComponentProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
-import { Icon } from '@iconify/react'
+import React from 'react'
 
 export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element => {
   return (
@@ -60,12 +60,6 @@ export const Sidebar = (): JSX.Element => {
               Añadir
             </li>
           )}
-          <li
-            className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
-            onClick={() => navigate('/home/ayuda')}
-          >
-            Ayuda
-          </li>
           <li
             className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300"
             onClick={() => navigate('/home/orden')}
