@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import React from 'react'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'

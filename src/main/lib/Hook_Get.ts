@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
 import {
@@ -20,6 +21,7 @@ export const getEquipos_All = async () => {
     throw error
   }
 }
+
 export const getEquipos_By_Id = async (id) => {
   try {
     const equipo = await Equipos.findByPk(id)
@@ -64,6 +66,17 @@ export const getTipo_Mantenimiento_By_Tipo = async (tipo) => {
   }
 }
 
+export const getTipo_Mantenimiento_By_Id = async (id) => {
+  try {
+    const tipoMantenimiento = await Tipo_Mantenimiento.findOne({ where: { ID_Tipo_Mantenimiento: id } })
+    return tipoMantenimiento
+  } catch (error) {
+    console.error(`Error al obtener el tipo de mantenimiento "${id}":`, error)
+    throw error
+  }
+}
+
+
 export const getCategorias_All = async () => {
   try {
     const equipos = await Categorias.findAll()
@@ -83,6 +96,7 @@ export const getCategorias_By_Nombre = async (nombre) => {
     throw error
   }
 }
+
 export const getCategorias_By_ID = async (id) => {
   try {
     const categoria = await Categorias.findOne({ where: { ID_Categoria: id } })
@@ -109,6 +123,16 @@ export const getEstados_Revision_By_Nombre = async (nombre) => {
     return estadoRevision
   } catch (error) {
     console.error(`Error al obtener el estado de revisión por nombre "${nombre}":`, error)
+    throw error
+  }
+}
+
+export const getEstados_Revision_By_Id = async (id) => {
+  try {
+    const estadoRevision = await Estados_Revision.findOne({ where: { ID_Estado: id } })
+    return estadoRevision
+  } catch (error) {
+    console.error(`Error al obtener el estado de revisión por id "${id}":`, error)
     throw error
   }
 }

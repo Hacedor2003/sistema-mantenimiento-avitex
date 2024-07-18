@@ -13,7 +13,8 @@ import {
   Tipo_MantenimientoAttributes,
   Orden_MantenimientoAttributes,
   Estados_RevisionAttributes,
-  EquiposAttributes
+  EquiposAttributes,
+  PresupuestoAttributes
 } from '../shared/types'
 
 declare global {
@@ -34,23 +35,31 @@ declare global {
       getOrden_Mantenimiento_All: () => Promise<Orden_Mantenimiento[]>
       getPresupuestos_All: () => Promise<Presupuesto[]>
       getPresupuestos_By_Id: (id: number) => Promise<Presupuesto>
+      getTipo_Mantenimiento_By_Id: (id: number) => Promise<Tipo_Mantenimiento>
+      getEstados_Revision_By_Id: (id: number) => Promise<Estados_Revision>
 
-      editEquipos_By_Id: (id: number, updatedEquipoData: Equipos) => Promise<Equipos>
+      editEquipos_By_Id: (id: number, updatedEquipoData: EquiposAttributes) => Promise<Equipos>
       editTipo_Mantenimiento_By_Id: (
         id: number,
-        updatedTipoMantenimientoData: Tipo_Mantenimiento
+        updatedTipoMantenimientoData: Tipo_MantenimientoAttributes
       ) => Promise<Tipo_Mantenimiento>
-      editCategorias_By_Id: (id: number, updatedCategoriaData: Categorias) => Promise<Categorias>
+      editCategorias_By_Id: (
+        id: number,
+        updatedCategoriaData: CategoriasAttributes
+      ) => Promise<Categorias>
       editEstados_Revision_By_Id: (
         id: number,
-        updatedEstadoRevisionData: Estados_Revision
+        updatedEstadoRevisionData: Estados_RevisionAttributes
       ) => Promise<Estados_Revision>
-      editUsuarios_By_Id: (id: number, updatedUsuarioData: Usuarios) => Promise<Usuarios>
+      editUsuarios_By_Id: (id: number, updatedUsuarioData: UsuariosAttributes) => Promise<Usuarios>
       editOrden_Mantenimiento_By_Id: (
         id: number,
         updatedOrdenMantenimientoData: Orden_Mantenimiento
       ) => Promise<Orden_Mantenimiento>
-      editPresupuesto_By_Id: (id: number, updatedPresupuesto: Presupuesto) => Promise<Presupuesto>
+      editPresupuesto_By_Id: (
+        id: number,
+        updatedPresupuesto: PresupuestoAttributes
+      ) => Promise<Presupuesto>
 
       deleteEquipos_By_Id: (id: number) => Promise<void>
       deleteTipo_Mantenimiento_By_Id: (id: number) => Promise<void>

@@ -1,7 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Sequelize } from 'sequelize'
 
-export const sequelize = new Sequelize('sistema-mantenimiento', 'postgres', '123', {
-  host: 'localhost',
-  dialect: 'postgres',
-  logging: false
+export const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'database.sqlite',
 })

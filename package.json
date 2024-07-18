@@ -29,7 +29,8 @@
     "pg-hstore": "^2.3.4",
     "react-date-range": "^2.0.1",
     "react-router-dom": "^6.23.1",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",

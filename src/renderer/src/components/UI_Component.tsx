@@ -29,12 +29,12 @@ export const Button_UI = ({
  * @returns 
  */
 export const Input_UI = ({texto , type , value ,name , required , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value: undefined | string,required:boolean ,funcion:React.Dispatch<React.SetStateAction<any>>}) => (
-  <section className="w-5/6 flex flex-col items-left justify-around m-2">
+  <section className="w-fit flex flex-col items-left justify-around m-2">
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}
     </label>
     <input
-      className="border border-black p-1 rounded-md w-fit"
+      className="border border-black py-1 px-3 rounded-md w-fit"
       type={type}
       id={`input${texto}`}
       placeholder={texto}

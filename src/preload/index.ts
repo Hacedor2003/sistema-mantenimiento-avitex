@@ -26,6 +26,10 @@ try {
       ipcRenderer.invoke('getOrden_Mantenimiento_All', ...args),
     getPresupuestos_All: (...args) => ipcRenderer.invoke('getPresupuestos_All', ...args),
     getPresupuestos_By_Id: (...args) => ipcRenderer.invoke('getPresupuestos_By_Id', ...args),
+    getTipo_Mantenimiento_By_Id: (...args) =>
+      ipcRenderer.invoke('getTipo_Mantenimiento_By_Id', ...args),
+    getEstados_Revision_By_Id: (...args) =>
+      ipcRenderer.invoke('getEstados_Revision_By_Id', ...args),
 
     //Delete
     deleteEquipos_By_Id: (...args) => ipcRenderer.invoke('deleteEquipos_By_Id', ...args),

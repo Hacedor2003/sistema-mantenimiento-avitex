@@ -43,7 +43,9 @@ import {
   getEquipos_By_Categoria,
   getCategorias_By_ID,
   getPresupuestos_All,
-  getPresupuestos_By_Id
+  getPresupuestos_By_Id,
+  getTipo_Mantenimiento_By_Id,
+  getEstados_Revision_By_Id
 } from './lib/Hook_Get'
 
 function createWindow(): void {
@@ -106,60 +108,60 @@ app.whenReady().then(async () => {
   // IPC
 
   //Get
-  ipcMain.handle('getEquipos_All', (_, ...args) => getEquipos_All(...args))
-  ipcMain.handle('getEquipos_By_Id', (_, ...args) => getEquipos_By_Id(...args))
-  ipcMain.handle('getEquipos_By_Categoria', (_, ...args) => getEquipos_By_Categoria(...args))
-  ipcMain.handle('getCategorias_By_ID', (_, ...args) => getCategorias_By_ID(...args))
-  ipcMain.handle('getTipo_Mantenimiento_All', (_, ...args) => getTipo_Mantenimiento_All(...args))
-  ipcMain.handle('getTipo_Mantenimiento_By_Tipo', (_, ...args) =>
-    getTipo_Mantenimiento_By_Tipo(...args)
+  ipcMain.handle('getEquipos_All', () => getEquipos_All())
+  ipcMain.handle('getEquipos_By_Id', (_, id) => getEquipos_By_Id(id))
+  ipcMain.handle('getEquipos_By_Categoria', (_, categoriasid) =>
+    getEquipos_By_Categoria(categoriasid)
   )
-  ipcMain.handle('getCategorias_All', (_, ...args) => getCategorias_All(...args))
-  ipcMain.handle('getCategorias_By_Nombre', (_, ...args) => getCategorias_By_Nombre(...args))
-  ipcMain.handle('getEstados_Revision_All', (_, ...args) => getEstados_Revision_All(...args))
-  ipcMain.handle('getEstados_Revision_By_Nombre', (_, ...args) =>
-    getEstados_Revision_By_Nombre(...args)
+  ipcMain.handle('getCategorias_By_ID', (_, id) => getCategorias_By_ID(id))
+  ipcMain.handle('getTipo_Mantenimiento_All', () => getTipo_Mantenimiento_All())
+  ipcMain.handle('getTipo_Mantenimiento_By_Tipo', (_, tipo) => getTipo_Mantenimiento_By_Tipo(tipo))
+  ipcMain.handle('getCategorias_All', () => getCategorias_All())
+  ipcMain.handle('getCategorias_By_Nombre', (_, nombre) => getCategorias_By_Nombre(nombre))
+  ipcMain.handle('getEstados_Revision_All', () => getEstados_Revision_All())
+  ipcMain.handle('getEstados_Revision_By_Nombre', (_, nombre) =>
+    getEstados_Revision_By_Nombre(nombre)
   )
-  ipcMain.handle('getUsuarios_All', (_, ...args) => getUsuarios_All(...args))
-  ipcMain.handle('getUsuarios_By_Rol', (_, ...args) => getUsuarios_By_Rol(...args))
-  ipcMain.handle('getOrden_Mantenimiento_All', (_, ...args) => getOrden_Mantenimiento_All(...args))
-  ipcMain.handle('getPresupuestos_All', (_, ...args) => getPresupuestos_All(...args))
-  ipcMain.handle('getPresupuestos_By_Id', (_, ...args) => getPresupuestos_By_Id(...args))
+  ipcMain.handle('getUsuarios_All', () => getUsuarios_All())
+  ipcMain.handle('getUsuarios_By_Rol', (_, rol) => getUsuarios_By_Rol(rol))
+  ipcMain.handle('getOrden_Mantenimiento_All', () => getOrden_Mantenimiento_All())
+  ipcMain.handle('getPresupuestos_All', () => getPresupuestos_All())
+  ipcMain.handle('getPresupuestos_By_Id', (_, id) => getPresupuestos_By_Id(id))
+  ipcMain.handle('getTipo_Mantenimiento_By_Id', (_, id) => getTipo_Mantenimiento_By_Id(id))
+  ipcMain.handle('getEstados_Revision_By_Id', (_, id) => getEstados_Revision_By_Id(id))
 
   //Delete
-  ipcMain.handle('deleteEquipos_By_Id', (_, ...args) => deleteEquipos_By_Id(...args))
-  ipcMain.handle('deleteTipo_Mantenimiento_By_Id', (_, ...args) =>
-    deleteTipo_Mantenimiento_By_Id(...args)
-  )
-  ipcMain.handle('deleteCategorias_By_Id', (_, ...args) => deleteCategorias_By_Id(...args))
-  ipcMain.handle('deleteEstados_Revision_By_Id', (_, ...args) =>
-    deleteEstados_Revision_By_Id(...args)
-  )
-  ipcMain.handle('deleteUsuarios_By_Id', (_, ...args) => deleteUsuarios_By_Id(...args))
-  ipcMain.handle('deleteOrden_Mantenimiento_By_Id', (_, ...args) =>
-    deleteOrden_Mantenimiento_By_Id(...args)
-  )
+  ipcMain.handle('deleteEquipos_By_Id', (_, id) => deleteEquipos_By_Id(id))
+  ipcMain.handle('deleteTipo_Mantenimiento_By_Id', (_, id) => deleteTipo_Mantenimiento_By_Id(id))
+  ipcMain.handle('deleteCategorias_By_Id', (_, id) => deleteCategorias_By_Id(id))
+  ipcMain.handle('deleteEstados_Revision_By_Id', (_, id) => deleteEstados_Revision_By_Id(id))
+  ipcMain.handle('deleteUsuarios_By_Id', (_, id) => deleteUsuarios_By_Id(id))
+  ipcMain.handle('deleteOrden_Mantenimiento_By_Id', (_, id) => deleteOrden_Mantenimiento_By_Id(id))
 
   //Edit
-  ipcMain.handle('editEquipos_By_Id', (_, ...args) => editEquipos_By_Id(...args))
-  ipcMain.handle('editTipo_Mantenimiento_By_Id', (_, ...args) =>
-    editTipo_Mantenimiento_By_Id(...args)
+  ipcMain.handle('editEquipos_By_Id', (_, id, updatedEquipoData) =>
+    editEquipos_By_Id(id, updatedEquipoData)
   )
-  ipcMain.handle('editCategorias_By_Id', (_, ...args) => editCategorias_By_Id(...args))
-  ipcMain.handle('editEstados_Revision_By_Id', (_, ...args) => editEstados_Revision_By_Id(...args))
-  ipcMain.handle('editUsuarios_By_Id', (_, ...args) => editUsuarios_By_Id(...args))
-  ipcMain.handle('editOrden_Mantenimiento_By_Id', (_, ...args) =>
-    editOrden_Mantenimiento_By_Id(...args)
+  ipcMain.handle('editTipo_Mantenimiento_By_Id', (_, id, updatedTipoMantenimientoData) =>
+    editTipo_Mantenimiento_By_Id(id, updatedTipoMantenimientoData)
+  )
+  ipcMain.handle('editCategorias_By_Id', (_, id, updated) => editCategorias_By_Id(id, updated))
+  ipcMain.handle('editEstados_Revision_By_Id', (_, id, updated) =>
+    editEstados_Revision_By_Id(id, updated)
+  )
+  ipcMain.handle('editUsuarios_By_Id', (_, id, updated) => editUsuarios_By_Id(id, updated))
+  ipcMain.handle('editOrden_Mantenimiento_By_Id', (_, id, updated) =>
+    editOrden_Mantenimiento_By_Id(id, updated)
   )
   ipcMain.handle('editPresupuesto_By_Id', (_, ...args) => editPresupuesto_By_Id(...args))
 
   //Create
-  ipcMain.handle('createEquipos', (_, ...args) => createEquipos(...args))
-  ipcMain.handle('createTipo_Mantenimiento', (_, ...args) => createTipo_Mantenimiento(...args))
-  ipcMain.handle('createCategorias', (_, ...args) => createCategorias(...args))
-  ipcMain.handle('createEstados_Revision', (_, ...args) => createEstados_Revision(...args))
-  ipcMain.handle('createUsuarios', (_, ...args) => createUsuarios(...args))
-  ipcMain.handle('createOrden_Mantenimiento', (_, ...args) => createOrden_Mantenimiento(...args))
+  ipcMain.handle('createEquipos', (_, newData) => createEquipos(newData))
+  ipcMain.handle('createTipo_Mantenimiento', (_, newData) => createTipo_Mantenimiento(newData))
+  ipcMain.handle('createCategorias', (_, newData) => createCategorias(newData))
+  ipcMain.handle('createEstados_Revision', (_, newData) => createEstados_Revision(newData))
+  ipcMain.handle('createUsuarios', (_, newData) => createUsuarios(newData))
+  ipcMain.handle('createOrden_Mantenimiento', (_, newData) => createOrden_Mantenimiento(newData))
 
   createWindow()
 

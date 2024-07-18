@@ -10,8 +10,8 @@ export interface EquiposAttributes {
   TipoMantenimiento: number
   CategoriasID: number
   Estado: number
-  fecha_mantenimiento: string
-  fecha_lubricamiento: string
+  fecha_mantenimiento: any
+  fecha_lubricamiento: any
 }
 
 export interface Tipo_MantenimientoAttributes {
@@ -43,7 +43,6 @@ export interface Orden_MantenimientoAttributes {
   ID_Estado: number;
   ID_Area: number;
   ID_Presupuesto: number;
-  organismo: string;
   horarioParada: string;
   horarioComienzo: string;
   horarioPuestaMarcha: string;
@@ -57,8 +56,6 @@ export interface Orden_MantenimientoAttributes {
   valeSalida: string;
   objetivos: string;
   tipo_trabajo: string;
-  empresa: string;
-  unidad: string;
   fecha: Date;
   presupuesto:number
 }

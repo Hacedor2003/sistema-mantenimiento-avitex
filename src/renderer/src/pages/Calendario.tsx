@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { RootLayout } from '@renderer/components/AppLayout';
 import { useParams } from 'react-router-dom';
 import { Equipos } from 'src/main/db/Models';
@@ -20,12 +20,12 @@ const Calendario = (): JSX.Element => {
       setMaquina(response);
       setFechas(
         ciclo === 'lubricamiento'
-          ? response.dataValues.fecha_lubricamiento.map((item: fechaType) => ({
+          ? response?.dataValues.fecha_lubricamiento.map((item: fechaType) => ({
               startDate: new Date(item.startDate),
               endDate: new Date(item.endDate),
               key: item.key,
             }))
-          : response.dataValues.fecha_mantenimiento.map((item: fechaType) => ({
+          : response?.dataValues.fecha_mantenimiento.map((item: fechaType) => ({
               startDate: new Date(item.startDate),
               endDate: new Date(item.endDate),
               key: item.key,

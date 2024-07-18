@@ -1,7 +1,6 @@
 import { ComponentProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
-import React from 'react'
 
 export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element => {
   return (
@@ -51,13 +50,7 @@ export const Sidebar = (): JSX.Element => {
               className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300 w-max flex items-center gap-x-2"
               onClick={() => navigate('/home/anadir')}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48">
-                <g fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="4">
-                  <rect width="36" height="36" x="6" y="6" rx="3" />
-                  <path strokeLinecap="round" d="M24 16v16m-8-8h16" />
-                </g>
-              </svg>
-              Añadir
+              Administrador
             </li>
           )}
           <li

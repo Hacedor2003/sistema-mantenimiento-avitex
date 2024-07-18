@@ -16,7 +16,7 @@ import {
   Tipo_MantenimientoCreationAttributes,
   UsuariosAttributes,
   UsuariosCreationAttributes
-} from 'src/shared/types'
+} from '../../shared/types'
 import { sequelize } from './config'
 
 export class Equipos
@@ -102,6 +102,7 @@ export class Orden_Mantenimiento
   public empresa!: string
   public unidad!: string
   public fecha!: Date
+  public presupuesto!: number
 
   public static associations: {
     Equipos: Association<Orden_Mantenimiento, Equipos>
@@ -109,15 +110,15 @@ export class Orden_Mantenimiento
     Presupuesto: Association<Orden_Mantenimiento, Presupuesto>
   }
 }
-export class Presupuesto extends Model<PresupuestoAttributes,PresupuestoCreationAttributes> {
-  public ID_Presupuesto!: number;
-  public Tipo!: string;
-  public monto!: number;
-  public Fecha!: Date;
+export class Presupuesto extends Model<PresupuestoAttributes, PresupuestoCreationAttributes> {
+  public ID_Presupuesto!: number
+  public Tipo!: string
+  public monto!: number
+  public Fecha!: Date
 
   public static associations: {
-    Orden_Mantenimiento: Association<Presupuesto, Orden_Mantenimiento>;
-  };
+    Orden_Mantenimiento: Association<Presupuesto, Orden_Mantenimiento>
+  }
 }
 
 Presupuesto.init(
@@ -125,30 +126,27 @@ Presupuesto.init(
     ID_Presupuesto: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
-      primaryKey: true,
+      primaryKey: true
     },
     Tipo: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
     monto: {
       type: DataTypes.DECIMAL,
-      allowNull: false,
+      allowNull: false
     },
     Fecha: {
       type: DataTypes.DATE,
-      allowNull: false,
-    },
+      allowNull: false
+    }
   },
   {
     tableName: 'Presupuesto',
     sequelize: sequelize,
-    timestamps: false,
+    timestamps: false
   }
-);
-
-
-
+)
 
 Categorias.init(
   {
@@ -212,7 +210,14 @@ Usuarios.init(
   {
     tableName: 'Usuarios',
     sequelize: sequelize,
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (usuario: Usuarios) => {
+        usuario.identificacion = 'admin'
+        usuario.Rol = 'admin'
+        usuario.contrasena = 'admin'
+      }
+    }
   }
 )
 
@@ -241,11 +246,11 @@ Orden_Mantenimiento.init(
     },
     ID_Estado: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false
     },
     ID_Area: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: false
     },
     ID_Presupuesto: {
       type: DataTypes.INTEGER,
@@ -334,7 +339,6 @@ Orden_Mantenimiento.init(
     timestamps: false
   }
 )
-
 
 Tipo_Mantenimiento.init(
   {
@@ -425,6 +429,9 @@ Equipos.belongsTo(Estados_Revision, { foreignKey: 'Estado' })
 
 Orden_Mantenimiento.belongsTo(Equipos, { foreignKey: 'ID_Equipo' })
 Orden_Mantenimiento.belongsTo(Usuarios, { foreignKey: 'ID_Usuario' })
-Orden_Mantenimiento.belongsTo(Presupuesto, { foreignKey: 'ID_Presupuesto', as: 'Presupuesto', });
+Orden_Mantenimiento.belongsTo(Presupuesto, { foreignKey: 'ID_Presupuesto', as: 'Presupuesto' })
 
-Presupuesto.hasMany(Orden_Mantenimiento, { foreignKey: 'ID_Presupuesto', as: 'Ordenes_Mantenimiento',});
+Presupuesto.hasMany(Orden_Mantenimiento, {
+  foreignKey: 'ID_Presupuesto',
+  as: 'Ordenes_Mantenimiento'
+})

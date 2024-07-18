@@ -137,7 +137,9 @@ export const editOrden_Mantenimiento_By_Id = async (id, updatedOrdenMantenimient
   }
 }
 
-export const editPresupuesto_By_Id = async (id, updatedPresupuestoData) => {
+export const editPresupuesto_By_Id = async (...args) => {
+  const id = args[0];
+  const updatedPresupuestoData = args[1]
   try {
     const [updatedCount, [updatedPresupuesto]] = await Presupuesto.update(
       updatedPresupuestoData,

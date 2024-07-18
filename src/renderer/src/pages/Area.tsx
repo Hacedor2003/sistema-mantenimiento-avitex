@@ -3,7 +3,6 @@ import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Categorias, Equipos } from 'src/main/db/Models'
-import React from 'react'
 
 const Area = (): JSX.Element => {
   const { area: categoriaID } = useParams()
@@ -32,30 +31,6 @@ const Area = (): JSX.Element => {
           <h4 className="text-2xl font-bold w-full col-span-2">
             Area - {categoria?.dataValues.Nombre_Categoria}
           </h4>
-          <div className="col-span-4 w-full">
-            <label className="text-lg" htmlFor="selectCiclo">
-              Ciclo de{' '}
-            </label>
-            <select
-              name="selectCiclo"
-              id="selectCiclo"
-              className="border-b border-black cursor-pointer"
-            >
-              <option value="">Lubricacion</option>
-              <option value="">Mantenimiento</option>
-              <option value="">Todo</option>
-            </select>
-            <label className="mx-2 text-lg" htmlFor="inputBusqueda">
-              Buscar:
-            </label>
-            <input
-              className="border-b border-black"
-              type="text"
-              name="inputBusqueda"
-              id="inputBusqueda"
-              placeholder="Buscar:"
-            />
-          </div>
         </section>
         <table className="w-full mt-2 text-left text-lg">
           <thead>

@@ -4,7 +4,6 @@ import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Equipos } from 'src/main/db/Models'
-import React from 'react'
 
 const Details = (): JSX.Element => {
   const { details: productID } = useParams()

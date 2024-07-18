@@ -9,6 +9,7 @@ import {
   Estados_Revision,
   Orden_Mantenimiento,
   Presupuesto,
+  Tipo_Mantenimiento,
   Usuarios
 } from 'src/main/db/Models'
 import '../styles/orden.styles.css'
@@ -17,7 +18,6 @@ import { Orden_MantenimientoAttributes } from 'src/shared/types'
 export const Orden = () => {
   const [equipos, setEquipos] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
-  const [areas, setAreas] = useState<Categorias[]>([])
   const [estados, setEstados] = useState<Estados_Revision[]>([])
   const [presupuesto, setPresupuesto] = useState<Presupuesto[]>([])
 
@@ -27,6 +27,15 @@ export const Orden = () => {
   const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([])
   /* Pantalla */
   const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>('')
+    
+  /* Equipo  */
+  const [equipoImprimir, setEquipoImprimir] = useState<Equipos | null>(null)
+  const [areaImprimir, setAreaImprimir] = useState<Categorias | null>(null)
+  const [estadoImprimir, setEstadoImprimir] = useState<Estados_Revision | null>(null)
+  const [tipo_trabajo, setTipo_Trabajo] = useState<Presupuesto | null>(null)
+  
+  /* Filtrar por Fecha */
+  const [fechaBuscar, setFechaBuscar] = useState('')
 
   useEffect(() => {
     const obtenerDatos = async () => {
@@ -35,21 +44,18 @@ export const Orden = () => {
           responseEquipos,
           responseUsuarios,
           responseOrdenes,
-          responseCategorias_All,
           responseEstados_Revision_All,
           responsePresupuesto
         ] = await Promise.all([
           window.context.getEquipos_All(),
           window.context.getUsuarios_All(),
           window.context.getOrden_Mantenimiento_All(),
-          window.context.getCategorias_All(),
           window.context.getEstados_Revision_All(),
           window.context.getPresupuestos_All()
         ])
         setEquipos(responseEquipos)
         setUsuarios(responseUsuarios)
         setOrdenes(responseOrdenes)
-        setAreas(responseCategorias_All)
         setEstados(responseEstados_Revision_All)
         setPresupuesto(responsePresupuesto)
       } catch (error) {
@@ -59,18 +65,32 @@ export const Orden = () => {
 
     obtenerDatos()
   }, [ver])
-
+  
+  useEffect(() => {
+    const equipoSearch = async () => {
+      const response = await window.context.getEquipos_By_Id(orden?.ID_Equipo)
+      const areaResponse = await window.context.getCategorias_By_ID(orden?.ID_Area ?? 1)
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden?.ID_Estado ?? 1)
+      const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(parseInt(orden?.ID_Presupuesto ?? 1))
+      setEquipoImprimir(response)
+      setAreaImprimir(areaResponse)
+      setEstadoImprimir(estadoImprimir)
+      setTipo_Trabajo(tipo_trabajoResponse)
+    }
+    equipoSearch()
+    
+  }, [orden])
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    try {
+    
       const formData = new FormData(e.currentTarget)
 
       const newOrden: Orden_MantenimientoAttributes = {
         ID_Equipo: parseInt(formData.get('idEquipo') as string),
         ID_Usuario: parseInt(formData.get('idUsuario') as string),
         ID_Estado: parseInt(formData.get('idestado') as string),
-        ID_Area: parseInt(formData.get('idArea') as string),
         organismo: formData.get('organismo') as string,
         horarioParada: formData.get('horarioParada') as string,
         horarioComienzo: formData.get('horarioComienzo') as string,
@@ -79,39 +99,54 @@ export const Orden = () => {
         materialesUsados: formData.get('materialeUsados') as string,
         observaciones: formData.get('observaciones') as string,
         solicitadoPor: formData.get('solicitadoPor') as string,
-        aprobadoPor: formData.get('aprobadoPor') as string,
+        aprobadoPor: "Director",
         terminadoPor: formData.get('terminadoPor') as string,
         revisadoPor: formData.get('revisadoPor') as string,
         valeSalida: formData.get('valeSalida') as string,
-        objetivos: formData.get('objetivos') as string,
+        objetivos: ' ',
         tipo_trabajo: formData.get('trabajo') as string,
         empresa: formData.get('empresa') as string,
         unidad: formData.get('unidad') as string,
         fecha: new Date(),
         ID_Presupuesto: parseInt(formData.get('trabajo') as string),
-        presupuesto: parseInt(formData.get('presupuesto') as string)
-      }
+        presupuesto: parseInt(formData.get('presupuesto') as string),
+        ID_Area:-1
+    }
+    
+      newOrden.ID_Area = (await window.context.getCategorias_By_ID(newOrden.ID_Equipo))?.dataValues.ID_Categoria ?? -1
       setOrden(newOrden)
       const prevPresupuesto = await window.context.getPresupuestos_By_Id(newOrden.ID_Presupuesto)
-      prevPresupuesto.monto = prevPresupuesto.dataValues.monto - newOrden.presupuesto
-      prevPresupuesto.Fecha = new Date()
+      prevPresupuesto.dataValues.monto = prevPresupuesto.dataValues.monto - newOrden.presupuesto
+      prevPresupuesto.dataValues.Fecha = new Date()
       await window.context.createOrden_Mantenimiento(newOrden)
       alert('Orden de mantenimiento creada exitosamente')
-      const newPresupuesto = await window.context.editPresupuesto_By_Id(newOrden.ID_Presupuesto,prevPresupuesto)
-      alert('Presupuesto editado correctamente exitosamente: ' + newPresupuesto.dataValues.monto )
-    } catch (error) {
-      console.error('Error al crear la orden de mantenimiento:', error)
-      alert('Ocurrió un error al crear la orden de mantenimiento')
-    }
+      const newPresupuesto = await window.context.editPresupuesto_By_Id(newOrden.ID_Presupuesto, prevPresupuesto.dataValues)
+      if (newPresupuesto.dataValues.monto < 0) {
+        alert('Ha sobrepasado el presupuesto! \n Deuda: ' + newPresupuesto.dataValues.monto)
+      }
+    
   }
+  
+  const buscarFecha = () => {
+    const prevordenes = ordenes;
+    const newOrdenes = prevordenes.filter(item => item.dataValues.fecha.getDate().toString().includes(parseInt(fechaBuscar).toString()))
+    setOrdenes(newOrdenes);
+  }
+  
+  useEffect(() => {    
+    buscarFecha()
+  }, [fechaBuscar])
+  
 
   function imprimirOrden() {
     //window.context.imprimirOrden()
-    const contenido = document.getElementById('orden-imprimir').innerHTML
+    const contenido = document.getElementById('orden-imprimir')!.innerHTML
     const contenidoOriginal = document.body.innerHTML
     document.body.innerHTML = contenido
     document.body.className = 'imprimible'
     window.print()
+    document.body.innerHTML = ''
+    document.body.className = ''
     document.body.innerHTML = contenidoOriginal
   }
 
@@ -123,8 +158,8 @@ export const Orden = () => {
       </div>
 
       {ver === 'ver-orden' && (
-        <>
-          <header className="w-full flex flex-col items-center justify-around">
+        <main className='w-full px-2'>
+          <header className="w-full flex flex-col items-center justify-around mb-10">
             <h2 className="text-center text-3xl border-b-2 border-[#b70909] my-3">
               Ordenes de Mantenimiento
             </h2>
@@ -138,30 +173,23 @@ export const Orden = () => {
                 </p>
               ))}
             </div>
+            <Input_UI value={undefined} type='text' texto='Buscar Por fecha' required={false} name='' funcion={setFechaBuscar}/>
           </header>
-          <table className="w-full my-2 text-left text-lg">
+          <table className="min-w-fit my-2 text-left text-lg">
             <thead>
-              <th>ID_Orden</th>
-              <th>ID_Equipo</th>
-              <th>ID_Usuario</th>
-              <th>Tipo</th>
-              <th>Tipo de Presupuesto</th>
-              <th>Fecha</th>
+            <th>ID_Orden</th>
+            <th>Fecha</th>
             </thead>
             <tbody>
               {ordenes.map((itemOrden, index) => (
-                <tr key={index}>
+                <tr key={index} className='hover:cursor-pointer hover:border hover:border-black hover:bg-[#b70909] hover:text-white' onClick={() => { setOrden(itemOrden.dataValues); setVer('crear-orden')}}>
                   <td>{itemOrden.dataValues.ID_Orden}</td>
-                  <td>{itemOrden.dataValues.ID_Equipo}</td>
-                  <td>{itemOrden.dataValues.ID_Usuario}</td>
-                  <td>{itemOrden.dataValues.tipo_trabajo}</td>
-                  <td>{itemOrden.dataValues.ID_Presupuesto}</td>
                   <td>{itemOrden.dataValues.fecha.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </>
+        </main>
       )}
 
       {ver === 'crear-orden' && (
@@ -170,7 +198,7 @@ export const Orden = () => {
             Crear Orden de Mantenimiento
           </h2>
           <div className="w-full flex flex-col items-center justify-center">
-            <form onSubmit={handleSubmit} className="w-1/2 flex flex-col items-center p-2 gap-y-2">
+            <form onSubmit={handleSubmit} className="w-1/2 block p-2 gap-y-2">
               {/* Seleccionar Tecnico y Equipo */}
               <section className="flex flex-row gap-x-10 mb-5">
                 <SelectComponent
@@ -179,7 +207,7 @@ export const Orden = () => {
                       {equipo.dataValues.Nombre}
                     </option>
                   ))}
-                  value={undefined}
+                  value={ orden?.ID_Equipo ?? undefined}
                   required
                   onChange={() => {}}
                   name="idEquipo"
@@ -196,7 +224,7 @@ export const Orden = () => {
                       {usuario.dataValues.identificacion}
                     </option>
                   ))}
-                  value={undefined}
+                  value={ orden?.ID_Usuario ?? undefined}
                   required
                   onChange={() => {}}
                   name="idUsuario"
@@ -206,38 +234,14 @@ export const Orden = () => {
                 />
               </section>
 
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Organismo:"
-                name="organismo"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Empresa:"
-                name="empresa"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Unidad:"
-                name="unidad"
-                funcion={() => { }}
-                required={false}
-              />
-              <section className="flex flex-row gap-x-10 mb-5">
+          <div className='w-full flex gap-x-10'>
                 <SelectComponent
                   options={estados.map((estado) => (
                     <option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>
                       {estado.dataValues.Nombre_Estado}
                     </option>
                   ))}
-                  value={undefined}
+                  value={ orden?.ID_Estado ?? undefined}
                   required
                   onChange={() => {}}
                   name="idestado"
@@ -247,36 +251,13 @@ export const Orden = () => {
                 />
 
                 {/* Objetivos del Mantenimiento */}
-                <SelectComponent
-                  options={areas.map((area) => (
-                    <option key={area.dataValues.ID_Categoria} value={area.dataValues.ID_Categoria}>
-                      {area.dataValues.Nombre_Categoria}
-                    </option>
-                  ))}
-                  value={undefined}
-                  required
-                  onChange={() => {}}
-                  name="idArea"
-                  label="Area:*"
-                  id="idArea"
-                  className=""
-                />
-              </section>
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Objetivos Planificados:*"
-                name="objetivos"
-                funcion={() => { }}
-                required
-              />
               <SelectComponent
                 options={presupuesto.map((trabajo, index) => (
                   <option className='first-letter:uppercase' key={index} value={trabajo.dataValues.ID_Presupuesto}>
                     {trabajo.dataValues.Tipo}
                   </option>
                 ))}
-                value={undefined}
+                value={ orden?.ID_Presupuesto ?? undefined}
                 required
                 onChange={() => {}}
                 name="trabajo"
@@ -284,58 +265,19 @@ export const Orden = () => {
                 id="idTrabajo"
                 className=""
               />
+          </div>
               <Input_UI
                 type="text"
-                value={undefined}
-                texto="Horario de Maquina Parada:"
-                name="horarioParada"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Horario de Comienzo:"
-                name="horarioComienzo"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Horario de Puesta en Marcha:"
-                name="horarioPuestaMarcha"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Horario de Culminación:"
-                name="horarioCulminacion"
-                funcion={() => { }}
-                required={false}
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
-                texto="Materiales Usados:*"
-                name="materialeUsados"
-                funcion={() => { }}
-                required
-              />
-
-              <Input_UI
-                type="text"
-                value={undefined}
+                value={ orden?.observaciones ?? undefined}
                 texto="Observaciones:"
                 name="observaciones"
                 funcion={() => { }}
                 required={false}
               />
+            <div className='w-full flex'>
               <Input_UI
                 type="text"
-                value={undefined}
+                value={ orden?.solicitadoPor ?? undefined}
                 texto="Solicitado Por:*"
                 name="solicitadoPor"
                 funcion={() => { }}
@@ -343,15 +285,7 @@ export const Orden = () => {
               />
               <Input_UI
                 type="text"
-                value={undefined}
-                texto="Aprobado Por:*"
-                name="aprobadoPor"
-                funcion={() => { }}
-                required
-              />
-              <Input_UI
-                type="text"
-                value={undefined}
+                value={ orden?.terminadoPor ?? undefined}
                 texto="Terminado Por:*"
                 name="terminadoPor"
                 funcion={() => { }}
@@ -359,15 +293,18 @@ export const Orden = () => {
               />
               <Input_UI
                 type="text"
-                value={undefined}
+                value={ orden?.revisadoPor ?? undefined}
                 texto="Revisado Por:*"
                 name="revisadoPor"
                 funcion={() => { }}
                 required
-              />
+                />
+              </div>
+              
+            <div className='w-full flex'>
               <Input_UI
                 type="text"
-                value={undefined}
+                value={ orden?.valeSalida ?? undefined}
                 texto="Vale de Salida:"
                 name="valeSalida"
                 funcion={() => { }}
@@ -376,13 +313,13 @@ export const Orden = () => {
               
               <Input_UI
                 type="number"
-                value={undefined}
+                value={ orden?.presupuesto ?? undefined}
                 texto="Presupuesto:*"
                 name="presupuesto"
                 funcion={() => { }}
                 required
               />
-
+            </div>
               <div className="w-full flex items-center justify-center gap-x-2">
                 <Button_UI type="submit" texto="Crear Orden" funcion={() => {}} />
                 {orden && (
@@ -409,15 +346,15 @@ export const Orden = () => {
             <ul className="w-full grid grid-cols-4 border border-black">
               <li className="border-r border-black">
                 <h4>ORGANISMO</h4>
-                <p>{orden.organismo}</p>
+                <p>MINAG</p>
               </li>
               <li className="border-r border-black">
                 <h4>EMPRESA</h4>
-                <p>{orden.empresa}</p>
+                <p>AVITEX</p>
               </li>
               <li className="border-r border-black">
                 <h4>UNIDAD</h4>
-                <p>{orden.unidad}</p>
+                <p>UEB Fabrica</p>
               </li>
               <li>
                 <section>
@@ -425,17 +362,17 @@ export const Orden = () => {
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>D</h4>
-                      <p>{orden.fecha.getDate()}</p>
+                      <p>{orden.fecha.getDate() ?? ''}</p>
                     </li>
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>M</h4>
-                      <p>{orden.fecha.getMonth() + 1}</p>
+                      <p>{orden.fecha.getMonth() ?? ' ' + 1}</p>
                     </li>
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>A</h4>
-                      <p>{orden.fecha.getFullYear()}</p>
+                      <p>{orden.fecha.getFullYear() ?? ''}</p>
                     </li>
                   </ul>
                 </section>
@@ -445,32 +382,32 @@ export const Orden = () => {
             <ul className="w-full border border-black grid grid-cols-6 grid-rows-1">
               <li className="col-span-1 border-r border-black">
                 <h3>TIPO DE TRABAJO</h3>
-                <p>{orden.tipo_trabajo}</p>
+                <p>{tipo_trabajo?.dataValues.Tipo}</p>
               </li>
               <li className="col-span-1 border-r border-black">
                 <h3>CRONOGRAMA</h3>
-                <p>{orden.ID_Estado}</p>
+                <p>{estadoImprimir?.dataValues.Nombre_Estado}</p>
               </li>
               <li className="col-span-4 border-r border-black">
-                <h3>OBJETIVOS DEL MANTENIMIENTO:{orden.objetivos}</h3>
+                <h3>OBJETIVOS DEL MANTENIMIENTO:</h3>
                 <div className="w-full grid grid-cols-2">
                   <ul>
-                    <li>Area:{orden.ID_Area}</li>
-                    <li>Horario de Maquina de Parada:{orden.horarioParada}</li>
-                    <li>Horario de Comienzo:{orden.horarioComienzo}</li>
+                    <li>Area:{areaImprimir?.dataValues.Nombre_Categoria}</li>
+                    <li className='h-[50px]'>Tiempo de Parada:{orden.horarioParada}</li>
+                    <li className='h-[50px]'>Tiempo de Inicio:{orden.horarioComienzo}</li>
                   </ul>
                   <ul>
-                    <li>Equipo:{orden.ID_Equipo}</li>
-                    <li>Horario de Puesta en Marcha:{orden.horarioPuestaMarcha}</li>
-                    <li>Horario de Culminación:{orden.horarioCulminacion}</li>
+                    <li>Equipo: {equipoImprimir?.dataValues.Nombre + " " + equipoImprimir?.dataValues.Identificacion}</li>
+                    <li className='h-[50px]'>Tiempo de Puesta en Marcha:{orden.horarioPuestaMarcha}</li>
+                    <li className='h-[50px]'>Tiempo de Culminación:{orden.horarioCulminacion}</li>
                   </ul>
                 </div>
-                <h4>Materiales utilizados:{orden.materialesUsados}</h4>
+                <h4>Materiales utilizados: Referenciado en el Vale de Salida</h4>
               </li>
             </ul>
             <div className="w-full flex flex-col items-start border border-black">
               <h4>Observaciones:</h4>
-              <p>{orden.observaciones}</p>
+              <p className='w-full h-[300px]'>{orden.observaciones}</p>
             </div>
             <ul className="w-full border border-black grid grid-cols-6">
               <li className="border-r border-black flex flex-col">
@@ -488,9 +425,6 @@ export const Orden = () => {
               <li className="border-r border-black flex flex-col">
                 <h4>Vale de Salida:</h4> <p>{orden.valeSalida}</p>
               </li>
-              <li className="border-r border-black flex flex-col">
-                <h4>Numero de Orden:</h4> <p>{orden.numeroOrden}</p>
-              </li>
             </ul>
           </div>
           <Button_UI type="button" texto="Imprimir Orden" funcion={() => imprimirOrden()} />
@@ -500,24 +434,15 @@ export const Orden = () => {
   )
 }
 
-const SelectComponent = ({
-  id,
-  name,
-  label,
-  options,
-  value,
-  onChange,
-  required = false,
-  className
-}: {
-  id: string
-  name: string
-  label: string
-  options: Array
-  value: any
-  onChange: React.Dispatch<React.SetStateAction<any>>
-  required: boolean
-  className: string
+const SelectComponent = ({id,name,label,options,value,onChange,required = false,className}: {
+id: string
+name: string
+label: string
+options: any
+value: undefined
+onChange: React.Dispatch<React.SetStateAction<any>>
+required: boolean
+className: string
 }) => {
   return (
     <div className="flex flex-col gap-y-2">

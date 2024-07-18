@@ -7,7 +7,6 @@ import {
   Estados_Revision,
   Usuarios,
   Orden_Mantenimiento,
-  Ciclos_Mantenimiento
 } from '../db/Models'
 
 export const createEquipos = async (equipoData) => {

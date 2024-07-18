@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import React from 'react'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -46,11 +45,11 @@ const Home = (): JSX.Element => {
           })}
             
           </ul>
-        <ul className="px-2 flex flex-row flex-wrap justify-around">
+        <ul className="px-2 flex flex-row flex-wrap justify-around gap-2">
           {lista_areas.map((item, index) => (
             <ItemOfList_NavigationContent
               nombre={item.dataValues.Nombre_Categoria}
-              id={item.dataValues.ID_Categoria}
+              id={item.dataValues.ID_Categoria ?? -1}
               key={index}
             />
           ))}
