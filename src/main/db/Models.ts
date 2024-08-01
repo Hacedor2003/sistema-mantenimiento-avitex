@@ -372,7 +372,8 @@ Equipos.init(
     },
     Identificacion: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique:true
     },
     Origen: {
       type: DataTypes.STRING,

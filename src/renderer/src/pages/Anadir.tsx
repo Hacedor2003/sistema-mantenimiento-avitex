@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Categorias,
   Equipos,
@@ -20,15 +20,16 @@ export interface fechaType {
   startDate: Date
   endDate: Date
   key: string
+  tipoMantenimiento:string
 }
 
 const Anadir = (): JSX.Element => {
   const [fechaMantenimiento, setFechaMantenimiento] = useState<fechaType[]>([
-    { startDate: new Date(), endDate: addDays(new Date(), 7), key: 'selection' }
+    { startDate: new Date(), endDate: addDays(new Date(), 7), key: 'selection' , tipoMantenimiento:''}
   ])
   const [fecha_mantenimiento, setFecha_mantenimiento] = useState<fechaType[]>([])
   const [fechaLubricamiento, setFechaLubricamiento] = useState<fechaType[]>([
-    { startDate: new Date(), endDate: addDays(new Date(), 7), key: 'selection' }
+    { startDate: new Date(), endDate: addDays(new Date(), 7), key: 'selection' , tipoMantenimiento:''}
   ])
   const [fecha_lubricamiento, setFecha_lubricamiento] = useState<fechaType[]>([])
   const [ver, setVer] = useState<'area' | 'maquinaria' | 'usuario' | 'mantenimiento' | 'estado' | 'editar-presupuesto' | 'editar-area' | 'editar-maquinaria' | 'editar-usuario' | 'editar-mantenimiento' | 'editar-estado' | ''>('')
@@ -47,7 +48,7 @@ const Anadir = (): JSX.Element => {
     const idEditar = parseInt(formData.get('editar') as string)
     
 
-    
+    try {
       switch (ver) {
         case 'area':
           {
@@ -60,7 +61,7 @@ const Anadir = (): JSX.Element => {
         case 'maquinaria':
           {
             const newEquipo = await window.context.createEquipos({
-              TipoMantenimiento: parseInt(formData.get('tipoMantenimiento') as string),
+              TipoMantenimiento: 1,
               Origen: formData.get('origen') as string,
               Nombre: formData.get('nombre') as string,
               Identificacion: formData.get('iden') as string,
@@ -70,7 +71,8 @@ const Anadir = (): JSX.Element => {
               fecha_mantenimiento: fecha_mantenimiento.map((item) => ({
                 startDate: item.startDate.toISOString(),
                 endDate: item.endDate.toISOString(),
-                key: item.key
+                key: item.key,
+                tipoMantenimiento:item.tipoMantenimiento
               })),
               fecha_lubricamiento: fecha_lubricamiento.map((item) => ({
                 startDate: item.startDate.toISOString(),
@@ -210,62 +212,34 @@ const Anadir = (): JSX.Element => {
         default:
           break
       }
-    
+    } catch (error) {
+      console.error(error);
+      alert('Existio un Error: ' + error)
+    }
   }
-  
-  useEffect(() => {
-    window.context
-      .getCategorias_All()
-      .then((response) => {
-        setcategoriaData(response)
-      })
-      .catch((error) => console.log(error))
-  }, [categoriaData])
-  
-  useEffect(() => {
-    window.context
-      .getTipo_Mantenimiento_All()
-      .then((response) => {
-        setTipoMantenimientoData(response)
-      })
-      .catch((error) => console.log(error))
-  }, [tipoMantenimientoData])
-  
-  useEffect(() => {
-    window.context
-    .getEstados_Revision_All()
-    .then((response) => {
-      setEstadoData(response)
+  const fetchAllData = useCallback(() => {
+    Promise.all([
+      window.context.getCategorias_All(),
+      window.context.getTipo_Mantenimiento_All(),
+      window.context.getEstados_Revision_All(),
+      window.context.getPresupuestos_All(),
+      window.context.getEquipos_All(),
+      window.context.getUsuarios_All(),
+    ])
+    .then(([categoriaData, tipoMantenimientoData, estadoData, presupuestos, maquinarias, usuarios]) => {
+      setcategoriaData(categoriaData);
+      setTipoMantenimientoData(tipoMantenimientoData);
+      setEstadoData(estadoData);
+      setPresupuestos(presupuestos);
+      setMaquinarias(maquinarias);
+      setUsuarios(usuarios);
     })
-    .catch((error) => console.log(error))
-  }, [estadoData])
+    .catch((error) => console.log(error));
+  }, []);
   
   useEffect(() => {
-    window.context
-      .getPresupuestos_All()
-      .then((response) => {
-        setPresupuestos(response)
-      })
-      .catch((error) => console.log(error))
-  }, [presupuestos])
-  
-  useEffect(() => {
-    window.context
-      .getEquipos_All()
-      .then((response) => {
-        setMaquinarias(response)
-      })
-      .catch((error) => console.log(error))
-  }, [maquinarias])
-  
-  useEffect(() => {
-    window.context
-      .getUsuarios_All()
-      .then((response) => {
-        setUsuarios(response)
-      })
-      .catch((error) => console.log(error))
-  }, [usuarios])
+    fetchAllData();
+  }, [fetchAllData]);
   
   useEffect(() => {
     setFecha_mantenimiento((prevFecha) => {
@@ -309,6 +283,19 @@ const Anadir = (): JSX.Element => {
       )
     })
   }
+  
+  const handleTipoMantenimientoChange = (e, index, setFecha_mantenimiento) => {
+    const selectedTipoMantenimiento = parseInt(e.target.value);
+    setFecha_mantenimiento(prevFecha_mantenimiento => {
+      const updatedFecha_mantenimiento = [...prevFecha_mantenimiento];
+      updatedFecha_mantenimiento[index] = {
+        ...updatedFecha_mantenimiento[index],
+        tipoMantenimiento: selectedTipoMantenimiento
+      };
+      return updatedFecha_mantenimiento;
+    });
+  };
+  
 
   return (
     <RootLayout>
@@ -402,20 +389,6 @@ const Anadir = (): JSX.Element => {
               name="comentarios"
               required
             />
-
-            <label htmlFor="inputMantenimiento">Tipo de Mantenimiento</label>
-            <select
-              id="inputMantenimiento"
-              className="w-fit border border-black p-2 rounded-md cursor-pointer"
-              name='tipoMantenimiento'
-            >
-              <option value={-1}> Tipo de Mantenimiento </option>
-              {tipoMantenimientoData.map((mantenimientoItem, index) => (
-                <option key={index} value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}>
-                  {mantenimientoItem.dataValues.Tipo}
-                </option>
-              ))}
-            </select>
             <label htmlFor="inputEstado">Estado</label>
             <select
               name="estado"
@@ -455,23 +428,40 @@ const Anadir = (): JSX.Element => {
               <div>
                 <h3>Mantenimiento</h3>
                 <ul>
-                  {fecha_mantenimiento.map((item, index) => (
-                    <li key={index} className="p-1 flex flex-row items-center">
-                      <div className="flex flex-col items-center mx-2">
-                        <h6>Fecha Inicial</h6>
-                        <p>{item.startDate.toLocaleDateString() ?? ''}</p>
-                      </div>
-                      <div className="flex flex-col items-center mx-2">
-                        <h6>Fecha Final</h6>
-                        <p>{item.endDate.toLocaleDateString() ?? ''}</p>
-                      </div>
-                      <Button_UI
-                        type="button"
-                        texto="Borrar"
-                        funcion={() => handleDelete(item, setFecha_mantenimiento)}
-                      />
-                    </li>
-                  ))}
+                {fecha_mantenimiento.map((item, index) => (
+                  <li key={index} className="p-1 flex flex-row items-center">
+                    <div className="flex flex-col items-center mx-2">
+                      <h6>Fecha Inicial</h6>
+                      <p>{item.startDate.toLocaleDateString() ?? ''}</p>
+                    </div>
+                    <div className="flex flex-col items-center mx-2">
+                      <h6>Fecha Final</h6>
+                      <p>{item.endDate.toLocaleDateString() ?? ''}</p>
+                    </div>
+                    <div>
+                      <h6>Tipo de Mantenimiento</h6>
+                      <select
+                        id="inputMantenimiento"
+                        className="w-fit border border-black p-2 rounded-md cursor-pointer"
+                        name="tipoMantenimientoFecha"
+                        onChange={(e) => handleTipoMantenimientoChange(e, index, setFecha_mantenimiento)}
+                      >
+                        <option value={-1}> Tipo de Mantenimiento </option>
+                        {tipoMantenimientoData.map((mantenimientoItem, index) => (
+                          <option key={index} value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}>
+                            {mantenimientoItem.dataValues.Tipo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <Button_UI
+                      type="button"
+                      texto="Borrar"
+                      funcion={() => handleDelete(item, setFecha_mantenimiento)}
+                    />
+                  </li>
+                ))}
+
                 </ul>
               </div>
             </div>
