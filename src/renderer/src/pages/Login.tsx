@@ -55,6 +55,7 @@ const Login = (): JSX.Element => {
           </div>
           <Button_UI type="submit" texto="Entrar" funcion={() => {}} />
         </form>
+        <p>Derechos Reservados a Bit Tec SRL</p>
       </section>
     </main>
   )

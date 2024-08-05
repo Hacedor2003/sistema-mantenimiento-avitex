@@ -41,7 +41,7 @@ export const Orden = () => {
 
   /* Filtrar por Fecha */
   const [date, setDate] = useState<fechaType[]>([
-    { startDate: new Date(), endDate: new Date(), key: 'selection' }
+    { startDate: new Date(), endDate: new Date(), key: 'selection' , tipoMantenimiento:"" }
   ])
   const [searching, setSearching] = useState(false)
 
@@ -108,7 +108,7 @@ export const Orden = () => {
       const areaResponse = await window.context.getCategorias_By_ID(orden?.ID_Area ?? 1)
       const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden?.ID_Estado ?? 1)
       const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(
-        parseInt(orden?.ID_Presupuesto ?? 1)
+        parseInt((orden?.ID_Presupuesto)?.toString() ?? '1')
       )
       setEquipoImprimir(response)
       setAreaImprimir(areaResponse)
@@ -127,7 +127,6 @@ export const Orden = () => {
       ID_Equipo: parseInt(formData.get('idEquipo') as string),
       ID_Usuario: parseInt(formData.get('idUsuario') as string),
       ID_Estado: parseInt(formData.get('idestado') as string),
-      organismo: formData.get('organismo') as string,
       horarioParada: formData.get('horarioParada') as string,
       horarioComienzo: formData.get('horarioComienzo') as string,
       horarioPuestaMarcha: formData.get('horarioPuestaMarcha') as string,
@@ -141,8 +140,6 @@ export const Orden = () => {
       valeSalida: formData.get('valeSalida') as string,
       objetivos: ' ',
       tipo_trabajo: formData.get('trabajo') as string,
-      empresa: formData.get('empresa') as string,
-      unidad: formData.get('unidad') as string,
       fecha: new Date(),
       ID_Presupuesto: parseInt(formData.get('trabajo') as string),
       presupuesto: parseInt(formData.get('presupuesto') as string),
@@ -195,7 +192,7 @@ export const Orden = () => {
   }
   
   function searchOrden(id:number) {
-    return ordenes.find(item => item.dataValues.ID_Orden === id)
+    return ordenes.find(item => item.dataValues.ID_Orden === id) ?? null
   }
 
   return (
@@ -234,7 +231,7 @@ export const Orden = () => {
                 type="button"
                 texto="Borrar"
                 funcion={() =>
-                  {setDate([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]);
+                  {setDate([{ startDate: new Date(), endDate: new Date(), key: 'selection' , tipoMantenimiento:"" }]);
                   setSearching(false)}
                 }
               />
@@ -249,7 +246,7 @@ export const Orden = () => {
                       {item}
                     </option>
                   ))}
-                  value={filterOrdenes}
+                  value={parseInt(filterOrdenes)}
                   onChange={setFilterOrdenes}
                   name="filtro"
                   label="Filtro:"
@@ -266,7 +263,7 @@ export const Orden = () => {
               <tbody>
                 {searching &&
                   (  filterOrdenes === 'Todo' ? searchedOrden : filterOrdenes === 'Mantenimiento' ? searchedOrden.filter(item => item.ciclo === 'mantenimiento') : searchedOrden.filter(item => item.ciclo === 'lubricamiento')).map((itemOrden, index) => (
-                    <tr key={index} className="hover:cursor-pointer hover:border hover:border-black hover:bg-[#b70909] hover:text-white" onClick={() => {setOrden(itemOrden.ciclo === '' ? searchOrden(itemOrden.id)?.dataValues : {ID_Equipo:itemOrden.id}); setVer('crear-orden')}}>
+                    <tr key={index} className="hover:cursor-pointer hover:border hover:border-black hover:bg-[#b70909] hover:text-white" onClick={() => {setOrden(searchOrden(itemOrden.id)?.dataValues ?? null); setVer('crear-orden')}}>
                       <td>{itemOrden.id}</td> 
                       <td>{itemOrden.date.toLocaleDateString()}</td> 
                       <td>{itemOrden.ciclo}</td> 
@@ -274,7 +271,7 @@ export const Orden = () => {
                   ))}
                   {!searching &&
                   ( filterOrdenes === 'Todo' ? ordenesVerLista : filterOrdenes === 'Mantenimiento' ? ordenesVerLista.filter(item => item.ciclo === 'mantenimiento') : ordenesVerLista.filter(item => item.ciclo === 'lubricamiento')).map((itemOrden, index) => (
-                    <tr key={index} className="hover:cursor-pointer hover:border hover:border-black hover:bg-[#b70909] hover:text-white" onClick={() => {setOrden(itemOrden.ciclo === '' ? searchOrden(itemOrden.id)?.dataValues : {ID_Equipo:itemOrden.id}); setVer('crear-orden')}}>
+                    <tr key={index} className="hover:cursor-pointer hover:border hover:border-black hover:bg-[#b70909] hover:text-white" onClick={() => {setOrden(searchOrden(itemOrden.id)?.dataValues ?? null); setVer('crear-orden')}}>
                       <td>{itemOrden.id}</td> 
                       <td>{itemOrden.date.toLocaleDateString()}</td> 
                       <td>{itemOrden.ciclo}</td> 
@@ -327,7 +324,7 @@ export const Orden = () => {
                       {usuario.dataValues.identificacion}
                     </option>
                   ))}
-                  value={orden?.ID_Usuario ?? undefined}
+                  value={ orden?.ID_Usuario ?? undefined}
                   required
                   onChange={() => {}}
                   name="idUsuario"
@@ -469,17 +466,17 @@ export const Orden = () => {
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>D</h4>
-                      <p>{orden.fecha.getDate() ?? ''}</p>
+                      <p>{new Date().getDate() ?? ''}</p>
                     </li>
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>M</h4>
-                      <p>{orden.fecha.getMonth() ?? ' ' + 1}</p>
+                      <p>{new Date().getMonth() ?? ' ' + 1}</p>
                     </li>
                     <li className="border-r border-black w-full">
                       {' '}
                       <h4>A</h4>
-                      <p>{orden.fecha.getFullYear() ?? ''}</p>
+                      <p>{new Date().getFullYear() ?? ''}</p>
                     </li>
                   </ul>
                 </section>
@@ -521,23 +518,23 @@ export const Orden = () => {
             </ul>
             <div className="w-full flex flex-col items-start border border-black">
               <h4>Observaciones:</h4>
-              <p className="w-full h-[300px]">{orden.observaciones}</p>
+              <p className="w-full h-[300px]">{orden?.observaciones}</p>
             </div>
             <ul className="w-full border border-black grid grid-cols-6">
               <li className="border-r border-black flex flex-col">
-                <h4>Solicitado por:</h4> <p>{orden.solicitadoPor}</p>
+                <h4>Solicitado por:</h4> <p>{orden?.solicitadoPor}</p>
               </li>
               <li className="border-r border-black flex flex-col">
-                <h4>Aprobado por:</h4> <p>{orden.aprobadoPor}</p>
+                <h4>Aprobado por:</h4> <p>{orden?.aprobadoPor}</p>
               </li>
               <li className="border-r border-black flex flex-col">
-                <h4>Terminado por:</h4> <p>{orden.terminadoPor}</p>
+                <h4>Terminado por:</h4> <p>{orden?.terminadoPor}</p>
               </li>
               <li className="border-r border-black flex flex-col">
-                <h4>Revisado por:</h4> <p>{orden.revisadoPor}</p>
+                <h4>Revisado por:</h4> <p>{orden?.revisadoPor}</p>
               </li>
               <li className="border-r border-black flex flex-col">
-                <h4>Vale de Salida:</h4> <p>{orden.valeSalida}</p>
+                <h4>Vale de Salida:</h4> <p>{orden?.valeSalida}</p>
               </li>
             </ul>
           </div>
@@ -548,7 +545,7 @@ export const Orden = () => {
   )
 }
 
-const SelectComponent = ({
+export const SelectComponent = ({
   id,
   name,
   label,
@@ -562,7 +559,7 @@ const SelectComponent = ({
   name: string
   label: string
   options: any
-  value: undefined
+  value: number | undefined
   onChange: React.Dispatch<React.SetStateAction<any>>
   required: boolean
   className: string

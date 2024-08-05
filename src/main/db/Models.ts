@@ -260,10 +260,6 @@ Orden_Mantenimiento.init(
         key: 'ID_Presupuesto'
       }
     },
-    organismo: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
     horarioParada: {
       type: DataTypes.STRING,
       allowNull: true
@@ -315,14 +311,6 @@ Orden_Mantenimiento.init(
     tipo_trabajo: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    empresa: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    unidad: {
-      type: DataTypes.STRING,
-      allowNull: true
     },
     fecha: {
       type: DataTypes.DATE,

@@ -9,6 +9,7 @@ export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element =>
       <section className="w-full h-full border-t-4 border-[#b70909] overflow-scroll">
         {children}
       </section>
+      <p>Derechos Reservados a Bit Tec SRL</p>
     </main>
   )
 }
@@ -18,7 +19,7 @@ export const Sidebar = (): JSX.Element => {
   const user = JSON.parse(localStorage.getItem('user')!)
 
   return (
-    <aside className="w-full h-24 overflow-auto bg-white grid items-center grid-cols-3 overflow-y-hidden">
+    <main className="w-full h-24 overflow-auto bg-white grid items-center grid-cols-3 overflow-y-hidden">
       <header className="col-span-2 w-full h-5/6 self-start bg-[#b70909] flex flex-row items-center justify-center p-3 rounded-br-xl">
         <ul className="w-full flex flex-row items-center justify-around gap-x-3">
           <li
@@ -81,6 +82,6 @@ export const Sidebar = (): JSX.Element => {
           <img src={logo} alt="Logo" />
         </Link>
       </div>
-    </aside>
+    </main>
   )
 }

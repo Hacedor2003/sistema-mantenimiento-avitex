@@ -15,6 +15,7 @@ import React from 'react'
 import { DateRange } from 'react-date-range'
 import 'react-date-range/dist/styles.css' // main css file
 import 'react-date-range/dist/theme/default.css' // theme css file
+import { SelectComponent } from './Orden'
 
 export interface fechaType {
   startDate: Date
@@ -40,6 +41,12 @@ const Anadir = (): JSX.Element => {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([])
   const [maquinarias, setMaquinarias] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
+  
+  /* Para filtras las maquinas */
+  const [maquinariasFilter, setMaquinariasFilter] = useState(maquinarias)
+  const [filterMaquinas, setFilterMaquinas] = useState<string>("Todo")
+  const [filterMaquinaText, setFilterMaquinaText] = useState<string>('Todo')
+  const [selectedMaquinaria, setSelectedMaquinaria] = useState<Equipos | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -183,8 +190,17 @@ const Anadir = (): JSX.Element => {
               const estado = formData.get('estado') as string
               const origen = formData.get('origen') as string
               const mantenimiento = formData.get('mantenimiento') as string
-              const fechalubricamiento = formData.get('fechalubricamiento') as string
-              const fechamantenimiento = formData.get('fechamantenimiento') as string
+              const fechamantenimiento = fecha_mantenimiento.map((item) => ({
+                startDate: item.startDate.toISOString(),
+                endDate: item.endDate.toISOString(),
+                key: item.key,
+                tipoMantenimiento:item.tipoMantenimiento
+              }))
+              const fechalubricamiento= fecha_lubricamiento.map((item) => ({
+                startDate: item.startDate.toISOString(),
+                endDate: item.endDate.toISOString(),
+                key: item.key
+              }))
               const updatedEquipo = await window.context.editEquipos_By_Id(idEditar,{Nombre:nombre,Identificacion:identificacion,Origen:origen,Comentarios:comentarios,TipoMantenimiento:parseInt(mantenimiento),CategoriasID:parseInt(categoria),Estado:parseInt(estado),fecha_lubricamiento:fechalubricamiento,fecha_mantenimiento:fechamantenimiento})
               if (updatedEquipo) {
                 window.alert('Equipo actualizado exitosamente')
@@ -245,9 +261,16 @@ const Anadir = (): JSX.Element => {
     setFecha_mantenimiento((prevFecha) => {
       if (
         !prevFecha.some(
-          (item) =>
-            item.startDate.toISOString() === fechaMantenimiento[0].startDate.toISOString() &&
-            item.endDate.toISOString() === fechaMantenimiento[0].endDate.toISOString()
+          (item) => {
+            if (fechaMantenimiento.length > 0) {
+              const startDate = new Date(fechaMantenimiento[0].startDate);
+              const endDate = new Date(fechaMantenimiento[0].endDate);
+              const itemStartDate = new Date(item.startDate);
+              const itemEndDate = new Date(item.endDate)
+              
+              return itemStartDate.toISOString() === startDate.toISOString() && itemEndDate.toISOString() === endDate.toISOString()
+            } else return false
+            }
         )
       ) {
         return [...prevFecha, fechaMantenimiento[0]]
@@ -260,9 +283,16 @@ const Anadir = (): JSX.Element => {
     setFecha_lubricamiento((prevFecha) => {
       if (
         !prevFecha.some(
-          (item) =>
-            item.startDate.toISOString() === fechaLubricamiento[0].startDate.toISOString() &&
-            item.endDate.toISOString() === fechaLubricamiento[0].endDate.toISOString()
+          (item) => {
+            if (fechaLubricamiento.length > 0) {
+              const startDate = new Date(fechaLubricamiento[0].startDate)
+              const endDate = new Date(fechaLubricamiento[0].endDate)
+              const itemStartDate = new Date(item.startDate);
+              const itemEndDate = new Date(item.endDate)
+              
+              return itemStartDate.toISOString() === startDate.toISOString() && itemEndDate.toISOString() === endDate.toISOString()
+            } else return false
+          }
         )
       ) {
         return [...prevFecha, fechaLubricamiento[0]]
@@ -270,6 +300,19 @@ const Anadir = (): JSX.Element => {
       return prevFecha
     })
   }, [fechaLubricamiento])
+  
+  useEffect(() => {
+    const newEquipos: Equipos[] = maquinarias.filter(item => {
+      if (filterMaquinas !== "Todo") {
+        return item.dataValues.CategoriasID === parseInt(filterMaquinas)
+      }
+      if (filterMaquinaText !== "Todo") {
+        return item.dataValues.Nombre.toLocaleLowerCase().includes(filterMaquinaText.toLocaleLowerCase())
+      } else return false
+    })
+    setMaquinariasFilter(newEquipos.length === 0 ? maquinarias : newEquipos);
+  }, [maquinarias,filterMaquinaText,filterMaquinas])
+  
 
   const handleDelete = (
     item: fechaType,
@@ -277,9 +320,13 @@ const Anadir = (): JSX.Element => {
   ) => {
     setFunction((prevFecha) => {
       return prevFecha.filter(
-        (fecha) =>
-          fecha.startDate.toISOString() !== item.startDate.toISOString() ||
-          fecha.endDate.toISOString() !== item.endDate.toISOString()
+        (fecha) => {
+          const fechaStartDate = new Date(fecha.startDate)
+          const fechaEndDate = new Date(fecha.endDate)
+          const itemStartDate = new Date(item.startDate)
+          const itemEndDate = new Date(item.endDate)
+          
+          return fechaStartDate.toISOString() !== itemStartDate.toISOString() || fechaEndDate.toISOString() !== itemEndDate.toISOString()}
       )
     })
   }
@@ -432,11 +479,11 @@ const Anadir = (): JSX.Element => {
                   <li key={index} className="p-1 flex flex-row items-center">
                     <div className="flex flex-col items-center mx-2">
                       <h6>Fecha Inicial</h6>
-                      <p>{item.startDate.toLocaleDateString() ?? ''}</p>
+                      <p>{  new Date(item.startDate).toLocaleDateString() ?? item.startDate.toLocaleDateString() ?? '' }</p>
                     </div>
                     <div className="flex flex-col items-center mx-2">
                       <h6>Fecha Final</h6>
-                      <p>{item.endDate.toLocaleDateString() ?? ''}</p>
+                      <p>{  new Date(item.endDate).toLocaleDateString() ?? item.endDate.toLocaleDateString() ?? '' }</p>
                     </div>
                     <div>
                       <h6>Tipo de Mantenimiento</h6>
@@ -482,11 +529,11 @@ const Anadir = (): JSX.Element => {
                     <li key={index} className="p-1 flex flex-row items-center">
                       <div className="flex flex-col items-center mx-2">
                         <h6>Fecha Inicial</h6>
-                        <p>{item.startDate.toLocaleDateString() ?? ''}</p>
+                        <p>{new Date(item.startDate).toLocaleDateString() ?? item.startDate.toLocaleDateString()  ?? '' }</p>
                       </div>
                       <div className="flex flex-col items-center mx-2">
                         <h6>Fecha Final</h6>
-                        <p>{item.endDate.toLocaleDateString() ?? ''}</p>
+                        <p>{new Date(item.endDate).toLocaleDateString() ?? item.endDate.toLocaleDateString()  ?? '' }</p>
                       </div>
                       <Button_UI
                         type="button"
@@ -636,27 +683,138 @@ const Anadir = (): JSX.Element => {
         )}
         {ver === 'editar-maquinaria' && (
           <div className='w-full grid grid-cols-3'>
-          {maquinarias.map((maquinariaItem, index) => (
-            <section key={index} className='flex gap-x-2 items-end m-1'>
-              <form onSubmit={handleSubmit} className='p-2 border-2 border-[#b70909] rounded-xl m-1'>
-                <input type="hidden" name="editar" value={maquinariaItem.dataValues.ID_Equipo} />
-                <Input_UI value={undefined} type='text' texto={`Nombre: ${maquinariaItem.dataValues.Nombre}`} required name='nombre' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Identificacion: ${maquinariaItem.dataValues.Identificacion}`} required name='identificacion' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Categoria ID: ${maquinariaItem.dataValues.CategoriasID}`} required name='categoria' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Comentarios: ${maquinariaItem.dataValues.Comentarios}`} required name='comentarios' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Estado: ${maquinariaItem.dataValues.Estado}`} required name='estado' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Origen: ${maquinariaItem.dataValues.Origen}`} required name='origen' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Tipo Mantenimiento: ${maquinariaItem.dataValues.TipoMantenimiento}`} required name='mantenimiento' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Fecha Lubricamiento: ${maquinariaItem.dataValues.fecha_lubricamiento}`} required name='fechalubricamiento' funcion={()=>{}}/>
-                <Input_UI value={undefined} type='text' texto={`Fecha Mantenimiento: ${maquinariaItem.dataValues.fecha_mantenimiento}`} required name='fechamantenimiento' funcion={() => { }} />
+            <ul className='col-span-1 flex flex-col items-start'>
+              <li>
+              <SelectComponent
+                  options={categoriaData.map((item,index) => (
+                    <option
+                      key={index}
+                      value={item.dataValues.ID_Categoria}
+                    >
+                      {item.dataValues.Nombre_Categoria}
+                    </option>
+                  ))}
+                  value={parseInt(filterMaquinas)}
+                  onChange={setFilterMaquinas}
+                  name="filtro"
+                  label="Filtro:"
+                  id="idFiltro"
+                className=""
+                required={false}
+                />
+              </li>
+              <li>
+                <Input_UI value={filterMaquinaText} type='text' texto='Nombre de la maquina' required={false} name='filterMaquina' funcion={setFilterMaquinaText} />
+              </li>
+            </ul>
+            <ul className='col-span-1 flex flex-col items-start'>
+              <li className='text-xl font-bold'>Equipos:</li>
+              {maquinariasFilter.map((maquinariaItem, index) => 
+                <li key={index} className='flex'>
+                  <p onClick={() => { setSelectedMaquinaria(maquinariaItem); setFechaMantenimiento(maquinariaItem.dataValues.fecha_mantenimiento); setFechaLubricamiento(maquinariaItem.dataValues.fecha_lubricamiento)}} >{maquinariaItem.dataValues.Nombre}</p>
+              </li>)}
+            </ul>
+            { selectedMaquinaria && <div className='col-span-1'>
+            <form onSubmit={handleSubmit} className='p-2 border-2 border-[#b70909] rounded-xl m-1 h-max'>
+                <input type="hidden" name="editar" value={selectedMaquinaria?.dataValues.ID_Equipo} />
+                <Input_UI value={undefined} type='text' texto={`Nombre: ${selectedMaquinaria?.dataValues.Nombre}`} required name='nombre' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Identificacion: ${selectedMaquinaria?.dataValues.Identificacion}`} required name='identificacion' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Categoria ID: ${selectedMaquinaria?.dataValues.CategoriasID}`} required name='categoria' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Comentarios: ${selectedMaquinaria?.dataValues.Comentarios}`} required name='comentarios' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Estado: ${selectedMaquinaria?.dataValues.Estado}`} required name='estado' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Origen: ${selectedMaquinaria?.dataValues.Origen}`} required name='origen' funcion={()=>{}}/>
+                <Input_UI value={undefined} type='text' texto={`Tipo Mantenimiento: ${selectedMaquinaria?.dataValues.TipoMantenimiento}`} required name='mantenimiento' funcion={()=>{}}/>
+                <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
+              <div>
+                <h4>Escoga la fecha del Mantenimiento:</h4>
+                <DateRange
+                  editableDateInputs={true}
+                  onChange={(item) => setFechaMantenimiento([item.selection])}
+                  moveRangeOnFirstSelection={false}
+                  ranges={selectedMaquinaria.dataValues.fecha_mantenimiento}
+                />
+              </div>
+              <div>
+                <h3>Mantenimiento</h3>
+                <ul>
+                {fecha_mantenimiento.map((item, index) => (
+                  <li key={index} className="p-1 flex flex-row items-center">
+                    <div className="flex flex-col items-center mx-2">
+                      <h6>Fecha Inicial</h6>
+                      <p>{new Date(item.startDate).toLocaleDateString() ?? item.startDate.toLocaleDateString()  ?? '' }</p>
+                    </div>
+                    <div className="flex flex-col items-center mx-2">
+                      <h6>Fecha Final</h6>
+                      <p>{new Date(item.endDate).toLocaleDateString() ?? item.endDate.toLocaleDateString()  ?? '' }</p>
+                    </div>
+                    <div>
+                      <h6>Tipo de Mantenimiento</h6>
+                      <select
+                        id="inputMantenimiento"
+                        className="w-fit border border-black p-2 rounded-md cursor-pointer"
+                        name="tipoMantenimientoFecha"
+                        onChange={(e) => handleTipoMantenimientoChange(e, index, setFecha_mantenimiento)}
+                        value={parseInt(item.tipoMantenimiento)}
+                      >
+                        <option value={-1}> Tipo de Mantenimiento </option>
+                        {tipoMantenimientoData.map((mantenimientoItem, index) => (
+                          <option key={index} value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}>
+                            {mantenimientoItem.dataValues.Tipo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <Button_UI
+                      type="button"
+                      texto="Borrar"
+                      funcion={() => handleDelete(item, setFecha_mantenimiento)}
+                    />
+                  </li>
+                ))}
+
+                </ul>
+                  </div>
+                  <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
+              <div>
+                <h4>Escoga la fecha del Lubricación:</h4>
+                <DateRange
+                  editableDateInputs={true}
+                  onChange={(item) => setFechaLubricamiento([item.selection])}
+                  moveRangeOnFirstSelection={false}
+                  ranges={fechaLubricamiento}
+                />
+              </div>
+              <div>
+                <h3>Lubricación</h3>
+                <ul>
+                  {fecha_lubricamiento.map((item, index) => (
+                    <li key={index} className="p-1 flex flex-row items-center">
+                      <div className="flex flex-col items-center mx-2">
+                        <h6>Fecha Inicial</h6>
+                        <p>{ item.startDate ? new Date(item.startDate).toLocaleDateString() ?? '' : '' }</p>
+                      </div>
+                      <div className="flex flex-col items-center mx-2">
+                        <h6>Fecha Final</h6>
+                        <p>{ item.endDate ? new Date(item.endDate).toLocaleDateString() ?? '' : '' }</p>
+                      </div>
+                      <Button_UI
+                        type="button"
+                        texto="Borrar"
+                        funcion={() => handleDelete(item, setFecha_lubricamiento)}
+                      />
+                    </li>
+                  ))}
+                </ul>
+                    </div>
+            </div>
+            </div>
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={maquinariaItem.dataValues.ID_Equipo} />
+                <input type="hidden" name="borrar" value={selectedMaquinaria?.dataValues.ID_Equipo} />
                 <Button_UI texto='Borrar' type='submit' funcion={()=>{}}/>
               </form>
-            </section>
-          ))}
+            </div>}
         </div>
         )}
         {ver === 'editar-usuario' && (
