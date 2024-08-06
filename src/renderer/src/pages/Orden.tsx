@@ -7,6 +7,7 @@ import {
   Categorias,
   Equipos,
   Estados_Revision,
+  Orden_Mantenimiento,
   Presupuesto,
   Tipo_Mantenimiento,
   Usuarios
@@ -27,12 +28,13 @@ export type itemOrdenes = {
 
 export const Orden = () => {
   const { id: equipoID } = useParams()
-  
+
   const [equipos, setEquipos] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
   const [estados, setEstados] = useState<Estados_Revision[]>([])
   const [presupuesto, setPresupuesto] = useState<Presupuesto[]>([])
   const [tipos_mantenimientos, setTipo_Mantenimiento] = useState<Tipo_Mantenimiento[]>([])
+  const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([])
 
   /* Crear Orden */
   const [orden, setOrden] = useState<Orden_MantenimientoAttributes | null>(null)
@@ -41,9 +43,11 @@ export const Orden = () => {
   /* Ver Ordenes */
   const [ordenesVerLista, setOrdenesVerLista] = useState<itemOrdenes[]>([])
   const [searchedOrden, setSearchedOrden] = useState<itemOrdenes[]>([])
-  
+
   /* Pantalla */
-  const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>(equipoID ? 'crear-orden' : '')
+  const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>(
+    equipoID ? 'crear-orden' : ''
+  )
 
   /* Equipo  */
   const [equipoImprimir, setEquipoImprimir] = useState<Equipos | null>(null)
@@ -61,7 +65,14 @@ export const Orden = () => {
   useEffect(() => {
     const obtenerDatos = async () => {
       try {
-        const [responseEquipos,responseUsuarios,responseOrdenes,responseEstados_Revision_All,responsePresupuesto,responseTiposMantenimiento] = await Promise.all([
+        const [
+          responseEquipos,
+          responseUsuarios,
+          responseOrdenes,
+          responseEstados_Revision_All,
+          responsePresupuesto,
+          responseTiposMantenimiento
+        ] = await Promise.all([
           window.context.getEquipos_All(),
           window.context.getUsuarios_All(),
           window.context.getOrden_Mantenimiento_All(),
@@ -71,7 +82,7 @@ export const Orden = () => {
         ])
         if (responseEquipos.length > 0) {
           setEquipos(responseEquipos)
-        } else alert("No hay equipos")
+        } else alert('No hay equipos')
         if (responseUsuarios.length > 0) {
           setUsuarios(responseUsuarios)
         } else alert('No hay usuarios')
@@ -84,25 +95,29 @@ export const Orden = () => {
         if (responsePresupuesto.length > 0) {
           setPresupuesto(responsePresupuesto)
         } else alert('No hay presupuesto')
-          
+        setOrdenes(responseOrdenes)
+
         setOrdenesVerLista(
           responseEquipos.flatMap((item) => [
             ...item.dataValues.fecha_lubricamiento.flatMap((itemItem) => {
-              if (new Date(itemItem.startDate).toLocaleDateString() !== new Date(itemItem.endDate).toLocaleDateString()) {
+              if (
+                new Date(itemItem.startDate).toLocaleDateString() !==
+                new Date(itemItem.endDate).toLocaleDateString()
+              ) {
                 return [
                   {
                     nombre: item.dataValues.Nombre,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'lubricación',
-                    tipoMantenimiento: ""
+                    tipoMantenimiento: ''
                   },
                   {
                     nombre: item.dataValues.Nombre,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.endDate),
                     ciclo: 'lubricación',
-                    tipoMantenimiento: ""
+                    tipoMantenimiento: ''
                   }
                 ]
               } else {
@@ -112,7 +127,7 @@ export const Orden = () => {
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'lubricación',
-                    tipoMantenimiento: ""
+                    tipoMantenimiento: ''
                   }
                 ]
               }
@@ -125,14 +140,18 @@ export const Orden = () => {
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'mantenimiento',
-                    tipoMantenimiento: tipos_mantenimientos.find((item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento)?.dataValues.Tipo
+                    tipoMantenimiento: tipos_mantenimientos.find(
+                      (item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento
+                    )?.dataValues.Tipo
                   },
                   {
                     nombre: item.dataValues.Nombre,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.endDate),
                     ciclo: 'mantenimiento',
-                    tipoMantenimiento: tipos_mantenimientos.find((item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento)?.dataValues.Tipo
+                    tipoMantenimiento: tipos_mantenimientos.find(
+                      (item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento
+                    )?.dataValues.Tipo
                   }
                 ]
               } else {
@@ -142,7 +161,9 @@ export const Orden = () => {
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'mantenimiento',
-                    tipoMantenimiento: tipos_mantenimientos.find((item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento)?.dataValues.Tipo
+                    tipoMantenimiento: tipos_mantenimientos.find(
+                      (item) => item.dataValues.ID_Tipo_Mantenimiento === itemItem.tipoMantenimiento
+                    )?.dataValues.Tipo
                   }
                 ]
               }
@@ -154,8 +175,8 @@ export const Orden = () => {
             id: item.dataValues.ID_Orden ?? -1,
             date: item.dataValues.fecha,
             ciclo: 'orden',
-            tipoMantenimiento: '-1',
-            nombre: "orden"
+            tipoMantenimiento: 'Orden Pendiente',
+            nombre: 'orden'
           }))
 
           return [...prevItems, ...nuevosItems]
@@ -170,38 +191,47 @@ export const Orden = () => {
 
   useEffect(() => {
     const equipoSearch = async () => {
-        const response = await window.context.getEquipos_By_Id(orden?.ID_Equipo)
-        const areaResponse = await window.context.getCategorias_By_ID(orden!.ID_Area)
-        const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden!.ID_Estado)
-        const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden!.ID_Presupuesto)
-        const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(equipoSeleccionado!.dataValues!.TipoMantenimiento)
-        setEquipoImprimir(response)
-        setAreaImprimir(areaResponse)
-        setEstadoImprimir(estadoImprimir)
-        setTipo_Trabajo(tipo_trabajoResponse)
-        seTipo_Mantenimiento(tipo_mante)
-    
-    }
-    equipoSearch()
-  }, [orden])
-  
-  useEffect(() => {
-    const equipoSearch = async () => {
-      const response = await window.context.getEquipos_By_Id(equipoSeleccionado?.dataValues.ID_Equipo)
-      const areaResponse = await window.context.getCategorias_By_ID(equipoSeleccionado!.dataValues.CategoriasID)
-      const estadoImprimir = await window.context.getEstados_Revision_By_Id(equipoSeleccionado!.dataValues.Estado)
-      //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado?.dataValues.p)
-      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(equipoSeleccionado!.dataValues!.TipoMantenimiento)
+      const response = await window.context.getEquipos_By_Id(orden?.ID_Equipo)
+      const areaResponse = await window.context.getCategorias_By_ID(orden!.ID_Area)
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden!.ID_Estado)
+      const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden!.ID_Presupuesto)
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
+        equipoSeleccionado!.dataValues!.TipoMantenimiento
+      )
       setEquipoImprimir(response)
       setAreaImprimir(areaResponse)
       setEstadoImprimir(estadoImprimir)
-      //setTipo_Trabajo(tipo_trabajoResponse)
+      setTipo_Trabajo(tipo_trabajoResponse)
       seTipo_Mantenimiento(tipo_mante)
-  
-  }
-  equipoSearch()
+    }
+    equipoSearch()
+  }, [orden])
+
+  useEffect(() => {
+    const equipoSearch = async () => {
+      const response = await window.context.getEquipos_By_Id(
+        equipoSeleccionado?.dataValues.ID_Equipo
+      )
+      const areaResponse = await window.context.getCategorias_By_ID(
+        equipoSeleccionado!.dataValues.CategoriasID
+      )
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(
+        equipoSeleccionado!.dataValues.Estado
+      )
+      const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden?.ID_Presupuesto ?? 2)
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
+        equipoSeleccionado!.dataValues!.TipoMantenimiento
+      )
+      setEquipoImprimir(response)
+      setAreaImprimir(areaResponse)
+      setEstadoImprimir(estadoImprimir)
+      setTipo_Trabajo(tipo_trabajoResponse)
+      seTipo_Mantenimiento(tipo_mante)
+      
+    }
+    equipoSearch()
   }, [equipoSeleccionado, equiposSeleccionadoLista])
-  
+
   useEffect(() => {
     if (date && date[0].startDate && date[0].endDate) {
       const newOrdenes = ordenesVerLista.filter((item) => {
@@ -229,57 +259,61 @@ export const Orden = () => {
       setSearchedOrden([])
     }
   }, [date])
-  
+
   useEffect(() => {
     const equipoSearch = async () => {
       const response = await window.context.getEquipos_By_Id(equipoID)
-      const areaResponse = await window.context.getCategorias_By_ID(response!.dataValues.CategoriasID)
-      const estadoImprimir = await window.context.getEstados_Revision_By_Id(response!.dataValues.Estado)
+      const areaResponse = await window.context.getCategorias_By_ID(
+        response!.dataValues.CategoriasID
+      )
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(
+        response!.dataValues.Estado
+      )
       //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado!.dataValues.p)
-      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(response!.dataValues.TipoMantenimiento)
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
+        response!.dataValues.TipoMantenimiento
+      )
       setEquipoImprimir(response)
       setAreaImprimir(areaResponse)
       setEstadoImprimir(estadoImprimir)
       //setTipo_Trabajo(tipo_trabajoResponse)
       seTipo_Mantenimiento(tipo_mante)
-      
+
       setEquipoSeleccionado(response)
-  
-  }
-  equipoSearch()
+    }
+    equipoSearch()
   }, [])
-  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
-    const formData = new FormData(e.currentTarget)
-
-    const newOrden: Orden_MantenimientoAttributes = {
-      ID_Equipo:parseInt(formData.get('idEquipo') as string) ?? equipoSeleccionado?.dataValues.ID_Equipo,
-      ID_Usuario: parseInt(formData.get('idUsuario') as string),
-      ID_Estado: parseInt(formData.get('idestado') as string),
-      horarioParada: formData.get('horarioParada') as string,
-      horarioComienzo: formData.get('horarioComienzo') as string,
-      horarioPuestaMarcha: formData.get('horarioPuestaMarcha') as string,
-      horarioCulminacion: formData.get('horarioCulminacion') as string,
-      materialesUsados: ' ',
-      observaciones: formData.get('observaciones') as string,
-      solicitadoPor: formData.get('solicitadoPor') as string,
-      aprobadoPor: 'Director',
-      terminadoPor: formData.get('terminadoPor') as string,
-      revisadoPor: formData.get('revisadoPor') as string,
-      valeSalida: formData.get('valeSalida') as string,
-      objetivos: ' ',
-      tipo_trabajo: formData.get('trabajo') as string,
-      tipo_mantenimiento: parseInt((formData.get('mantenimiento') as string) ?? 2),
-      fecha: date[0].startDate,
-      ID_Presupuesto: parseInt(formData.get('trabajo') as string),
-      presupuesto: parseInt(formData.get('presupuesto') as string),
-      ID_Area: equipoSeleccionado!.dataValues.CategoriasID
-    }
-
     try {
+      const formData = new FormData(e.currentTarget)
+
+      const newOrden: Orden_MantenimientoAttributes = {
+        ID_Equipo:
+          parseInt(formData.get('idEquipo') as string) ?? equipoSeleccionado?.dataValues.ID_Equipo,
+        ID_Usuario: parseInt(formData.get('idUsuario') as string),
+        ID_Estado: parseInt(formData.get('idestado') as string),
+        horarioParada: formData.get('horarioParada') as string,
+        horarioComienzo: formData.get('horarioComienzo') as string,
+        horarioPuestaMarcha: formData.get('horarioPuestaMarcha') as string,
+        horarioCulminacion: formData.get('horarioCulminacion') as string,
+        materialesUsados: ' ',
+        observaciones: formData.get('observaciones') as string,
+        solicitadoPor: formData.get('solicitadoPor') as string,
+        aprobadoPor: 'Director',
+        terminadoPor: formData.get('terminadoPor') as string,
+        revisadoPor: formData.get('revisadoPor') as string,
+        valeSalida: formData.get('valeSalida') as string,
+        objetivos: ' ',
+        tipo_trabajo: formData.get('trabajo') as string,
+        tipo_mantenimiento: parseInt((formData.get('mantenimiento') as string) ?? 2),
+        fecha: date[0].startDate,
+        ID_Presupuesto: parseInt(formData.get('trabajo') as string),
+        presupuesto: parseInt(formData.get('presupuesto') as string),
+        ID_Area: orden?.ID_Area ?? equipoSeleccionado!.dataValues.CategoriasID
+      }
+
       setOrden(newOrden)
       if (newOrden.presupuesto) {
         const prevPresupuesto = await window.context.getPresupuestos_By_Id(newOrden.ID_Presupuesto)
@@ -293,7 +327,9 @@ export const Orden = () => {
           alert('Ha sobrepasado el presupuesto! \n Deuda: ' + newPresupuesto.dataValues.monto)
         }
       }
-      await window.context.createOrden_Mantenimiento(newOrden)
+      const res = await window.context.createOrden_Mantenimiento(newOrden)
+      setOrden(res.dataValues)
+      console.log(res)
       alert('Orden de mantenimiento creada exitosamente')
     } catch (error: any) {
       alert('Error: ' + error.message)
@@ -312,10 +348,15 @@ export const Orden = () => {
     document.body.innerHTML = contenidoOriginal
   }
 
-  const handleSetOrden = (item) => {
-    const e = equipos.find((i) => i.dataValues.ID_Equipo === item.id)
-    setequiposSeleccionadoLista(item)
-    setEquipoSeleccionado(e ?? null)
+  const handleSetOrden = (item: itemOrdenes) => {
+    if (item.ciclo === 'orden') {
+      setOrden(ordenes.find((i) => i.dataValues.ID_Orden === item.id)?.dataValues ?? null)
+      console.log(orden)
+    } else {
+      const e = equipos.find((i) => i.dataValues.ID_Equipo === item.id)
+      setequiposSeleccionadoLista(item)
+      setEquipoSeleccionado(e ?? null)
+    }
   }
 
   return (

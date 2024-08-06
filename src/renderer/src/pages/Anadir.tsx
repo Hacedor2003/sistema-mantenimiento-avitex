@@ -6,6 +6,7 @@ import {
   Categorias,
   Equipos,
   Estados_Revision,
+  Orden_Mantenimiento,
   Presupuesto,
   Tipo_Mantenimiento,
   Usuarios
@@ -43,7 +44,7 @@ const Anadir = (): JSX.Element => {
     }
   ])
   const [fecha_lubricamiento, setFecha_lubricamiento] = useState<fechaType[]>([])
-  const [ver, setVer] = useState<    | 'area'    | 'maquinaria'    | 'usuario'    | 'mantenimiento'    | 'estado'    | 'editar-presupuesto'    | 'editar-area'    | 'editar-maquinaria'    | 'editar-usuario'    | 'editar-mantenimiento'    | 'editar-estado'    | ''>('')
+  const [ver, setVer] = useState<  "editar-orden"    | 'area'    | 'maquinaria'    | 'usuario'    | 'mantenimiento'    | 'estado'    | 'editar-presupuesto'    | 'editar-area'    | 'editar-maquinaria'    | 'editar-usuario'    | 'editar-mantenimiento'    | 'editar-estado'    | ''>('')
 
   const [estadoData, setEstadoData] = useState<Estados_Revision[]>([])
   const [tipoMantenimientoData, setTipoMantenimientoData] = useState<Tipo_Mantenimiento[]>([])
@@ -51,6 +52,7 @@ const Anadir = (): JSX.Element => {
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([])
   const [maquinarias, setMaquinarias] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
+  const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([])
 
   /* Para filtras las maquinas */
   const [maquinariasFilter, setMaquinariasFilter] = useState(maquinarias)
@@ -261,6 +263,41 @@ const Anadir = (): JSX.Element => {
             }
           }
           break
+        case 'editar-orden':{
+          if (idBorrar) {
+            await window.context.deleteOrden_Mantenimiento_By_Id(idBorrar)
+            window.alert('Orden eliminada exitosamente')
+          } else if (idEditar) {
+
+            const updatedUsuario = await window.context.editOrden_Mantenimiento_By_Id(idEditar, {
+ID_Equipo:parseInt(formData.get('ID_Equipo') as string),
+ID_Usuario:parseInt(formData.get('ID_Usuario') as string),
+ID_Estado:parseInt(formData.get('ID_Estado') as string),
+ID_Area:parseInt(formData.get('ID_Area') as string),
+ID_Presupuesto:parseInt(formData.get('ID_Presupuesto') as string),
+horarioParada:formData.get('horarioParada') as string,
+horarioComienzo:formData.get('horarioComienzo') as string,
+horarioPuestaMarcha:formData.get('horarioPuestaMarcha') as string,
+horarioCulminacion:formData.get('horarioCulminacion') as string,
+materialesUsados:formData.get('materialesUsados') as string,
+observaciones:formData.get('observaciones') as string,
+solicitadoPor:formData.get('solicitadoPor') as string,
+aprobadoPor:formData.get('aprobadoPor') as string,
+terminadoPor:formData.get('terminadoPor') as string,
+revisadoPor:formData.get('revisadoPor') as string,
+valeSalida:formData.get('valeSalida') as string,
+objetivos:formData.get('objetivos') as string,
+tipo_trabajo:formData.get('tipo_trabajo') as string,
+tipo_mantenimiento:parseInt(formData.get('tipo_mantenimiento') as string),
+fecha:new Date(formData.get('fecha') as string),
+presupuesto:parseInt(formData.get('presupuesto') as string),
+            })
+            if (updatedUsuario) {
+              window.alert('Orden actualizada exitosamente')
+            }
+          }
+        }
+          break
         default:
           break
       }
@@ -276,7 +313,8 @@ const Anadir = (): JSX.Element => {
       window.context.getEstados_Revision_All(),
       window.context.getPresupuestos_All(),
       window.context.getEquipos_All(),
-      window.context.getUsuarios_All()
+      window.context.getUsuarios_All(),
+      window.context.getOrden_Mantenimiento_All()
     ])
       .then(
         ([
@@ -285,7 +323,8 @@ const Anadir = (): JSX.Element => {
           estadoData,
           presupuestos,
           maquinarias,
-          usuarios
+          usuarios,
+          ordenes
         ]) => {
           setcategoriaData(categoriaData)
           setTipoMantenimientoData(tipoMantenimientoData)
@@ -293,6 +332,7 @@ const Anadir = (): JSX.Element => {
           setPresupuestos(presupuestos)
           setMaquinarias(maquinarias)
           setUsuarios(usuarios)
+          setOrdenes(ordenes)
         }
       )
       .catch((error) => console.log(error))
@@ -403,31 +443,20 @@ const Anadir = (): JSX.Element => {
               <Button_UI funcion={() => setVer('area')} type="button" texto="Area" />
               <Button_UI funcion={() => setVer('maquinaria')} type="button" texto="Equipo" />
               <Button_UI funcion={() => setVer('usuario')} type="button" texto="Usuario" />
-              <Button_UI
-                funcion={() => setVer('mantenimiento')}
-                type="button"
-                texto="Tipo de Mantenimiento"
-              />
+              <Button_UI funcion={() => setVer('mantenimiento')} type="button" texto="Tipo de Mantenimiento"/>
               <Button_UI funcion={() => setVer('estado')} type="button" texto="Estado" />
             </div>
           </div>
           <div>
             <h4 className="text-4xl font-serif font-bold my-2">Desea Editar?</h4>
             <div className="p-1 flex items-center gap-x-4">
-              <Button_UI
-                funcion={() => setVer('editar-presupuesto')}
-                type="button"
-                texto="Presupuesto"
-              />
+              <Button_UI funcion={() => setVer('editar-presupuesto')} type="button" texto="Presupuesto"/>
               <Button_UI funcion={() => setVer('editar-area')} type="button" texto="Area" />
               <Button_UI funcion={() => setVer('editar-maquinaria')} type="button" texto="Equipo" />
               <Button_UI funcion={() => setVer('editar-usuario')} type="button" texto="Usuario" />
-              <Button_UI
-                funcion={() => setVer('editar-mantenimiento')}
-                type="button"
-                texto="Tipo de Mantenimiento"
-              />
+              <Button_UI funcion={() => setVer('editar-mantenimiento')} type="button" texto="Tipo de Mantenimiento"/>
               <Button_UI funcion={() => setVer('editar-estado')} type="button" texto="Estado" />
+              <Button_UI funcion={() => setVer('editar-orden')} type="button" texto="Ordenes" />
             </div>
           </div>
         </div>
@@ -692,7 +721,7 @@ const Anadir = (): JSX.Element => {
                   texto={`Presupuesto ${presupuestoItem.dataValues.Tipo} ${presupuestoItem.dataValues.monto} CUP`}
                   name="presupuesto"
                   funcion={() => {}}
-                  required
+                  required={false}
                 />
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
@@ -716,7 +745,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`${categoriaItem.dataValues.Nombre_Categoria}`}
-                    required
+                    required={false}
                     name="nombre"
                     funcion={() => {}}
                   />
@@ -747,7 +776,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`${estadoItem.dataValues.Nombre_Estado}`}
-                    required
+                    required={false}
                     name="nombre"
                     funcion={() => {}}
                   />
@@ -778,7 +807,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`${tipoMantenimientoItem.dataValues.Tipo}`}
-                    required
+                    required={false}
                     name="nombre"
                     funcion={() => {}}
                   />
@@ -860,7 +889,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Nombre: ${selectedMaquinaria?.dataValues.Nombre}`}
-                    required
+                    required={false}
                     name="nombre"
                     funcion={() => {}}
                   />
@@ -868,7 +897,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Identificacion: ${selectedMaquinaria?.dataValues.Identificacion}`}
-                    required
+                    required={false}
                     name="identificacion"
                     funcion={() => {}}
                   />
@@ -876,7 +905,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Categoria ID: ${selectedMaquinaria?.dataValues.CategoriasID}`}
-                    required
+                    required={false}
                     name="categoria"
                     funcion={() => {}}
                   />
@@ -884,7 +913,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Comentarios: ${selectedMaquinaria?.dataValues.Comentarios}`}
-                    required
+                    required={false}
                     name="comentarios"
                     funcion={() => {}}
                   />
@@ -892,7 +921,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Estado: ${selectedMaquinaria?.dataValues.Estado}`}
-                    required
+                    required={false}
                     name="estado"
                     funcion={() => {}}
                   />
@@ -900,7 +929,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Origen: ${selectedMaquinaria?.dataValues.Origen}`}
-                    required
+                    required={false}
                     name="origen"
                     funcion={() => {}}
                   />
@@ -908,7 +937,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Tipo Mantenimiento: ${selectedMaquinaria?.dataValues.TipoMantenimiento}`}
-                    required
+                    required={false}
                     name="mantenimiento"
                     funcion={() => {}}
                   />
@@ -925,7 +954,7 @@ const Anadir = (): JSX.Element => {
                     <div>
                       <h3>Mantenimiento</h3>
                       <ul>
-                        {fecha_mantenimiento.map((item, index) => (
+                        {fecha_mantenimiento.length > 0 ? fecha_mantenimiento.map((item, index) => (
                           <li key={index} className="p-1 flex flex-row items-center">
                             <div className="flex flex-col items-center mx-2">
                               <h6>Fecha Inicial</h6>
@@ -971,7 +1000,7 @@ const Anadir = (): JSX.Element => {
                               funcion={() => handleDelete(item, setFecha_mantenimiento)}
                             />
                           </li>
-                        ))}
+                        )) : null}
                       </ul>
                     </div>
                     <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
@@ -987,7 +1016,7 @@ const Anadir = (): JSX.Element => {
                       <div>
                         <h3>Lubricación</h3>
                         <ul>
-                          {fecha_lubricamiento.map((item, index) => (
+                          { fechaLubricamiento.length > 0 ? fecha_lubricamiento.map((item, index) => (
                             <li key={index} className="p-1 flex flex-row items-center">
                               <div className="flex flex-col items-center mx-2">
                                 <h6>Fecha Inicial</h6>
@@ -1011,7 +1040,7 @@ const Anadir = (): JSX.Element => {
                                 funcion={() => handleDelete(item, setFecha_lubricamiento)}
                               />
                             </li>
-                          ))}
+                          )) : null}
                         </ul>
                       </div>
                     </div>
@@ -1043,7 +1072,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`User: ${usuarioItem.dataValues.identificacion}`}
-                    required
+                    required={false}
                     name="identificacion"
                     funcion={() => {}}
                   />
@@ -1051,7 +1080,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Rol: ${usuarioItem.dataValues.Rol}`}
-                    required
+                    required={false}
                     name="rol"
                     funcion={() => {}}
                   />
@@ -1059,7 +1088,7 @@ const Anadir = (): JSX.Element => {
                     value={undefined}
                     type="text"
                     texto={`Contraseña: ${usuarioItem.dataValues.contrasena}`}
-                    required
+                    required={false}
                     name="contrasena"
                     funcion={() => {}}
                   />
@@ -1072,6 +1101,47 @@ const Anadir = (): JSX.Element => {
               </section>
             ))}
           </div>
+        )}
+        {ver === 'editar-orden' && (
+          <div className="w-full grid grid-cols-3">
+          {ordenes.map((orden, index) => (
+            <section key={index} className="flex gap-x-2 items-end m-1">
+              <form
+                onSubmit={handleSubmit}
+                className="p-2 border-2 border-[#b70909] rounded-xl m-1"
+              >
+                <input type="hidden" name="editar" value={orden.dataValues.ID_Orden} />
+                <Input_UI required={false} value={orden.dataValues.ID_Orden} type='text' texto='ID_Orden' name='ID_Equipo' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.ID_Usuario} type='text' texto='ID_Usuario' name='ID_Usuario' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.ID_Estado} type='text' texto='ID_Estado' name='ID_Estado' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.ID_Area} type='text' texto='ID_Area' name='ID_Area' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.ID_Presupuesto} type='text' texto='ID_Presupuesto' name='ID_Presupuesto' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.horarioParada} type='text' texto='horarioParada' name='horarioParada' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.horarioComienzo} type='text' texto='horarioComienzo' name='horarioComienzo' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.horarioPuestaMarcha} type='text' texto='horarioPuestaMarcha' name='horarioPuestaMarcha' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.horarioCulminacion} type='text' texto='horarioCulminacion' name='horarioCulminacion' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.materialesUsados} type='text' texto='materialesUsados' name='materialesUsados' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.observaciones} type='text' texto='observaciones' name='observaciones' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.solicitadoPor} type='text' texto='solicitadoPor' name='solicitadoPor' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.aprobadoPor} type='text' texto='aprobadoPor' name='aprobadoPor' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.terminadoPor} type='text' texto='terminadoPor' name='terminadoPor' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.revisadoPor} type='text' texto='revisadoPor' name='revisadoPor' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.valeSalida} type='text' texto='valeSalida' name='valeSalida' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.objetivos} type='text' texto='objetivos' name='objetivos' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.tipo_trabajo} type='text' texto='tipo_trabajo' name='tipo_trabajo' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.fecha} type='text' texto='fecha' name='tipo_mantenimiento' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.presupuesto} type='text' texto='presupuesto' name='fecha' funcion={()=>{}} />
+                <Input_UI required={false} value={orden.dataValues.tipo_mantenimiento } type='text' texto='tipo_mantenimiento' name='presupuesto' funcion={()=>{}} />
+            
+                <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
+              </form>
+              <form onSubmit={handleSubmit}>
+                <input type="hidden" name="borrar" value={orden.dataValues.ID_Orden} />
+                <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
+              </form>
+            </section>
+          ))}
+        </div>
         )}
       </main>
     </RootLayout>

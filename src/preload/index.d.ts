@@ -54,7 +54,7 @@ declare global {
       editUsuarios_By_Id: (id: number, updatedUsuarioData: UsuariosAttributes) => Promise<Usuarios>
       editOrden_Mantenimiento_By_Id: (
         id: number,
-        updatedOrdenMantenimientoData: Orden_Mantenimiento
+        updatedOrdenMantenimientoData: Orden_MantenimientoAttributes
       ) => Promise<Orden_Mantenimiento>
       editPresupuesto_By_Id: (
         id: number,

@@ -15,6 +15,7 @@ import { itemOrdenes } from '@renderer/pages/Orden'
 import { Orden_MantenimientoAttributes } from 'src/shared/types'
 
 export const VerOrden = ({
+
   presupuesto,
   searching,
   date,
@@ -191,7 +192,15 @@ export const CrearOrden = ({
   setDate: React.Dispatch<React.SetStateAction<fechaType[]>>
   setSearching: React.Dispatch<React.SetStateAction<boolean>>
   setVer: React.Dispatch<React.SetStateAction<'' | 'imprimir-orden' | 'crear-orden' | 'ver-orden'>>
-}) => {
+  }) => {
+  const ordenEditar = orden
+  const [ob, setOb] = useState(ordenEditar?.observaciones)
+   const [sol, setSol] = useState(orden?.solicitadoPor)
+  const [termi, setTermi] = useState(orden?.terminadoPor)
+  const [revisado, setRevisado] = useState(orden?.revisadoPor)
+  const [valeSalida, setValeSalid] = useState(orden?.valeSalida)
+  const [pres, setPres] = useState(orden?.presupuesto) 
+  
   return (
     <>
       <h2 className="text-center text-3xl border-b-2 border-[#b70909] my-3">
@@ -207,7 +216,7 @@ export const CrearOrden = ({
                   {equipo.dataValues.Nombre}
                 </option>
               ))}
-              value={equipoSeleccionado?.dataValues.ID_Equipo ?? undefined}
+              value={equipoSeleccionado?.dataValues.ID_Equipo ?? ordenEditar?.ID_Equipo ?? undefined}
               required
               onChange={() => {}}
               name="idEquipo"
@@ -221,7 +230,7 @@ export const CrearOrden = ({
                   {usuario.dataValues.identificacion}
                 </option>
               ))}
-              value={orden?.ID_Usuario ?? undefined}
+              value={ordenEditar?.ID_Usuario ?? undefined}
               required
               onChange={() => {}}
               name="idUsuario"
@@ -267,7 +276,7 @@ export const CrearOrden = ({
                   {estado.dataValues.Nombre_Estado}
                 </option>
               ))}
-              value={orden?.ID_Estado ?? undefined}
+              value={ordenEditar?.ID_Estado ?? undefined}
               required
               onChange={() => {}}
               name="idestado"
@@ -277,18 +286,18 @@ export const CrearOrden = ({
             />
 
             {/* Objetivos del Mantenimiento */}
-            {!orden && (
+            
               <SelectComponent
                 options={presupuesto.map((trabajo, index) => (
                   <option
                     className="first-letter:uppercase"
                     key={index}
-                    value={trabajo.dataValues.ID_Presupuesto}
+                    value={trabajo.dataValues.ID_Presupuesto ?? ordenEditar?.tipo_trabajo}
                   >
                     {trabajo.dataValues.Tipo}
                   </option>
                 ))}
-                value={equiposSeleccionadoLista ? 2 : undefined}
+                value={equiposSeleccionadoLista ?  2 :  ordenEditar ? parseInt(ordenEditar.tipo_trabajo) : undefined}
                 required
                 onChange={() => {}}
                 name="trabajo"
@@ -296,15 +305,15 @@ export const CrearOrden = ({
                 id="idTrabajo"
                 className=""
               />
-            )}
+            
             {!equiposSeleccionadoLista && (
               <SelectComponent
                 options={tipos_mantenimientos?.map((trabajo, index) => (
-                  <option className="first-letter:uppercase" key={index} value={undefined}>
+                  <option className="first-letter:uppercase" key={index} value={trabajo.dataValues.ID_Tipo_Mantenimiento}>
                     {trabajo.dataValues.Tipo}
                   </option>
                 ))}
-                value={undefined}
+                value={ ordenEditar?.tipo_mantenimiento ?? undefined}
                 required
                 onChange={() => {}}
                 name="mantenimiento"
@@ -318,36 +327,36 @@ export const CrearOrden = ({
 
           <Input_UI
             type="text"
-            value={orden?.observaciones ?? undefined}
+            value={ob ?? undefined}
             texto="Observaciones:"
             name="observaciones"
-            funcion={() => {}}
+            funcion={setOb}
             required={false}
           />
 
           <div className="w-full flex">
             <Input_UI
               type="text"
-              value={orden?.solicitadoPor ?? undefined}
+              value={sol ?? undefined}
               texto="Solicitado Por:"
               name="solicitadoPor"
-              funcion={() => {}}
+              funcion={setSol}
               required={false}
             />
             <Input_UI
               type="text"
-              value={orden?.terminadoPor ?? undefined}
+              value={termi ?? undefined}
               texto="Terminado Por:"
               name="terminadoPor"
-              funcion={() => {}}
+              funcion={setTermi}
               required={false}
             />
             <Input_UI
               type="text"
-              value={orden?.revisadoPor ?? undefined}
+              value={revisado ?? undefined}
               texto="Revisado Por:"
               name="revisadoPor"
-              funcion={() => {}}
+              funcion={setRevisado}
               required={false}
             />
           </div>
@@ -355,26 +364,26 @@ export const CrearOrden = ({
           <div className="w-full flex">
             <Input_UI
               type="text"
-              value={orden?.valeSalida ?? undefined}
+              value={valeSalida ?? undefined}
               texto="Vale de Salida:"
               name="valeSalida"
-              funcion={() => {}}
+              funcion={setValeSalid}
               required={false}
             />
 
             <Input_UI
               type="number"
-              value={orden?.presupuesto ?? undefined}
+              value={pres ?? undefined}
               texto="Presupuesto:"
               name="presupuesto"
-              funcion={() => {}}
+              funcion={setPres}
               required={false}
             />
           </div>
 
           <div className="w-full flex items-center justify-center gap-x-2">
-            <Button_UI type="submit" texto="Crear Orden" funcion={() => {}} />
-            {equipoSeleccionado && (
+            <Button_UI type="submit" texto={ ordenEditar?.ID_Orden ? "Actualizar" : "Crear Orden"} funcion={() => {}} />
+            {(equipoSeleccionado || ordenEditar) && (
               <Button_UI
                 type="button"
                 texto="Vista Previa"
