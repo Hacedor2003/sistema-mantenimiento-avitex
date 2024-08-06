@@ -56,7 +56,7 @@ export class Categorias
   public ID_Categoria!: number
   public Nombre_Categoria!: string
 }
-
+ 
 export class Estados_Revision
   extends Model<Estados_RevisionAttributes, Estados_RevisionCreationAttributes>
   implements Estados_RevisionAttributes
@@ -103,6 +103,7 @@ export class Orden_Mantenimiento
   public unidad!: string
   public fecha!: Date
   public presupuesto!: number
+  public tipo_mantenimiento!: number
 
   public static associations: {
     Equipos: Association<Orden_Mantenimiento, Equipos>
@@ -286,19 +287,19 @@ Orden_Mantenimiento.init(
     },
     solicitadoPor: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     aprobadoPor: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     terminadoPor: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     revisadoPor: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     valeSalida: {
       type: DataTypes.STRING,
@@ -306,10 +307,14 @@ Orden_Mantenimiento.init(
     },
     objetivos: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     tipo_trabajo: {
       type: DataTypes.STRING,
+      allowNull: true
+    },
+    tipo_mantenimiento: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     fecha: {
@@ -318,7 +323,7 @@ Orden_Mantenimiento.init(
     },
     presupuesto: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     }
   },
   {

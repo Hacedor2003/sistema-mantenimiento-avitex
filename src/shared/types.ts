@@ -56,6 +56,7 @@ export interface Orden_MantenimientoAttributes {
   valeSalida: string;
   objetivos: string;
   tipo_trabajo: string;
+  tipo_mantenimiento:number;
   fecha: Date;
   presupuesto:number
 }

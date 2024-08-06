@@ -45,3 +45,55 @@ export const Input_UI = ({texto , type , value ,name , required , funcion}:{text
     />
   </section>
 )
+
+
+/**
+ * Un select con label
+ * @param id html for
+ * @param name name del input
+ * @param label texto del label
+ * @param options un array de options
+ * @param value el value del select
+ * @param onChange (e)=> onChange(e.target.value)
+ * @param required si es required o no
+ * @param className className adicionales
+ * @returns 
+ */
+export const SelectComponent = ({
+  id,
+  name,
+  label,
+  options,
+  value,
+  onChange,
+  required = false,
+  className
+}: {
+  id: string
+  name: string
+  label: string
+  options: any
+  value: number | undefined
+  onChange: React.Dispatch<React.SetStateAction<any>>
+  required: boolean
+  className: string
+}) => {
+  return (
+    <div className="flex flex-col gap-y-2">
+      <label className="text-2xl font-thin font-serif" htmlFor={id}>
+        {label}
+      </label>
+      <select
+        id={id}
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        className={className + ' w-fit border border-black p-2 rounded-md cursor-pointer'}
+      >
+        <option value="">Selecciona una opción</option>
+        {options}
+      </select>
+    </div>
+  )
+}
