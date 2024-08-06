@@ -7,7 +7,6 @@ import {
   Categorias,
   Equipos,
   Estados_Revision,
-  Orden_Mantenimiento,
   Presupuesto,
   Tipo_Mantenimiento,
   Usuarios
@@ -16,6 +15,7 @@ import '../styles/orden.styles.css'
 import { Orden_MantenimientoAttributes } from 'src/shared/types'
 import { fechaType } from './Anadir'
 import { CrearOrden, ImprimirOrden, VerOrden } from '../components/Orden'
+import { useParams } from 'react-router-dom'
 
 export type itemOrdenes = {
   id: number
@@ -26,6 +26,8 @@ export type itemOrdenes = {
 }
 
 export const Orden = () => {
+  const { id: equipoID } = useParams()
+  
   const [equipos, setEquipos] = useState<Equipos[]>([])
   const [usuarios, setUsuarios] = useState<Usuarios[]>([])
   const [estados, setEstados] = useState<Estados_Revision[]>([])
@@ -41,7 +43,7 @@ export const Orden = () => {
   const [searchedOrden, setSearchedOrden] = useState<itemOrdenes[]>([])
   
   /* Pantalla */
-  const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>('')
+  const [ver, setVer] = useState<'ver-orden' | 'crear-orden' | 'imprimir-orden' | ''>(equipoID ? 'crear-orden' : '')
 
   /* Equipo  */
   const [equipoImprimir, setEquipoImprimir] = useState<Equipos | null>(null)
@@ -168,16 +170,11 @@ export const Orden = () => {
 
   useEffect(() => {
     const equipoSearch = async () => {
-      
         const response = await window.context.getEquipos_By_Id(orden?.ID_Equipo)
         const areaResponse = await window.context.getCategorias_By_ID(orden!.ID_Area)
         const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden!.ID_Estado)
-        const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(
-          orden!.ID_Presupuesto
-        )
-        const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
-          equipoSeleccionado!.dataValues!.TipoMantenimiento
-        )
+        const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden!.ID_Presupuesto)
+        const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(equipoSeleccionado!.dataValues!.TipoMantenimiento)
         setEquipoImprimir(response)
         setAreaImprimir(areaResponse)
         setEstadoImprimir(estadoImprimir)
@@ -187,6 +184,71 @@ export const Orden = () => {
     }
     equipoSearch()
   }, [orden])
+  
+  useEffect(() => {
+    const equipoSearch = async () => {
+      const response = await window.context.getEquipos_By_Id(equipoSeleccionado?.dataValues.ID_Equipo)
+      const areaResponse = await window.context.getCategorias_By_ID(equipoSeleccionado!.dataValues.CategoriasID)
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(equipoSeleccionado!.dataValues.Estado)
+      //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado?.dataValues.p)
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(equipoSeleccionado!.dataValues!.TipoMantenimiento)
+      setEquipoImprimir(response)
+      setAreaImprimir(areaResponse)
+      setEstadoImprimir(estadoImprimir)
+      //setTipo_Trabajo(tipo_trabajoResponse)
+      seTipo_Mantenimiento(tipo_mante)
+  
+  }
+  equipoSearch()
+  }, [equipoSeleccionado, equiposSeleccionadoLista])
+  
+  useEffect(() => {
+    if (date && date[0].startDate && date[0].endDate) {
+      const newOrdenes = ordenesVerLista.filter((item) => {
+        const fecha = item.date
+        const { startDate, endDate } = date[0]
+        return (
+          fecha.getMonth() === startDate.getMonth() &&
+          fecha.getDate() >= startDate.getDate() &&
+          fecha.getDate() <= endDate.getDate()
+        )
+      })
+      setSearchedOrden(newOrdenes.sort((x, y) => x.date.getDate() - y.date.getDate()))
+    } else if (date && date[0].startDate) {
+      const newOrdenes = ordenesVerLista.filter((item) => {
+        const fecha = item.date
+        const { startDate, endDate } = date[0]
+        return (
+          fecha.getMonth() === startDate.getMonth() &&
+          fecha.getDate() === startDate.getDate() &&
+          fecha.getDate() === endDate.getDate()
+        )
+      })
+      setSearchedOrden(newOrdenes)
+    } else {
+      setSearchedOrden([])
+    }
+  }, [date])
+  
+  useEffect(() => {
+    const equipoSearch = async () => {
+      const response = await window.context.getEquipos_By_Id(equipoID)
+      const areaResponse = await window.context.getCategorias_By_ID(response!.dataValues.CategoriasID)
+      const estadoImprimir = await window.context.getEstados_Revision_By_Id(response!.dataValues.Estado)
+      //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado!.dataValues.p)
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(response!.dataValues.TipoMantenimiento)
+      setEquipoImprimir(response)
+      setAreaImprimir(areaResponse)
+      setEstadoImprimir(estadoImprimir)
+      //setTipo_Trabajo(tipo_trabajoResponse)
+      seTipo_Mantenimiento(tipo_mante)
+      
+      setEquipoSeleccionado(response)
+  
+  }
+  equipoSearch()
+  }, [])
+  
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -194,8 +256,7 @@ export const Orden = () => {
     const formData = new FormData(e.currentTarget)
 
     const newOrden: Orden_MantenimientoAttributes = {
-      ID_Equipo:
-        parseInt(formData.get('idEquipo') as string) ?? equipoSeleccionado?.dataValues.ID_Equipo,
+      ID_Equipo:parseInt(formData.get('idEquipo') as string) ?? equipoSeleccionado?.dataValues.ID_Equipo,
       ID_Usuario: parseInt(formData.get('idUsuario') as string),
       ID_Estado: parseInt(formData.get('idestado') as string),
       horarioParada: formData.get('horarioParada') as string,
@@ -237,40 +298,7 @@ export const Orden = () => {
     } catch (error: any) {
       alert('Error: ' + error.message)
     }
-    setEquipoImprimir(null)
-    setAreaImprimir(null)
-    setEstadoImprimir(null)
-    setTipo_Trabajo(null)
-    seTipo_Mantenimiento(null)
   }
-
-  useEffect(() => {
-    if (date && date[0].startDate && date[0].endDate) {
-      const newOrdenes = ordenesVerLista.filter((item) => {
-        const fecha = item.date
-        const { startDate, endDate } = date[0]
-        return (
-          fecha.getMonth() === startDate.getMonth() &&
-          fecha.getDate() >= startDate.getDate() &&
-          fecha.getDate() <= endDate.getDate()
-        )
-      })
-      setSearchedOrden(newOrdenes.sort((x, y) => x.date.getDate() - y.date.getDate()))
-    } else if (date && date[0].startDate) {
-      const newOrdenes = ordenesVerLista.filter((item) => {
-        const fecha = item.date
-        const { startDate, endDate } = date[0]
-        return (
-          fecha.getMonth() === startDate.getMonth() &&
-          fecha.getDate() === startDate.getDate() &&
-          fecha.getDate() === endDate.getDate()
-        )
-      })
-      setSearchedOrden(newOrdenes)
-    } else {
-      setSearchedOrden([])
-    }
-  }, [date])
 
   function imprimirOrden() {
     //window.context.imprimirOrden()
@@ -292,7 +320,7 @@ export const Orden = () => {
 
   return (
     <RootLayout>
-      <div className="flex flex-row items-center justify-center gap-x-2 m-2">
+      <div className="absolute static top-24 left-0 flex flex-row items-center justify-start gap-x-2 m-2">
         <Button_UI texto="Ver Ordenes" type="button" funcion={() => setVer('ver-orden')} />
         <Button_UI texto="Crear Orden" type="button" funcion={() => setVer('crear-orden')} />
       </div>
@@ -340,6 +368,7 @@ export const Orden = () => {
           estadoImprimir={estadoImprimir}
           equipoImprimir={equipoImprimir}
           areaImprimir={areaImprimir}
+          equiposSeleccionadoLista={equiposSeleccionadoLista}
           key={2}
         />
       )}

@@ -1,13 +1,16 @@
 /* eslint-disable prettier/prettier */
 
 import { RootLayout } from '@renderer/components/AppLayout'
+import { Button_UI } from '@renderer/components/UI_Component'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Equipos } from 'src/main/db/Models'
+import React from 'react'
 
 const Details = (): JSX.Element => {
   const { details: productID } = useParams()
   const [producto, setProducto] = useState<Equipos | null>(null)
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.context
@@ -30,6 +33,7 @@ const Details = (): JSX.Element => {
           <p>{producto?.dataValues.Origen}</p>
           <h5 className='text-3xl font-bold font-serif my-2'>Comentarios:</h5>
           <p>{producto?.dataValues.Comentarios}</p>
+          <Button_UI type='button' texto='Crear Orden' funcion={()=>navigate(`/home/orden/${productID}`)}/>
           <ItemOfList_ComponentsContent id={producto?.dataValues.ID_Equipo ?? -1} />
         </section>
       </main>

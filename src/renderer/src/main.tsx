@@ -68,6 +68,15 @@ const router = createHashRouter([
     errorElement: <ErrorPage />
   },
   {
+    path: '/home/orden/:id',
+    element: (
+      <PrivateRouteUser role="user">
+        <Orden />
+      </PrivateRouteUser>
+    ),
+    errorElement: <ErrorPage />
+  },
+  {
     path: '/home/guia',
     element: (
       <PrivateRouteUser role="user">

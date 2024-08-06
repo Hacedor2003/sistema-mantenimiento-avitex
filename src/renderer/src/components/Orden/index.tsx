@@ -288,7 +288,7 @@ export const CrearOrden = ({
                     {trabajo.dataValues.Tipo}
                   </option>
                 ))}
-                value={equipoSeleccionado ? 2 : undefined}
+                value={equiposSeleccionadoLista ? 2 : undefined}
                 required
                 onChange={() => {}}
                 name="trabajo"
@@ -395,7 +395,8 @@ export const ImprimirOrden = ({
   estadoImprimir,
   areaImprimir,
   equipoImprimir,
-  imprimirOrden
+  imprimirOrden,
+  equiposSeleccionadoLista
 }: {
   orden: Orden_MantenimientoAttributes | null
   tipo_trabajo: Presupuesto | null
@@ -403,7 +404,8 @@ export const ImprimirOrden = ({
   estadoImprimir: Estados_Revision | null
   areaImprimir: Categorias | null
   equipoImprimir: Equipos | null
-  imprimirOrden(): void
+    imprimirOrden(): void
+    equiposSeleccionadoLista:itemOrdenes | null
 }) => {
   return <div className="w-full flex flex-col items-center p-2">
     <div className="w-full grid grid-rows-5 imprimible" id="orden-imprimir">
@@ -450,7 +452,7 @@ export const ImprimirOrden = ({
       <ul className="w-full border border-black grid grid-cols-6 grid-rows-1">
         <li className="col-span-1 border-r border-black">
           <h3>TIPO DE TRABAJO</h3>
-          <p>{tipo_trabajo?.dataValues.Tipo + '\n -' + tipo_mantenimiento?.dataValues.Tipo}</p>
+          <p>{tipo_trabajo?.dataValues.Tipo + '\n -' + (equiposSeleccionadoLista?.tipoMantenimiento ?? tipo_mantenimiento?.dataValues.Tipo)}</p>
         </li>
         <li className="col-span-1 border-r border-black">
           <h3>CRONOGRAMA</h3>
