@@ -1,5 +1,5 @@
 .imprimible h4 {
-  @apply border-b border-black w-full
+  @apply border-b border-black w-full flex flex-col items-center justify-center
 }
 
 .imprimible h3 {

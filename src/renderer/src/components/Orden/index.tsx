@@ -1,10 +1,43 @@
 /* eslint-disable prettier/prettier */
-import React from 'react'
+import React, { useState } from 'react'
 import { DateRange } from 'react-date-range'
-import { Presupuesto, Tipo_Mantenimiento } from '../../../../main/db/Models'
+import {
+  Categorias,
+  Equipos,
+  Estados_Revision,
+  Presupuesto,
+  Tipo_Mantenimiento,
+  Usuarios
+} from '../../../../main/db/Models'
 import { Button_UI, SelectComponent, Input_UI } from '../UI_Component'
+import { fechaType } from '@renderer/pages/Anadir'
+import { itemOrdenes } from '@renderer/pages/Orden'
+import { Orden_MantenimientoAttributes } from 'src/shared/types'
 
-export const verOden = ({ presupuesto }: { presupuesto: Presupuesto[] }) => {
+export const VerOrden = ({
+  presupuesto,
+  searching,
+  date,
+  searchedOrden,
+  ordenesVerLista,
+  setDate,
+  setSearching,
+  setVer,
+  handleSetOrden
+}: {
+  presupuesto: Presupuesto[]
+  searching: boolean
+  date: fechaType[]
+  searchedOrden: itemOrdenes[]
+  ordenesVerLista: itemOrdenes[]
+  setDate: React.Dispatch<React.SetStateAction<fechaType[]>>
+  setSearching: React.Dispatch<React.SetStateAction<boolean>>
+  setVer: React.Dispatch<React.SetStateAction<'' | 'imprimir-orden' | 'crear-orden' | 'ver-orden'>>
+  handleSetOrden: (item: any) => void
+  }) => {
+  /* Filtrar las ordenes */
+  const [filterOrdenes, setFilterOrdenes] = useState<'Todo' | 'Mantenimiento' | 'Lubricación' | "orden">('Todo')
+  
   return (
     <main className="w-full px-2">
       <header className="w-full flex flex-col items-center justify-around mb-10">
@@ -52,12 +85,12 @@ export const verOden = ({ presupuesto }: { presupuesto: Presupuesto[] }) => {
         </div>
         <div className="w-full flex flex-col px-2">
           <SelectComponent
-            options={['Todo', 'Lubricación', 'Mantenimiento'].map((item, index) => (
+            options={['Todo', 'Lubricación', 'Mantenimiento' , 'orden'].map((item, index) => (
               <option key={index} value={item}>
                 {item}
               </option>
             ))}
-            value={parseInt(filterOrdenes)}
+            value={undefined}
             onChange={setFilterOrdenes}
             name="filtro"
             label="Filtro:"
@@ -79,7 +112,9 @@ export const verOden = ({ presupuesto }: { presupuesto: Presupuesto[] }) => {
                   ? searchedOrden
                   : filterOrdenes === 'Mantenimiento'
                     ? searchedOrden.filter((item) => item.ciclo === 'mantenimiento')
-                    : searchedOrden.filter((item) => item.ciclo === 'lubricación')
+                  : filterOrdenes === 'Lubricación' ? 
+                  searchedOrden.filter((item) => item.ciclo === 'lubricación')
+                  : searchedOrden.filter((item) => item.ciclo === 'orden')
                 ).map((itemOrden, index) => (
                   <tr
                     key={index}
@@ -101,7 +136,9 @@ export const verOden = ({ presupuesto }: { presupuesto: Presupuesto[] }) => {
                   ? ordenesVerLista
                   : filterOrdenes === 'Mantenimiento'
                     ? ordenesVerLista.filter((item) => item.ciclo === 'mantenimiento')
-                    : ordenesVerLista.filter((item) => item.ciclo === 'lubricación')
+                  : filterOrdenes === 'Lubricación' ? 
+                  ordenesVerLista.filter((item) => item.ciclo === 'lubricación')
+                  : ordenesVerLista.filter((item) => item.ciclo === 'orden')
                 ).map((itemOrden, index) => (
                   <tr
                     key={index}
@@ -126,7 +163,35 @@ export const verOden = ({ presupuesto }: { presupuesto: Presupuesto[] }) => {
   )
 }
 
-export const crearOrden = () => {
+export const CrearOrden = ({
+  equipos,
+  estados,
+  usuarios,
+  tipos_mantenimientos,
+  orden,
+  date,
+  presupuesto,
+  equiposSeleccionadoLista,
+  equipoSeleccionado,
+  handleSubmit,
+  setDate,
+  setSearching,
+  setVer
+}: {
+  equipos: Equipos[]
+  estados: Estados_Revision[]
+  usuarios: Usuarios[]
+  tipos_mantenimientos: Tipo_Mantenimiento[]
+  orden: Orden_MantenimientoAttributes | null
+  date: fechaType[]
+  presupuesto: Presupuesto[]
+  equipoSeleccionado: Equipos | null
+  equiposSeleccionadoLista: itemOrdenes | null
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>
+  setDate: React.Dispatch<React.SetStateAction<fechaType[]>>
+  setSearching: React.Dispatch<React.SetStateAction<boolean>>
+  setVer: React.Dispatch<React.SetStateAction<'' | 'imprimir-orden' | 'crear-orden' | 'ver-orden'>>
+}) => {
   return (
     <>
       <h2 className="text-center text-3xl border-b-2 border-[#b70909] my-3">
@@ -234,7 +299,7 @@ export const crearOrden = () => {
             )}
             {!equiposSeleccionadoLista && (
               <SelectComponent
-                options={Tipo_Mantenimiento?.map((trabajo, index) => (
+                options={tipos_mantenimientos?.map((trabajo, index) => (
                   <option className="first-letter:uppercase" key={index} value={undefined}>
                     {trabajo.dataValues.Tipo}
                   </option>
@@ -259,6 +324,7 @@ export const crearOrden = () => {
             funcion={() => {}}
             required={false}
           />
+
           <div className="w-full flex">
             <Input_UI
               type="text"
@@ -305,6 +371,7 @@ export const crearOrden = () => {
               required={false}
             />
           </div>
+
           <div className="w-full flex items-center justify-center gap-x-2">
             <Button_UI type="submit" texto="Crear Orden" funcion={() => {}} />
             {equipoSeleccionado && (
@@ -321,8 +388,24 @@ export const crearOrden = () => {
   )
 }
 
-export const imprimirOrden = () => {
-  ;<div className="w-full flex flex-col items-center p-2">
+export const ImprimirOrden = ({
+  orden,
+  tipo_trabajo,
+  tipo_mantenimiento,
+  estadoImprimir,
+  areaImprimir,
+  equipoImprimir,
+  imprimirOrden
+}: {
+  orden: Orden_MantenimientoAttributes | null
+  tipo_trabajo: Presupuesto | null
+  tipo_mantenimiento: Tipo_Mantenimiento | null
+  estadoImprimir: Estados_Revision | null
+  areaImprimir: Categorias | null
+  equipoImprimir: Equipos | null
+  imprimirOrden(): void
+}) => {
+  return <div className="w-full flex flex-col items-center p-2">
     <div className="w-full grid grid-rows-5 imprimible" id="orden-imprimir">
       <h4 className="border-b border-black w-full text-center">
         ORDEN DE TRABAJO DE MANTENIMIENTO
@@ -345,17 +428,16 @@ export const imprimirOrden = () => {
         <li>
           <section>
             <ul className="w-full flex justify-around">
-              <li className="border-r border-black w-full">
-                {' '}
+              <li className="border-r border-black w-full flex flex-col justify-center items-center">
                 <h4>D</h4>
                 <p>{orden?.fecha.getDate() ?? new Date().getDate()}</p>
               </li>
-              <li className="border-r border-black w-full">
+              <li className="border-r border-black w-full flex flex-col justify-center items-center">
                 {' '}
                 <h4>M</h4>
                 <p>{orden?.fecha.getMonth() ?? new Date().getMonth() + 1}</p>
               </li>
-              <li className="border-r border-black w-full">
+              <li className="border-r border-black w-full flex flex-col justify-center items-center">
                 {' '}
                 <h4>A</h4>
                 <p>{orden?.fecha.getUTCFullYear() ?? new Date().getFullYear()}</p>

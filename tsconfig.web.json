@@ -6,7 +6,8 @@
     "src/renderer/src/*.tsx",
     "src/preload/*.d.ts",
     "src/shared/*.ts",
-    "src/main/db"
+    "src/main/db",
+    "src/renderer/src/components/Orden/index.tsx"
   ],
   "compilerOptions": {
     "composite": true,

@@ -15,7 +15,7 @@ import React from 'react'
 import { DateRange } from 'react-date-range'
 import 'react-date-range/dist/styles.css' // main css file
 import 'react-date-range/dist/theme/default.css' // theme css file
-import { SelectComponent } from './Orden'
+import { SelectComponent } from '@renderer/components/UI_Component'
 
 export interface fechaType {
   startDate: Date
@@ -43,20 +43,7 @@ const Anadir = (): JSX.Element => {
     }
   ])
   const [fecha_lubricamiento, setFecha_lubricamiento] = useState<fechaType[]>([])
-  const [ver, setVer] = useState<
-    | 'area'
-    | 'maquinaria'
-    | 'usuario'
-    | 'mantenimiento'
-    | 'estado'
-    | 'editar-presupuesto'
-    | 'editar-area'
-    | 'editar-maquinaria'
-    | 'editar-usuario'
-    | 'editar-mantenimiento'
-    | 'editar-estado'
-    | ''
-  >('')
+  const [ver, setVer] = useState<    | 'area'    | 'maquinaria'    | 'usuario'    | 'mantenimiento'    | 'estado'    | 'editar-presupuesto'    | 'editar-area'    | 'editar-maquinaria'    | 'editar-usuario'    | 'editar-mantenimiento'    | 'editar-estado'    | ''>('')
 
   const [estadoData, setEstadoData] = useState<Estados_Revision[]>([])
   const [tipoMantenimientoData, setTipoMantenimientoData] = useState<Tipo_Mantenimiento[]>([])
