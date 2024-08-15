@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout';
 import { Button_UI } from '@renderer/components/UI_Component';
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Admin = () => {

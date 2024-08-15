@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout'
-import { Button_UI, Input_UI, SelectComponent } from '@renderer/components/UI_Component'
+import { Button_UI, Input_UI, Input_UI_subTexto, SelectComponent } from '@renderer/components/UI_Component'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { addDays } from 'date-fns'
@@ -15,6 +15,7 @@ import {
 } from 'src/main/db/Models'
 import { DateRange } from 'react-date-range'
 import { fechaType } from './Anadir'
+import {  PresupuestoAttributes } from 'src/shared/types'
 
 const Editar = () => {
   const { opcion: ver } = useParams()
@@ -106,13 +107,14 @@ const Editar = () => {
               await window.context.deleteEquipos_By_Id(idBorrar)
               window.alert('Equipo eliminado exitosamente')
             } else if (idEditar) {
-              const nombre = formData.get('nombre') as string
-              const identificacion = formData.get('identificacion') as string
-              const categoria = formData.get('categoria') as string
-              const comentarios = formData.get('comentarios') as string
-              const estado = formData.get('estado') as string
-              const origen = formData.get('origen') as string
-              const mantenimiento = formData.get('mantenimiento') as string
+              const prevEquipo = maquinarias.find(i => i.dataValues.ID_Equipo === idEditar)
+              const nombre = (formData.get('nombre') as string ?? '').length > 0 ? formData.get('nombre') as string : prevEquipo!.dataValues.Nombre
+              const identificacion = (formData.get('identificacion') as string ?? '').length > 0 ? formData.get('identificacion') as string : prevEquipo!.dataValues.Identificacion
+              const categoria = (formData.get('categoria') as string ?? '').length > 0 ? formData.get('categoria') as string : prevEquipo!.dataValues.CategoriasID
+              const comentarios = (formData.get('comentarios') as string ?? '').length > 0 ? formData.get('comentarios') as string : prevEquipo!.dataValues.Comentarios
+              const estado = (formData.get('estado') as string ?? '').length > 0 ? formData.get('estado') as string : prevEquipo!.dataValues.Estado
+              const origen = (formData.get('origen') as string ?? '').length > 0 ? formData.get('origen') as string : prevEquipo!.dataValues.Origen
+              const mantenimiento = (formData.get('mantenimiento') as string ?? '').length > 0 ? formData.get('mantenimiento') as string : prevEquipo!.dataValues.TipoMantenimiento
               const fechamantenimiento = fecha_mantenimiento.map((item) => ({
                 startDate: item.startDate.toISOString(),
                 endDate: item.endDate.toISOString(),
@@ -129,9 +131,9 @@ const Editar = () => {
                 Identificacion: identificacion,
                 Origen: origen,
                 Comentarios: comentarios,
-                TipoMantenimiento: parseInt(mantenimiento),
-                CategoriasID: parseInt(categoria),
-                Estado: parseInt(estado),
+                TipoMantenimiento: parseInt(mantenimiento+""),
+                CategoriasID: parseInt(categoria+""),
+                Estado: parseInt(estado+""),
                 fecha_lubricamiento: fechalubricamiento,
                 fecha_mantenimiento: fechamantenimiento
               })
@@ -147,9 +149,10 @@ const Editar = () => {
               await window.context.deleteUsuarios_By_Id(idBorrar)
               window.alert('Usuario eliminado exitosamente')
             } else if (idEditar) {
-              const identificacion = formData.get('identificacion') as string
-              const rol = formData.get('rol') as string
-              const contrasena = formData.get('contrasena') as string
+              const prevUser = usuarios.find(i => i.dataValues.ID_Usuario === idEditar)
+              const identificacion = (formData.get('identificacion') as string ?? '').length > 0 ? formData.get('identificacion') as string : prevUser!.dataValues.identificacion
+              const rol = (formData.get('rol') as string ?? '').length > 0 ? formData.get('rol') as string :  prevUser!.dataValues.Rol
+              const contrasena = (formData.get('contrasena') as string ?? '').length > 0 ? formData.get('contrasena') as string :  prevUser!.dataValues.contrasena
 
               const updatedUsuario = await window.context.editUsuarios_By_Id(idEditar, {
                 identificacion: identificacion,
@@ -168,37 +171,44 @@ const Editar = () => {
               await window.context.deleteOrden_Mantenimiento_By_Id(idBorrar)
               window.alert('Orden eliminada exitosamente')
             } else if (idEditar) {
-              const prevOrden: Orden_MantenimientoAttributes = {
-                ID_Equipo: parseInt(formData.get('ID_Equipo') as string),
-                ID_Usuario: parseInt(formData.get('ID_Usuario') as string),
-                ID_Estado: parseInt(formData.get('ID_Estado') as string),
-                ID_Area: parseInt(formData.get('ID_Area') as string),
-                ID_Presupuesto: parseInt(formData.get('ID_Presupuesto') as string),
-                horarioParada: formData.get('horarioParada') as string,
-                horarioComienzo: formData.get('horarioComienzo') as string,
-                horarioPuestaMarcha: formData.get('horarioPuestaMarcha') as string,
-                horarioCulminacion: formData.get('horarioCulminacion') as string,
-                materialesUsados: formData.get('materialesUsados') as string,
-                observaciones: formData.get('observaciones') as string,
-                solicitadoPor: formData.get('solicitadoPor') as string,
-                aprobadoPor: formData.get('aprobadoPor') as string,
-                terminadoPor: formData.get('terminadoPor') as string,
-                revisadoPor: formData.get('revisadoPor') as string,
-                valeSalida: formData.get('valeSalida') as string,
-                objetivos: formData.get('objetivos') as string,
-                tipo_trabajo: formData.get('tipo_trabajo') as string,
-                tipo_mantenimiento: parseInt(formData.get('tipo_mantenimiento') as string),
-                fecha: new Date(formData.get('fecha') as string),
-                presupuesto: parseInt(formData.get('presupuesto') as string)
-              }
-
-              const updatedUsuario = await window.context.editOrden_Mantenimiento_By_Id(
+              const prevOrdenList  = ordenes.find(i => i.dataValues.ID_Orden === idEditar)
+              
+                prevOrdenList!.dataValues.ID_Equipo = parseInt((formData.get('ID_Equipo') as string ?? '').length > 0 ? formData.get('ID_Equipo') as string : prevOrdenList!.dataValues.ID_Equipo + "") 
+                prevOrdenList!.dataValues.ID_Usuario = parseInt((formData.get('ID_Usuario') as string ?? '').length > 0 ? formData.get('ID_Usuario') as string : prevOrdenList!.dataValues.ID_Usuario + "") 
+                prevOrdenList!.dataValues.ID_Estado = parseInt((formData.get('ID_Estado') as string ?? '').length > 0 ? formData.get('ID_Estado') as string : prevOrdenList!.dataValues.ID_Estado + "") 
+                prevOrdenList!.dataValues.ID_Area = parseInt((formData.get('ID_Area') as string ?? '').length > 0 ? formData.get('ID_Area') as string : prevOrdenList!.dataValues.ID_Area + "") 
+                prevOrdenList!.dataValues.ID_Presupuesto = parseInt((formData.get('ID_Presupuesto') as string ?? '').length > 0 ? formData.get('ID_Presupuesto') as string : prevOrdenList!.dataValues.ID_Presupuesto + "") 
+                prevOrdenList!.dataValues.horarioParada = (formData.get('horarioParada') as string ?? '').length > 0 ? formData.get('horarioParada') as string : prevOrdenList!.dataValues.horarioParada
+                prevOrdenList!.dataValues.horarioComienzo = (formData.get('horarioComienzo') as string ?? '').length > 0 ? formData.get('horarioComienzo') as string : prevOrdenList!.dataValues.horarioComienzo
+                prevOrdenList!.dataValues.horarioPuestaMarcha = (formData.get('horarioPuestaMarcha') as string ?? '').length > 0 ? formData.get('horarioPuestaMarcha') as string : prevOrdenList!.dataValues.horarioPuestaMarcha
+                prevOrdenList!.dataValues.horarioCulminacion = (formData.get('horarioCulminacion') as string ?? '').length > 0 ? formData.get('horarioCulminacion') as string : prevOrdenList!.dataValues.horarioCulminacion
+                prevOrdenList!.dataValues.materialesUsados = (formData.get('materialesUsados') as string ?? '').length > 0 ? formData.get('materialesUsados') as string : prevOrdenList!.dataValues.materialesUsados
+                prevOrdenList!.dataValues.observaciones = (formData.get('observaciones') as string ?? '').length > 0 ? formData.get('observaciones') as string : prevOrdenList!.dataValues.observaciones
+                prevOrdenList!.dataValues.solicitadoPor = (formData.get('solicitadoPor') as string ?? '').length > 0 ? formData.get('solicitadoPor') as string : prevOrdenList!.dataValues.solicitadoPor
+                prevOrdenList!.dataValues.aprobadoPor = (formData.get('aprobadoPor') as string ?? '').length > 0 ? formData.get('aprobadoPor') as string : prevOrdenList!.dataValues.aprobadoPor
+                prevOrdenList!.dataValues.terminadoPor = (formData.get('terminadoPor') as string ?? '').length > 0 ? formData.get('terminadoPor') as string : prevOrdenList!.dataValues.terminadoPor
+                prevOrdenList!.dataValues.revisadoPor = (formData.get('revisadoPor') as string ?? '').length > 0 ? formData.get('revisadoPor') as string : prevOrdenList!.dataValues.revisadoPor
+                prevOrdenList!.dataValues.valeSalida = (formData.get('valeSalida') as string ?? '').length > 0 ? formData.get('valeSalida') as string : prevOrdenList!.dataValues.valeSalida
+                prevOrdenList!.dataValues.objetivos = (formData.get('objetivos') as string ?? '').length > 0 ? formData.get('objetivos') as string : prevOrdenList!.dataValues.objetivos
+                prevOrdenList!.dataValues.tipo_trabajo = (formData.get('tipo_trabajo') as string ?? '').length > 0 ? formData.get('tipo_trabajo') as string : prevOrdenList!.dataValues.tipo_trabajo
+                prevOrdenList!.dataValues.tipo_mantenimiento = parseInt((formData.get('tipo_mantenimiento') as string ?? '').length > 0 ? formData.get('tipo_mantenimiento') as string : prevOrdenList!.dataValues.tipo_mantenimiento + "") 
+                prevOrdenList!.dataValues.fecha = new Date(formData.get('fecha') as string)
+                prevOrdenList!.dataValues.presupuesto = parseInt((formData.get('presupuesto') as string ?? '').length > 0 ? formData.get('presupuesto') as string : prevOrdenList!.dataValues.presupuesto + "") 
+              
+              try {
+              const updatedOrden = await window.context.editOrden_Mantenimiento_By_Id(
                 idEditar,
-                prevOrden
-              )
-              if (updatedUsuario) {
-                window.alert('Orden actualizada exitosamente')
+                prevOrdenList!.dataValues
+                )
+                if (updatedOrden) {
+                  window.alert('Orden actualizada exitosamente')
+                }
+              } catch (error:any) {
+                alert("Error: " + error.message)
+                console.error(error);
+                
               }
+              
             }
           }
           break
@@ -210,13 +220,34 @@ const Editar = () => {
       alert('Existio un Error: ' + error)
     }
   }
+  
+  const handleDelete = (
+    item: fechaType,
+    setFunction: React.Dispatch<React.SetStateAction<fechaType[]>>
+  ) => {
+    setFunction((prevFecha) => {
+      return prevFecha.filter((fecha) => {
+        const fechaStartDate = new Date(fecha.startDate)
+        const fechaEndDate = new Date(fecha.endDate)
+        const itemStartDate = new Date(item.startDate)
+        const itemEndDate = new Date(item.endDate)
+
+        return (
+          fechaStartDate.toISOString() !== itemStartDate.toISOString() ||
+          fechaEndDate.toISOString() !== itemEndDate.toISOString()
+        )
+      })
+    })
+  }
 
   /* Para filtras las maquinas */
   const [maquinariasFilter, setMaquinariasFilter] = useState(maquinarias)
   const [filterMaquinas, setFilterMaquinas] = useState<string>('Todo')
   const [filterMaquinaText, setFilterMaquinaText] = useState<string>('Todo')
 
+  /* Ver mas */
   const [selectedMaquinaria, setSelectedMaquinaria] = useState<Equipos | null>(null)
+  const [selectedOrden, setSelectedOrden] = useState<Orden_Mantenimiento | null>( null)
 
   const [fechaMantenimiento, setFechaMantenimiento] = useState<fechaType[]>([
     {
@@ -351,7 +382,9 @@ const Editar = () => {
 
   return (
     <RootLayout>
-      <h1 className='first-letter:uppercase w-full text-center text-4xl font-serif font-bold border-b-2 border-black'>{ver}</h1>
+      <h1 className="first-letter:uppercase w-full text-center text-4xl font-serif font-bold border-b-2 border-black">
+        {ver}
+      </h1>
       {ver === 'presupuesto' && (
         <div className="w-full flex items-center justify-around">
           {presupuestos.map((presupuestoItem, index) => (
@@ -755,126 +788,147 @@ const Editar = () => {
       )}
       {ver === 'orden' && (
         <div className="w-full grid grid-cols-3">
-          {ordenes.map((orden, index) => (
-            <section key={index} className="flex gap-x-2 items-end m-1">
-              <form
-                onSubmit={handleSubmit}
-                className="p-2 border-2 border-[#b70909] rounded-xl m-1"
-              >
-                <input type="hidden" name="editar" value={orden.dataValues.ID_Orden} />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.horarioParada}
-                  type="text"
-                  texto="horarioParada"
-                  name="horarioParada"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.horarioComienzo}
-                  type="text"
-                  texto="horarioComienzo"
-                  name="horarioComienzo"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.horarioPuestaMarcha}
-                  type="text"
-                  texto="horarioPuestaMarcha"
-                  name="horarioPuestaMarcha"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.horarioCulminacion}
-                  type="text"
-                  texto="horarioCulminacion"
-                  name="horarioCulminacion"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.materialesUsados}
-                  type="text"
-                  texto="materialesUsados"
-                  name="materialesUsados"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.observaciones}
-                  type="text"
-                  texto="observaciones"
-                  name="observaciones"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.solicitadoPor}
-                  type="text"
-                  texto="solicitadoPor"
-                  name="solicitadoPor"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.aprobadoPor}
-                  type="text"
-                  texto="aprobadoPor"
-                  name="aprobadoPor"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.terminadoPor}
-                  type="text"
-                  texto="terminadoPor"
-                  name="terminadoPor"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.revisadoPor}
-                  type="text"
-                  texto="revisadoPor"
-                  name="revisadoPor"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.valeSalida}
-                  type="text"
-                  texto="valeSalida"
-                  name="valeSalida"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.objetivos}
-                  type="text"
-                  texto="objetivos"
-                  name="objetivos"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  required={false}
-                  value={orden.dataValues.presupuesto}
-                  type="text"
-                  texto="presupuesto"
-                  name="fecha"
-                  funcion={() => {}}
-                />
-
-                <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
-              </form>
-              <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={orden.dataValues.ID_Orden} />
-                <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
-              </form>
-            </section>
+          <ul className='col-span-2'>{ordenes.map((orden, index) => (
+            <li key={index} className="grid grid-cols-4 my-2" onClick={()=>setSelectedOrden(orden)}>
+              <p>Area: {categoriaData.find(i => i.dataValues.ID_Categoria === orden.dataValues.ID_Area)?.dataValues.Nombre_Categoria}</p>
+              <p>Equipo: {maquinarias.find(i => i.dataValues.ID_Equipo === orden.dataValues.ID_Equipo)?.dataValues.Nombre}</p>
+              <p>Identificacion: {maquinarias.find(i => i.dataValues.ID_Equipo === orden.dataValues.ID_Equipo)?.dataValues.Identificacion}</p>
+              <p>Fecha: {orden.dataValues.fecha.toLocaleDateString()}</p>
+            </li>
           ))}
+          </ul>
+          {selectedOrden && <div className='col-span-1'>
+                <form
+                  onSubmit={handleSubmit}
+                  className="p-2 border-2 border-[#b70909] rounded-xl m-1 flex flex-wrap"
+            >
+              <label className='w-full text-center text-xl font-bold'>Identificación { maquinarias.find(i => i.dataValues.ID_Equipo === selectedOrden.dataValues.ID_Equipo)?.dataValues.Identificacion }</label>
+                  <input type="hidden" name="editar" value={selectedOrden.dataValues.ID_Orden} />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.horarioParada}
+                    value={undefined}
+                    type="text"
+                    texto="horarioParada"
+                    name="horarioParada"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.horarioComienzo}
+                    value={undefined}
+                    type="text"
+                    texto="horarioComienzo"
+                    name="horarioComienzo"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.horarioPuestaMarcha}
+                    value={undefined}
+                    type="text"
+                    texto="horarioPuestaMarcha"
+                    name="horarioPuestaMarcha"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.horarioCulminacion}
+                    value={undefined}
+                    type="text"
+                    texto="horarioCulminacion"
+                    name="horarioCulminacion"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.materialesUsados}
+                    value={undefined}
+                    type="text"
+                    texto="materialesUsados"
+                    name="materialesUsados"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.observaciones}
+                    value={undefined}
+                    type="text"
+                    texto="observaciones"
+                    name="observaciones"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.solicitadoPor}
+                    value={undefined}
+                    type="text"
+                    texto="solicitadoPor"
+                    name="solicitadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.aprobadoPor}
+                    value={undefined}
+                    type="text"
+                    texto="aprobadoPor"
+                    name="aprobadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.terminadoPor}
+                    value={undefined}
+                    type="text"
+                    texto="terminadoPor"
+                    name="terminadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.revisadoPor}
+                    value={undefined}
+                    type="text"
+                    texto="revisadoPor"
+                    name="revisadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.valeSalida}
+                    value={undefined}
+                    type="text"
+                    texto="valeSalida"
+                    name="valeSalida"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.objetivos}
+                    value={undefined}
+                    type="text"
+                    texto="objetivos"
+                    name="objetivos"
+                    funcion={() => {}}
+                  />
+                  <Input_UI_subTexto
+                    required={false}
+                    subTexto={selectedOrden.dataValues.presupuesto+ ''}
+                    value={undefined}
+                    type="text"
+                    texto="presupuesto"
+                    name="presupuesto"
+                    funcion={() => {}}
+                  />
+
+                  <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
+                </form>
+                <form onSubmit={handleSubmit}>
+                  <input type="hidden" name="borrar" value={selectedOrden.dataValues.ID_Orden} />
+                  <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
+                </form>
+              </div>}
         </div>
       )}
     </RootLayout>

@@ -29,10 +29,38 @@ export const Button_UI = ({
  * @returns 
  */
 export const Input_UI = ({texto , type , value ,name , required , funcion}:{texto:string ,name:string , type:React.HTMLInputTypeAttribute , value: any,required:boolean ,funcion:React.Dispatch<React.SetStateAction<any>>}) => (
-  <section className="w-fit flex flex-col items-left justify-around m-2">
+  <section className="w-fit flex flex-col items-start justify-around m-2">
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}
     </label>
+    <input
+      className="border border-black py-1 px-3 rounded-md w-fit"
+      type={type}
+      id={`input${texto}`}
+      placeholder={texto}
+      value={value}
+      name={name}
+      onChange={(e) => funcion(e.target.value)}
+      required={required}
+    />
+  </section>
+)
+
+/**
+ * Componente con label , texto y input-type
+ * @param texto: Texto del label , id placeholder
+ * @param type: del input
+ * @param value: del input
+ * @param funcion: que se va a usar en el onChange
+ * @param name: del input
+ * @returns 
+ */
+export const Input_UI_subTexto = ({texto , subTexto , type , value ,name , required , funcion}:{subTexto:string, texto:string ,name:string , type:React.HTMLInputTypeAttribute , value: any,required:boolean ,funcion:React.Dispatch<React.SetStateAction<any>>}) => (
+  <section className="w-fit flex flex-col items-start justify-around m-2">
+    <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
+      {texto}
+    </label>
+    <p className="text-xl font-thin font-serif">{subTexto}</p>
     <input
       className="border border-black py-1 px-3 rounded-md w-fit"
       type={type}
