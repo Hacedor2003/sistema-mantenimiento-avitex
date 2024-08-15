@@ -3,7 +3,18 @@ import './assets/main.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
-import { Anadir, Area, Calendario, Details, ErrorPage, Guia, Home, Login } from './pages'
+import {
+  Admin,
+  Anadir,
+  Area,
+  Calendario,
+  Details,
+  Editar,
+  ErrorPage,
+  Guia,
+  Home,
+  Login
+} from './pages'
 import { Orden } from './pages/Orden'
 import { PrivateRouteAdmin, PrivateRouteUser } from './components/PrivateRoute'
 
@@ -41,7 +52,25 @@ const router = createHashRouter([
     errorElement: <ErrorPage />
   },
   {
-    path: '/home/anadir',
+    path: '/home/admin',
+    element: (
+      <PrivateRouteAdmin role="admin">
+        <Admin />
+      </PrivateRouteAdmin>
+    ),
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/admin/editar/:opcion',
+    element: (
+      <PrivateRouteAdmin role="admin">
+        <Editar />
+      </PrivateRouteAdmin>
+    ),
+    errorElement: <ErrorPage />
+  },
+  {
+    path: '/home/admin/anadir/:opcion',
     element: (
       <PrivateRouteAdmin role="admin">
         <Anadir />

@@ -49,7 +49,7 @@ export const Sidebar = (): JSX.Element => {
           {user.Rol === 'admin' && (
             <li
               className="cursor-pointer text-2xl hover:text-white hover:mx-2 hover:scale-110 duration-300 w-max flex items-center gap-x-2"
-              onClick={() => navigate('/home/anadir')}
+              onClick={() => navigate('/home/admin')}
             >
               Administrador
             </li>
