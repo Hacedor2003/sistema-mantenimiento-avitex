@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 const Login = (): JSX.Element => {
   const [carnet, setCarnet] = useState('')
   const [contrasena, setConstrasena] = useState('')
+  const [error, setError] = useState(false)
   const navigate = useNavigate()
 
   const handleSubmit = (event): void => {
@@ -14,19 +15,30 @@ const Login = (): JSX.Element => {
     window.context
       .getUsuarios_All()
       .then((response) => {
-        const userFind = response.find((userDb) => userDb.dataValues.identificacion === carnet && userDb.dataValues.contrasena === contrasena)
-        if (userFind?.dataValues ) {
+        const userFind = response.find(
+          (userDb) =>
+            userDb.dataValues.identificacion === carnet &&
+            userDb.dataValues.contrasena === contrasena
+        )
+        if (userFind?.dataValues) {
+          setError(false)
           localStorage.setItem('user', JSON.stringify(userFind?.dataValues))
           navigate('/home')
-        }
+        } else 
         if (carnet === 'bryanlenier' && contrasena === 'espinosa') {
-          localStorage.setItem('user', JSON.stringify({
-            ID_Usuario:0,
-identificacion:"Bryan",
-Rol:'admin',
-contrasena:"espinosa"
-          }))
+          setError(false)
+          localStorage.setItem(
+            'user',
+            JSON.stringify({
+              ID_Usuario: 0,
+              identificacion: 'Bryan',
+              Rol: 'admin',
+              contrasena: 'espinosa'
+            })
+          )
           navigate('/home')
+        } else {
+          setError(true)
         }
       })
       .catch((error) => error.log(error))
@@ -62,7 +74,10 @@ contrasena:"espinosa"
               required
             />
           </div>
-          <Button_UI type="submit" texto="Entrar" funcion={() => {}} />
+          <Button_UI type="submit" texto="Entrar" funcion={() => { }} />
+          {error && <div className='text-xl bg-white m-2 border border-black px-2 py-1 rounded-md'>
+          Datos Erroneos
+          </div>}
         </form>
         <p>Derechos Reservados a Bit Tec SRL</p>
       </section>

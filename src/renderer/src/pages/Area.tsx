@@ -11,18 +11,27 @@ const Area = (): JSX.Element => {
 
   useEffect(() => {
     window.context
-      .getEquipos_By_Categoria(categoriaID)
-      .then((response) => {
-        setProducto(response)
-      })
-      .catch((error) => console.error(error))
-    window.context
       .getCategorias_By_ID(Number(categoriaID))
       .then((response) => {
         setCategoria(response)
       })
       .catch((error) => console.log(error))
-  }, [producto,categoria])
+    if (categoria?.dataValues.Nombre_Categoria !== 'Todos') {
+      window.context
+        .getEquipos_By_Categoria(categoriaID)
+        .then((response) => {
+          setProducto(response)
+        })
+        .catch((error) => console.error(error))
+    } else {
+      window.context
+        .getEquipos_All()
+        .then((response) => {
+          setProducto(response)
+        })
+        .catch((error) => console.error(error))
+    }
+  }, [producto, categoria])
 
   return (
     <RootLayout>
@@ -40,7 +49,7 @@ const Area = (): JSX.Element => {
             <th>Comentarios</th>
           </thead>
           <tbody>
-            {producto?.map((item:Equipos, index) => {
+            {producto?.map((item: Equipos, index) => {
               if (item.Estado === 1 || item.Estado === 2 || item.Estado === 3) {
                 return (
                   <ItemOfList_ComponentsContentEsp indicador="warning" key={index} item={item} />
@@ -62,21 +71,55 @@ const Area = (): JSX.Element => {
 
 export default Area
 
-const ItemOfList_ComponentsContent = ({item}:{item: Equipos}): JSX.Element => {
+const ItemOfList_ComponentsContent = ({ item }: { item: Equipos }): JSX.Element => {
   const navigate = useNavigate()
   return (
     <tr className="hover:bg-[#b70909] hover:text-white p-2 transition-all duration-300 cursor-pointer text-lg">
-      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}</td>
-      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Identificacion}</td>
-      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Origen}</td>
-      <td onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)} >{item.dataValues.Comentarios}</td>
+      <td
+        onClick={() =>
+          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+        }
+      >
+        {item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}
+      </td>
+      <td
+        onClick={() =>
+          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+        }
+      >
+        {item.dataValues.Identificacion}
+      </td>
+      <td
+        onClick={() =>
+          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+        }
+      >
+        {item.dataValues.Origen}
+      </td>
+      <td
+        onClick={() =>
+          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+        }
+      >
+        {item.dataValues.Comentarios}
+      </td>
       <td onClick={() => navigate(`/home/calendario/${item.dataValues.ID_Equipo}`)}>Ver Fechas</td>
-      { JSON.parse(localStorage.getItem('user') ?? '').role === 'admin' && <td onClick={() => window.context.deleteEquipos_By_Id(item.dataValues.ID_Equipo ?? -1)}>Borrar</td>}
+      {JSON.parse(localStorage.getItem('user') ?? '').role === 'admin' && (
+        <td onClick={() => window.context.deleteEquipos_By_Id(item.dataValues.ID_Equipo ?? -1)}>
+          Borrar
+        </td>
+      )}
     </tr>
   )
 }
 
-const ItemOfList_ComponentsContentEsp = ({   item,   indicador }: {   item: Equipos ,  indicador: 'warning' | 'danger' }): JSX.Element => {
+const ItemOfList_ComponentsContentEsp = ({
+  item,
+  indicador
+}: {
+  item: Equipos
+  indicador: 'warning' | 'danger'
+}): JSX.Element => {
   const navigate = useNavigate()
 
   return (

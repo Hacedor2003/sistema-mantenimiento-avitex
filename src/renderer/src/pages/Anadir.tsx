@@ -17,6 +17,7 @@ import { DateRange } from 'react-date-range'
 import 'react-date-range/dist/styles.css' // main css file
 import 'react-date-range/dist/theme/default.css' // theme css file
 import { SelectComponent } from '@renderer/components/UI_Component'
+import { Orden_MantenimientoAttributes, PresupuestoAttributes } from 'src/shared/types'
 
 export interface fechaType {
   startDate: Date
@@ -141,12 +142,10 @@ const Anadir = (): JSX.Element => {
           {
             const idPresupuesto = parseInt(formData.get('idpresupuesto') as string)
             const prevPresupuesto = await window.context.getPresupuestos_By_Id(idPresupuesto)
-            prevPresupuesto.monto = parseInt(formData.get('presupuesto') as string)
-            prevPresupuesto.Fecha = new Date()
-            const newPresupuesto = await window.context.editPresupuesto_By_Id(
-              idPresupuesto,
-              prevPresupuesto
-            )
+            const newPresupuestoEdited:PresupuestoAttributes = { ...prevPresupuesto.dataValues}
+            newPresupuestoEdited.monto = parseInt(formData.get('presupuesto') as string)
+            newPresupuestoEdited.Fecha = new Date()
+            const newPresupuesto = await window.context.editPresupuesto_By_Id( idPresupuesto, newPresupuestoEdited)
             if (newPresupuesto) {
               alert('Presupuesto Editado Correctamente')
             }
@@ -267,31 +266,32 @@ const Anadir = (): JSX.Element => {
           if (idBorrar) {
             await window.context.deleteOrden_Mantenimiento_By_Id(idBorrar)
             window.alert('Orden eliminada exitosamente')
-          } else if (idEditar) {
+          } else if (idEditar) {            
+            const prevOrden:Orden_MantenimientoAttributes = {
+              ID_Equipo:parseInt(formData.get('ID_Equipo') as string),
+              ID_Usuario:parseInt(formData.get('ID_Usuario') as string),
+              ID_Estado:parseInt(formData.get('ID_Estado') as string),
+              ID_Area:parseInt(formData.get('ID_Area') as string),
+              ID_Presupuesto:parseInt(formData.get('ID_Presupuesto') as string),
+              horarioParada:formData.get('horarioParada') as string,
+              horarioComienzo:formData.get('horarioComienzo') as string,
+              horarioPuestaMarcha:formData.get('horarioPuestaMarcha') as string,
+              horarioCulminacion:formData.get('horarioCulminacion') as string,
+              materialesUsados:formData.get('materialesUsados') as string,
+              observaciones:formData.get('observaciones') as string,
+              solicitadoPor:formData.get('solicitadoPor') as string,
+              aprobadoPor:formData.get('aprobadoPor') as string,
+              terminadoPor:formData.get('terminadoPor') as string,
+              revisadoPor:formData.get('revisadoPor') as string,
+              valeSalida:formData.get('valeSalida') as string,
+              objetivos:formData.get('objetivos') as string,
+              tipo_trabajo:formData.get('tipo_trabajo') as string,
+              tipo_mantenimiento:parseInt(formData.get('tipo_mantenimiento') as string),
+              fecha:new Date(formData.get('fecha') as string),
+              presupuesto:parseInt(formData.get('presupuesto') as string),
+          }
 
-            const updatedUsuario = await window.context.editOrden_Mantenimiento_By_Id(idEditar, {
-ID_Equipo:parseInt(formData.get('ID_Equipo') as string),
-ID_Usuario:parseInt(formData.get('ID_Usuario') as string),
-ID_Estado:parseInt(formData.get('ID_Estado') as string),
-ID_Area:parseInt(formData.get('ID_Area') as string),
-ID_Presupuesto:parseInt(formData.get('ID_Presupuesto') as string),
-horarioParada:formData.get('horarioParada') as string,
-horarioComienzo:formData.get('horarioComienzo') as string,
-horarioPuestaMarcha:formData.get('horarioPuestaMarcha') as string,
-horarioCulminacion:formData.get('horarioCulminacion') as string,
-materialesUsados:formData.get('materialesUsados') as string,
-observaciones:formData.get('observaciones') as string,
-solicitadoPor:formData.get('solicitadoPor') as string,
-aprobadoPor:formData.get('aprobadoPor') as string,
-terminadoPor:formData.get('terminadoPor') as string,
-revisadoPor:formData.get('revisadoPor') as string,
-valeSalida:formData.get('valeSalida') as string,
-objetivos:formData.get('objetivos') as string,
-tipo_trabajo:formData.get('tipo_trabajo') as string,
-tipo_mantenimiento:parseInt(formData.get('tipo_mantenimiento') as string),
-fecha:new Date(formData.get('fecha') as string),
-presupuesto:parseInt(formData.get('presupuesto') as string),
-            })
+            const updatedUsuario = await window.context.editOrden_Mantenimiento_By_Id(idEditar, prevOrden)
             if (updatedUsuario) {
               window.alert('Orden actualizada exitosamente')
             }
@@ -389,18 +389,19 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
   }, [fechaLubricamiento])
 
   useEffect(() => {
-    const newEquipos: Equipos[] = maquinarias.filter((item) => {
-      if (filterMaquinas !== 'Todo') {
-        return item.dataValues.CategoriasID === parseInt(filterMaquinas)
-      }
-      if (filterMaquinaText !== 'Todo') {
-        return item.dataValues.Nombre.toLocaleLowerCase().includes(
-          filterMaquinaText.toLocaleLowerCase()
-        )
-      } else return false
-    })
-    setMaquinariasFilter(newEquipos.length === 0 ? maquinarias : newEquipos)
-  }, [maquinarias, filterMaquinaText, filterMaquinas])
+    const lowerCaseFilterText = filterMaquinaText.toLocaleLowerCase();
+    const filterMachines = filterMaquinas !== 'Todo';
+    const filterText = filterMaquinaText !== 'Todo';
+  
+    const filteredMaquinarias = (maquinariasFilter.length > 0 ? maquinariasFilter : maquinarias).filter(item => {
+      const matchesCategory = !filterMachines || item.dataValues.CategoriasID === parseInt(filterMaquinas);
+      const matchesText = !filterText || item.dataValues.Nombre.toLocaleLowerCase().includes(lowerCaseFilterText);
+      return matchesCategory && matchesText;
+    });
+  
+    setMaquinariasFilter(filteredMaquinarias.length === 0 ? maquinarias : filteredMaquinarias);
+  }, [maquinarias, filterMaquinaText, filterMaquinas]);
+  
 
   const handleDelete = (
     item: fechaType,
@@ -436,6 +437,7 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
   return (
     <RootLayout>
       <main className="w-full flex flex-col items-center px-2 text-lg">
+        {/* Nav Bar */}
         <div className="w-full flex items-center justify-around">
           <div>
             <h4 className="text-4xl font-serif font-bold my-2">Desea añadir?</h4>
@@ -443,18 +445,30 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
               <Button_UI funcion={() => setVer('area')} type="button" texto="Area" />
               <Button_UI funcion={() => setVer('maquinaria')} type="button" texto="Equipo" />
               <Button_UI funcion={() => setVer('usuario')} type="button" texto="Usuario" />
-              <Button_UI funcion={() => setVer('mantenimiento')} type="button" texto="Tipo de Mantenimiento"/>
+              <Button_UI
+                funcion={() => setVer('mantenimiento')}
+                type="button"
+                texto="Tipo de Mantenimiento"
+              />
               <Button_UI funcion={() => setVer('estado')} type="button" texto="Estado" />
             </div>
           </div>
           <div>
             <h4 className="text-4xl font-serif font-bold my-2">Desea Editar?</h4>
             <div className="p-1 flex items-center gap-x-4">
-              <Button_UI funcion={() => setVer('editar-presupuesto')} type="button" texto="Presupuesto"/>
+              <Button_UI
+                funcion={() => setVer('editar-presupuesto')}
+                type="button"
+                texto="Presupuesto"
+              />
               <Button_UI funcion={() => setVer('editar-area')} type="button" texto="Area" />
               <Button_UI funcion={() => setVer('editar-maquinaria')} type="button" texto="Equipo" />
               <Button_UI funcion={() => setVer('editar-usuario')} type="button" texto="Usuario" />
-              <Button_UI funcion={() => setVer('editar-mantenimiento')} type="button" texto="Tipo de Mantenimiento"/>
+              <Button_UI
+                funcion={() => setVer('editar-mantenimiento')}
+                type="button"
+                texto="Tipo de Mantenimiento"
+              />
               <Button_UI funcion={() => setVer('editar-estado')} type="button" texto="Estado" />
               <Button_UI funcion={() => setVer('editar-orden')} type="button" texto="Ordenes" />
             </div>
@@ -827,6 +841,7 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
         )}
         {ver === 'editar-maquinaria' && (
           <div className="w-full grid grid-cols-3">
+            {/* Buscar Maquinaria */}
             <ul className="col-span-1 flex flex-col items-start">
               <li>
                 <SelectComponent
@@ -857,8 +872,8 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
             </ul>
             <ul className="col-span-1 flex flex-col items-start">
               <li className="text-xl font-bold">Equipos:</li>
-              {maquinariasFilter.map((maquinariaItem,index) => {
-                const {  Nombre, fecha_mantenimiento, fecha_lubricamiento } =
+              {maquinariasFilter.map((maquinariaItem, index) => {
+                const { Nombre, fecha_mantenimiento, fecha_lubricamiento, Identificacion } =
                   maquinariaItem.dataValues
 
                 const handleClick = () => {
@@ -868,12 +883,16 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
                 }
 
                 return (
-                  <li key={index} className="flex">
-                    <p onClick={handleClick}>{Nombre}</p>
+                  <li key={index} className="flex flex-col">
+                    <p onClick={handleClick} className="font-semibold">
+                      {Nombre}
+                    </p>
+                    <p className="text-gray-500">ID: {Identificacion}</p>
                   </li>
                 )
               })}
             </ul>
+
             {selectedMaquinaria && (
               <div className="col-span-1">
                 <form
@@ -954,53 +973,59 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
                     <div>
                       <h3>Mantenimiento</h3>
                       <ul>
-                        {fecha_mantenimiento.length > 0 ? fecha_mantenimiento.map((item, index) => (
-                          <li key={index} className="p-1 flex flex-row items-center">
-                            <div className="flex flex-col items-center mx-2">
-                              <h6>Fecha Inicial</h6>
-                              <p>
-                                {new Date(item.startDate).toLocaleDateString() ??
-                                  item.startDate.toLocaleDateString() ??
-                                  ''}
-                              </p>
-                            </div>
-                            <div className="flex flex-col items-center mx-2">
-                              <h6>Fecha Final</h6>
-                              <p>
-                                {new Date(item.endDate).toLocaleDateString() ??
-                                  item.endDate.toLocaleDateString() ??
-                                  ''}
-                              </p>
-                            </div>
-                            <div>
-                              <h6>Tipo de Mantenimiento</h6>
-                              <select
-                                id="inputMantenimiento"
-                                className="w-fit border border-black p-2 rounded-md cursor-pointer"
-                                name="tipoMantenimientoFecha"
-                                onChange={(e) =>
-                                  handleTipoMantenimientoChange(e, index, setFecha_mantenimiento)
-                                }
-                                value={parseInt(item.tipoMantenimiento)}
-                              >
-                                <option value={-1}> Tipo de Mantenimiento </option>
-                                {tipoMantenimientoData.map((mantenimientoItem, index) => (
-                                  <option
-                                    key={index}
-                                    value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
+                        {fecha_mantenimiento.length > 0
+                          ? fecha_mantenimiento.map((item, index) => (
+                              <li key={index} className="p-1 flex flex-row items-center">
+                                <div className="flex flex-col items-center mx-2">
+                                  <h6>Fecha Inicial</h6>
+                                  <p>
+                                    {new Date(item.startDate).toLocaleDateString() ??
+                                      item.startDate.toLocaleDateString() ??
+                                      ''}
+                                  </p>
+                                </div>
+                                <div className="flex flex-col items-center mx-2">
+                                  <h6>Fecha Final</h6>
+                                  <p>
+                                    {new Date(item.endDate).toLocaleDateString() ??
+                                      item.endDate.toLocaleDateString() ??
+                                      ''}
+                                  </p>
+                                </div>
+                                <div>
+                                  <h6>Tipo de Mantenimiento</h6>
+                                  <select
+                                    id="inputMantenimiento"
+                                    className="w-fit border border-black p-2 rounded-md cursor-pointer"
+                                    name="tipoMantenimientoFecha"
+                                    onChange={(e) =>
+                                      handleTipoMantenimientoChange(
+                                        e,
+                                        index,
+                                        setFecha_mantenimiento
+                                      )
+                                    }
+                                    value={parseInt(item.tipoMantenimiento)}
                                   >
-                                    {mantenimientoItem.dataValues.Tipo}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            <Button_UI
-                              type="button"
-                              texto="Borrar"
-                              funcion={() => handleDelete(item, setFecha_mantenimiento)}
-                            />
-                          </li>
-                        )) : null}
+                                    <option value={-1}> Tipo de Mantenimiento </option>
+                                    {tipoMantenimientoData.map((mantenimientoItem, index) => (
+                                      <option
+                                        key={index}
+                                        value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
+                                      >
+                                        {mantenimientoItem.dataValues.Tipo}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                <Button_UI
+                                  type="button"
+                                  texto="Borrar"
+                                  funcion={() => handleDelete(item, setFecha_mantenimiento)}
+                                />
+                              </li>
+                            ))
+                          : null}
                       </ul>
                     </div>
                     <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
@@ -1016,31 +1041,33 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
                       <div>
                         <h3>Lubricación</h3>
                         <ul>
-                          { fechaLubricamiento.length > 0 ? fecha_lubricamiento.map((item, index) => (
-                            <li key={index} className="p-1 flex flex-row items-center">
-                              <div className="flex flex-col items-center mx-2">
-                                <h6>Fecha Inicial</h6>
-                                <p>
-                                  {item.startDate
-                                    ? new Date(item.startDate).toLocaleDateString() ?? ''
-                                    : ''}
-                                </p>
-                              </div>
-                              <div className="flex flex-col items-center mx-2">
-                                <h6>Fecha Final</h6>
-                                <p>
-                                  {item.endDate
-                                    ? new Date(item.endDate).toLocaleDateString() ?? ''
-                                    : ''}
-                                </p>
-                              </div>
-                              <Button_UI
-                                type="button"
-                                texto="Borrar"
-                                funcion={() => handleDelete(item, setFecha_lubricamiento)}
-                              />
-                            </li>
-                          )) : null}
+                          {fechaLubricamiento.length > 0
+                            ? fecha_lubricamiento.map((item, index) => (
+                                <li key={index} className="p-1 flex flex-row items-center">
+                                  <div className="flex flex-col items-center mx-2">
+                                    <h6>Fecha Inicial</h6>
+                                    <p>
+                                      {item.startDate
+                                        ? new Date(item.startDate).toLocaleDateString() ?? ''
+                                        : ''}
+                                    </p>
+                                  </div>
+                                  <div className="flex flex-col items-center mx-2">
+                                    <h6>Fecha Final</h6>
+                                    <p>
+                                      {item.endDate
+                                        ? new Date(item.endDate).toLocaleDateString() ?? ''
+                                        : ''}
+                                    </p>
+                                  </div>
+                                  <Button_UI
+                                    type="button"
+                                    texto="Borrar"
+                                    funcion={() => handleDelete(item, setFecha_lubricamiento)}
+                                  />
+                                </li>
+                              ))
+                            : null}
                         </ul>
                       </div>
                     </div>
@@ -1104,44 +1131,127 @@ presupuesto:parseInt(formData.get('presupuesto') as string),
         )}
         {ver === 'editar-orden' && (
           <div className="w-full grid grid-cols-3">
-          {ordenes.map((orden, index) => (
-            <section key={index} className="flex gap-x-2 items-end m-1">
-              <form
-                onSubmit={handleSubmit}
-                className="p-2 border-2 border-[#b70909] rounded-xl m-1"
-              >
-                <input type="hidden" name="editar" value={orden.dataValues.ID_Orden} />
-                <Input_UI required={false} value={orden.dataValues.ID_Orden} type='text' texto='ID_Orden' name='ID_Equipo' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.ID_Usuario} type='text' texto='ID_Usuario' name='ID_Usuario' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.ID_Estado} type='text' texto='ID_Estado' name='ID_Estado' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.ID_Area} type='text' texto='ID_Area' name='ID_Area' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.ID_Presupuesto} type='text' texto='ID_Presupuesto' name='ID_Presupuesto' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.horarioParada} type='text' texto='horarioParada' name='horarioParada' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.horarioComienzo} type='text' texto='horarioComienzo' name='horarioComienzo' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.horarioPuestaMarcha} type='text' texto='horarioPuestaMarcha' name='horarioPuestaMarcha' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.horarioCulminacion} type='text' texto='horarioCulminacion' name='horarioCulminacion' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.materialesUsados} type='text' texto='materialesUsados' name='materialesUsados' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.observaciones} type='text' texto='observaciones' name='observaciones' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.solicitadoPor} type='text' texto='solicitadoPor' name='solicitadoPor' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.aprobadoPor} type='text' texto='aprobadoPor' name='aprobadoPor' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.terminadoPor} type='text' texto='terminadoPor' name='terminadoPor' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.revisadoPor} type='text' texto='revisadoPor' name='revisadoPor' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.valeSalida} type='text' texto='valeSalida' name='valeSalida' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.objetivos} type='text' texto='objetivos' name='objetivos' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.tipo_trabajo} type='text' texto='tipo_trabajo' name='tipo_trabajo' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.fecha} type='text' texto='fecha' name='tipo_mantenimiento' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.presupuesto} type='text' texto='presupuesto' name='fecha' funcion={()=>{}} />
-                <Input_UI required={false} value={orden.dataValues.tipo_mantenimiento } type='text' texto='tipo_mantenimiento' name='presupuesto' funcion={()=>{}} />
-            
-                <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
-              </form>
-              <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={orden.dataValues.ID_Orden} />
-                <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
-              </form>
-            </section>
-          ))}
-        </div>
+            {ordenes.map((orden, index) => (
+              <section key={index} className="flex gap-x-2 items-end m-1">
+                <form
+                  onSubmit={handleSubmit}
+                  className="p-2 border-2 border-[#b70909] rounded-xl m-1"
+                >
+                  <input type="hidden" name="editar" value={orden.dataValues.ID_Orden} />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.horarioParada}
+                    type="text"
+                    texto="horarioParada"
+                    name="horarioParada"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.horarioComienzo}
+                    type="text"
+                    texto="horarioComienzo"
+                    name="horarioComienzo"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.horarioPuestaMarcha}
+                    type="text"
+                    texto="horarioPuestaMarcha"
+                    name="horarioPuestaMarcha"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.horarioCulminacion}
+                    type="text"
+                    texto="horarioCulminacion"
+                    name="horarioCulminacion"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.materialesUsados}
+                    type="text"
+                    texto="materialesUsados"
+                    name="materialesUsados"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.observaciones}
+                    type="text"
+                    texto="observaciones"
+                    name="observaciones"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.solicitadoPor}
+                    type="text"
+                    texto="solicitadoPor"
+                    name="solicitadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.aprobadoPor}
+                    type="text"
+                    texto="aprobadoPor"
+                    name="aprobadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.terminadoPor}
+                    type="text"
+                    texto="terminadoPor"
+                    name="terminadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.revisadoPor}
+                    type="text"
+                    texto="revisadoPor"
+                    name="revisadoPor"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.valeSalida}
+                    type="text"
+                    texto="valeSalida"
+                    name="valeSalida"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.objetivos}
+                    type="text"
+                    texto="objetivos"
+                    name="objetivos"
+                    funcion={() => {}}
+                  />
+                  <Input_UI
+                    required={false}
+                    value={orden.dataValues.presupuesto}
+                    type="text"
+                    texto="presupuesto"
+                    name="fecha"
+                    funcion={() => {}}
+                  />
+
+                  <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
+                </form>
+                <form onSubmit={handleSubmit}>
+                  <input type="hidden" name="borrar" value={orden.dataValues.ID_Orden} />
+                  <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
+                </form>
+              </section>
+            ))}
+          </div>
         )}
       </main>
     </RootLayout>

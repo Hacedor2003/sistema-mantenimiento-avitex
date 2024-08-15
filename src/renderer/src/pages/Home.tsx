@@ -78,12 +78,21 @@ const ItemOfList_NavigationContent = ({
 }): JSX.Element => {
   const [producto, setProducto] = useState<Equipos[] | null>(null)
   useEffect(() => {
-    window.context
-      .getEquipos_By_Categoria(id)
-      .then((response) => {
-        setProducto(response)
-      })
-      .catch((error) => console.error(error))
+    if (nombre !== "Todos") {
+      window.context
+        .getEquipos_By_Categoria(id)
+        .then((response) => {
+          setProducto(response)
+        })
+        .catch((error) => console.error(error))
+    } else {
+      window.context
+        .getEquipos_All()
+        .then((response) => {
+          setProducto(response)
+        })
+        .catch((error) => console.error(error))
+    }
   }, [])
 
   return (

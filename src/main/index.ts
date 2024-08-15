@@ -153,7 +153,9 @@ app.whenReady().then(async () => {
   ipcMain.handle('editOrden_Mantenimiento_By_Id', (_, id, updated) =>
     editOrden_Mantenimiento_By_Id(id, updated)
   )
-  ipcMain.handle('editPresupuesto_By_Id', (_, ...args) => editPresupuesto_By_Id(...args))
+  ipcMain.handle('editPresupuesto_By_Id', (_, id, presupuesto) =>
+    editPresupuesto_By_Id(id, presupuesto)
+  )
 
   //Create
   ipcMain.handle('createEquipos', (_, newData) => createEquipos(newData))
