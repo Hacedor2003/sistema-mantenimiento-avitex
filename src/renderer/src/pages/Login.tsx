@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
+import { AppContext } from '@renderer/Data/Store'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const Login = (): JSX.Element => {
@@ -8,40 +9,37 @@ const Login = (): JSX.Element => {
   const [contrasena, setConstrasena] = useState('')
   const [error, setError] = useState(false)
   const navigate = useNavigate()
+  const context = useContext(AppContext)
 
   const handleSubmit = (event): void => {
     event.preventDefault()
 
-    window.context
-      .getUsuarios_All()
-      .then((response) => {
-        const userFind = response.find(
-          (userDb) =>
-            userDb.dataValues.identificacion === carnet &&
-            userDb.dataValues.contrasena === contrasena
-        )
-        if (userFind?.dataValues) {
-          setError(false)
-          localStorage.setItem('user', JSON.stringify(userFind?.dataValues))
-          navigate('/home')
-        } else 
-        if (carnet === 'bryanlenier' && contrasena === 'espinosa') {
-          setError(false)
-          localStorage.setItem(
-            'user',
-            JSON.stringify({
-              ID_Usuario: 0,
-              identificacion: 'Bryan',
-              Rol: 'admin',
-              contrasena: 'espinosa'
-            })
-          )
-          navigate('/home')
-        } else {
-          setError(true)
-        }
-      })
-      .catch((error) => error.log(error))
+
+    if (carnet === 'bryanlenier' && contrasena === 'espinosa') {
+      setError(false)
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          ID_Usuario: 0,
+          identificacion: 'Bryan',
+          Rol: 'admin',
+          contrasena: 'espinosa'
+        })
+      )
+      navigate('/home')
+    } else if (carnet !== 'bryanlenier' && contrasena !== 'espinosa') {
+      const userFind = context.data.usuarios.data.find(
+        (userDb) =>
+          userDb.dataValues.identificacion === carnet && userDb.dataValues.contrasena === contrasena
+      )
+      if (userFind?.dataValues) {
+        setError(false)
+        localStorage.setItem('user', JSON.stringify(userFind?.dataValues))
+        navigate('/home')
+      }
+    } else {
+      setError(true)
+    }
   }
 
   return (
@@ -74,10 +72,12 @@ const Login = (): JSX.Element => {
               required
             />
           </div>
-          <Button_UI type="submit" texto="Entrar" funcion={() => { }} />
-          {error && <div className='text-xl bg-white m-2 border border-black px-2 py-1 rounded-md'>
-          Datos Erroneos
-          </div>}
+          <Button_UI type="submit" texto="Entrar" funcion={() => {}} />
+          {error && (
+            <div className="text-xl bg-white m-2 border border-black px-2 py-1 rounded-md">
+              Datos Erroneos
+            </div>
+          )}
         </form>
         <p>Derechos Reservados a Bit Tec SRL</p>
       </section>

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { AppContext } from '@renderer/Data/Store'
 import { RootLayout } from '@renderer/components/AppLayout'
 import {
   Button_UI,
@@ -6,9 +7,10 @@ import {
   Input_UI_subTexto,
   SelectComponent
 } from '@renderer/components/UI_Component'
-import React, { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { addDays } from 'date-fns'
+import React, { useContext, useEffect, useState } from 'react'
+import { DateRange } from 'react-date-range'
+import { useParams } from 'react-router-dom'
 import {
   Categorias,
   Equipos,
@@ -18,12 +20,12 @@ import {
   Tipo_Mantenimiento,
   Usuarios
 } from 'src/main/db/Models'
-import { DateRange } from 'react-date-range'
-import { fechaType } from './Anadir'
 import { PresupuestoAttributes } from 'src/shared/types'
+import { fechaType } from './Anadir'
 
 const Editar = () => {
   const { opcion: ver } = useParams()
+  const context = useContext(AppContext)
 
   const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([])
   const [maquinarias, setMaquinarias] = useState<Equipos[]>([])
@@ -113,43 +115,22 @@ const Editar = () => {
               window.alert('Equipo eliminado exitosamente')
             } else if (idEditar) {
               const prevEquipo = maquinarias.find((i) => i.dataValues.ID_Equipo === idEditar)
-              const nombre =
-                ((formData.get('nombre') as string) ?? '').length > 0
-                  ? (formData.get('nombre') as string)
-                  : prevEquipo!.dataValues.Nombre
-              const identificacion =
-                ((formData.get('identificacion') as string) ?? '').length > 0
-                  ? (formData.get('identificacion') as string)
-                  : prevEquipo!.dataValues.Identificacion
-              const categoria =
-                ((formData.get('categoria') as string) ?? '').length > 0
-                  ? (formData.get('categoria') as string)
-                  : prevEquipo!.dataValues.CategoriasID
-              const comentarios =
-                ((formData.get('comentarios') as string) ?? '').length > 0
-                  ? (formData.get('comentarios') as string)
-                  : prevEquipo!.dataValues.Comentarios
-              const estado =
-                ((formData.get('estado') as string) ?? '').length > 0
-                  ? (formData.get('estado') as string)
-                  : prevEquipo!.dataValues.Estado
-              const origen =
-                ((formData.get('origen') as string) ?? '').length > 0
-                  ? (formData.get('origen') as string)
-                  : prevEquipo!.dataValues.Origen
-              const mantenimiento =
-                ((formData.get('mantenimiento') as string) ?? '').length > 0
-                  ? (formData.get('mantenimiento') as string)
-                  : prevEquipo!.dataValues.TipoMantenimiento
-              const fechamantenimiento = fecha_mantenimiento.map((item) => ({
-                startDate: item.startDate.toISOString(),
-                endDate: item.endDate.toISOString(),
+              const nombre = ((formData.get('nombre') as string) ?? '').length > 0 ? (formData.get('nombre') as string) : prevEquipo!.dataValues.Nombre
+              const identificacion = ((formData.get('identificacion') as string) ?? '').length > 0 ? (formData.get('identificacion') as string) : prevEquipo!.dataValues.Identificacion
+              const categoria = ((formData.get('categoria') as string) ?? '').length > 0 ? (formData.get('categoria') as string) : prevEquipo!.dataValues.CategoriasID
+              const comentarios = ((formData.get('comentarios') as string) ?? '').length > 0 ? (formData.get('comentarios') as string) : prevEquipo!.dataValues.Comentarios
+              const estado = ((formData.get('estado') as string) ?? '').length > 0 ? (formData.get('estado') as string) : prevEquipo!.dataValues.Estado
+              const origen = ((formData.get('origen') as string) ?? '').length > 0 ? (formData.get('origen') as string) : prevEquipo!.dataValues.Origen
+              const mantenimiento = ((formData.get('mantenimiento') as string) ?? '').length > 0 ? (formData.get('mantenimiento') as string) : prevEquipo!.dataValues.TipoMantenimiento
+              const fechamantenimiento = fechaMantenimiento.map((item) => ({
+                startDate: new Date(item.startDate).toISOString(),
+                endDate: new Date(item.endDate).toISOString(),
                 key: item.key,
                 tipoMantenimiento: item.tipoMantenimiento
               }))
-              const fechalubricamiento = fecha_lubricamiento.map((item) => ({
-                startDate: item.startDate.toISOString(),
-                endDate: item.endDate.toISOString(),
+              const fechalubricamiento = fechaLubricamiento.map((item) => ({
+                startDate: new Date(item.startDate).toISOString(),
+                endDate: new Date(item.endDate).toISOString(),
                 key: item.key
               }))
               const updatedEquipo = await window.context.editEquipos_By_Id(idEditar, {
@@ -334,8 +315,7 @@ const Editar = () => {
         const itemEndDate = new Date(item.endDate)
 
         return (
-          fechaStartDate.toISOString() !== itemStartDate.toISOString() ||
-          fechaEndDate.toISOString() !== itemEndDate.toISOString()
+          fechaStartDate.toISOString() !== itemStartDate.toISOString() || fechaEndDate.toISOString() !== itemEndDate.toISOString()
         )
       })
     })
@@ -358,7 +338,6 @@ const Editar = () => {
       tipoMantenimiento: ''
     }
   ])
-  const [fecha_mantenimiento, setFecha_mantenimiento] = useState<fechaType[]>([])
   const [fechaLubricamiento, setFechaLubricamiento] = useState<fechaType[]>([
     {
       startDate: new Date(),
@@ -367,78 +346,6 @@ const Editar = () => {
       tipoMantenimiento: ''
     }
   ])
-  const [fecha_lubricamiento, setFecha_lubricamiento] = useState<fechaType[]>([])
-
-  const fetchPresupuestos = (callback) => {
-    window.context
-      .getPresupuestos_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchMaquinarias = (callback) => {
-    window.context
-      .getEquipos_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchUsuarios = (callback) => {
-    window.context
-      .getUsuarios_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchOrdenes = (callback) => {
-    window.context
-      .getOrden_Mantenimiento_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchTipoMantenimiento = (callback) => {
-    window.context
-      .getTipo_Mantenimiento_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchCategorias = (callback) => {
-    window.context
-      .getCategorias_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchEstados = (callback) => {
-    window.context
-      .getEstados_Revision_All()
-      .then(callback)
-      .catch((error) => console.log(error))
-  }
-
-  const fetchAllPresupuestos = useCallback(() => {
-    fetchPresupuestos(setPresupuestos)
-  }, [presupuestos])
-  const fetchAllMaquinarias = useCallback(() => {
-    fetchMaquinarias(setMaquinarias)
-  }, [maquinarias])
-  const fetchAllUsuarios = useCallback(() => {
-    fetchUsuarios(setUsuarios)
-  }, [usuarios])
-  const fetchAllOrdenes = useCallback(() => {
-    fetchOrdenes(setOrdenes)
-  }, [ordenes])
-  const fetchAllTipoMantenimiento = useCallback(() => {
-    fetchTipoMantenimiento(setTipoMantenimientoData)
-  }, [tipoMantenimientoData])
-  const fetchAllCategorias = useCallback(() => {
-    fetchCategorias(setcategoriaData)
-  }, [categoriaData])
-  const fetchAllEstados = useCallback(() => {
-    fetchEstados(setEstadoData)
-  }, [estadoData])
 
   const handleTipoMantenimientoChange = (e, index, setFecha_mantenimiento) => {
     const selectedTipoMantenimiento = parseInt(e.target.value)
@@ -471,82 +378,39 @@ const Editar = () => {
   }, [maquinarias, filterMaquinaText, filterMaquinas])
 
   useEffect(() => {
-    setFecha_mantenimiento((prevFecha) => {
-      if (
-        !prevFecha.some((item) => {
-          if (fechaMantenimiento.length > 0) {
-            const startDate = new Date(fechaMantenimiento[0].startDate)
-            const endDate = new Date(fechaMantenimiento[0].endDate)
-            const itemStartDate = new Date(item.startDate)
-            const itemEndDate = new Date(item.endDate)
-
-            return (
-              itemStartDate.toISOString() === startDate.toISOString() &&
-              itemEndDate.toISOString() === endDate.toISOString()
-            )
-          } else return false
-        })
-      ) {
-        return [...prevFecha, fechaMantenimiento[0]]
-      }
-      return prevFecha
-    })
-  }, [fechaMantenimiento])
-
-  useEffect(() => {
-    setFecha_lubricamiento((prevFecha) => {
-      if (
-        !prevFecha.some((item) => {
-          if (fechaLubricamiento.length > 0) {
-            const startDate = new Date(fechaLubricamiento[0].startDate)
-            const endDate = new Date(fechaLubricamiento[0].endDate)
-            const itemStartDate = new Date(item.startDate)
-            const itemEndDate = new Date(item.endDate)
-
-            return (
-              itemStartDate.toISOString() === startDate.toISOString() &&
-              itemEndDate.toISOString() === endDate.toISOString()
-            )
-          } else return false
-        })
-      ) {
-        return [...prevFecha, fechaLubricamiento[0]]
-      }
-      return prevFecha
-    })
-  }, [fechaLubricamiento])
-
-  useEffect(() => {
-    fetchAllPresupuestos()
-    fetchAllMaquinarias()
-    fetchAllUsuarios()
-    fetchAllOrdenes()
-    fetchAllTipoMantenimiento()
-    fetchAllCategorias()
-    fetchAllEstados()
+    const { presupuestos, equipos, usuarios, ordenes, tipo_mantenimiento, categorias, estados } = context.data
+    setPresupuestos(presupuestos.data)
+    setMaquinarias(equipos.data)
+    setUsuarios(usuarios.data)
+    setOrdenes(ordenes.data)
+    setTipoMantenimientoData(tipo_mantenimiento.data)
+    setcategoriaData(categorias.data)
+    setEstadoData(estados.data)
   }, [])
   
   useEffect(() => {
-    fetchAllPresupuestos()
+    setPresupuestos(context.data.presupuestos.data)
   }, [presupuestos])
   useEffect(() => {
-    fetchAllMaquinarias()
+    setMaquinarias(context.data.equipos.data)
   }, [maquinarias])
   useEffect(() => {
-    fetchAllUsuarios()
+    setUsuarios(context.data.usuarios.data)
   }, [usuarios])
   useEffect(() => {
-    fetchAllOrdenes()
+    setOrdenes(context.data.ordenes.data)
   }, [ordenes])
   useEffect(() => {
-    fetchAllTipoMantenimiento()
+    setTipoMantenimientoData(context.data.tipo_mantenimiento.data)
   }, [tipoMantenimientoData])
   useEffect(() => {
-    fetchAllCategorias()
+    setcategoriaData(context.data.categorias.data)
   }, [categoriaData])
   useEffect(() => {
-    fetchAllEstados()
+    setEstadoData(context.data.estados.data)
   }, [estadoData])
+  
+  
   
 
   return (
@@ -753,26 +617,24 @@ const Editar = () => {
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Categoria ID: ${selectedMaquinaria?.dataValues.CategoriasID}`}
-                  required={false}
-                  name="categoria"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  value={undefined}
-                  type="text"
                   texto={`Comentarios: ${selectedMaquinaria?.dataValues.Comentarios}`}
                   required={false}
                   name="comentarios"
                   funcion={() => {}}
                 />
-                <Input_UI
-                  value={undefined}
-                  type="text"
-                  texto={`Estado: ${selectedMaquinaria?.dataValues.Estado}`}
+                <SelectComponent
+                  className=''
+                  id='selectEstate'
+                  name='estado'
+                  onChange={() => { }}
                   required={false}
-                  name="estado"
-                  funcion={() => {}}
+                  value={undefined}
+                  label={`Estado: ${selectedMaquinaria.dataValues.Estado}`}
+                  options={estadoData.map((estado) => (
+                    <option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>
+                      {estado.dataValues.Nombre_Estado}
+                    </option>
+                  ))}
                 />
                 <Input_UI
                   value={undefined}
@@ -780,14 +642,6 @@ const Editar = () => {
                   texto={`Origen: ${selectedMaquinaria?.dataValues.Origen}`}
                   required={false}
                   name="origen"
-                  funcion={() => {}}
-                />
-                <Input_UI
-                  value={undefined}
-                  type="text"
-                  texto={`Tipo Mantenimiento: ${selectedMaquinaria?.dataValues.TipoMantenimiento}`}
-                  required={false}
-                  name="mantenimiento"
                   funcion={() => {}}
                 />
                 <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
@@ -803,9 +657,9 @@ const Editar = () => {
                   <div>
                     <h3>Mantenimiento</h3>
                     <ul>
-                      {fecha_mantenimiento.length > 0
-                        ? fecha_mantenimiento.map((item, index) => (
-                            <li key={index} className="p-1 flex flex-row items-center">
+                      {fechaMantenimiento.length > 0
+                        ? fechaMantenimiento.map((item, index) => (
+                            <li key={new Date(item.startDate).getMilliseconds()} className="p-1 flex flex-row items-center">
                               <div className="flex flex-col items-center mx-2">
                                 <h6>Fecha Inicial</h6>
                                 <p>
@@ -829,14 +683,14 @@ const Editar = () => {
                                   className="w-fit border border-black p-2 rounded-md cursor-pointer"
                                   name="tipoMantenimientoFecha"
                                   onChange={(e) =>
-                                    handleTipoMantenimientoChange(e, index, setFecha_mantenimiento)
+                                    handleTipoMantenimientoChange(e, index, setFechaMantenimiento)
                                   }
                                   value={parseInt(item.tipoMantenimiento)}
                                 >
                                   <option value={-1}> Tipo de Mantenimiento </option>
-                                  {tipoMantenimientoData.map((mantenimientoItem, index) => (
+                                  {tipoMantenimientoData.map((mantenimientoItem) => (
                                     <option
-                                      key={index}
+                                      key={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
                                       value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
                                     >
                                       {mantenimientoItem.dataValues.Tipo}
@@ -847,7 +701,7 @@ const Editar = () => {
                               <Button_UI
                                 type="button"
                                 texto="Borrar"
-                                funcion={() => handleDelete(item, setFecha_mantenimiento)}
+                                funcion={() => handleDelete(item, setFechaMantenimiento)}
                               />
                             </li>
                           ))
@@ -868,8 +722,8 @@ const Editar = () => {
                       <h3>Lubricación</h3>
                       <ul>
                         {fechaLubricamiento.length > 0
-                          ? fecha_lubricamiento.map((item, index) => (
-                              <li key={index} className="p-1 flex flex-row items-center">
+                          ? fechaLubricamiento.map((item) => (
+                              <li key={new Date(item.startDate).getMilliseconds()} className="p-1 flex flex-row items-center">
                                 <div className="flex flex-col items-center mx-2">
                                   <h6>Fecha Inicial</h6>
                                   <p>
@@ -889,7 +743,7 @@ const Editar = () => {
                                 <Button_UI
                                   type="button"
                                   texto="Borrar"
-                                  funcion={() => handleDelete(item, setFecha_lubricamiento)}
+                                  funcion={() => handleDelete(item, setFechaLubricamiento)}
                                 />
                               </li>
                             ))

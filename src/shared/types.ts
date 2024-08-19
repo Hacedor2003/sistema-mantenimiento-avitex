@@ -13,29 +13,24 @@ export interface EquiposAttributes {
   fecha_mantenimiento: any
   fecha_lubricamiento: any
 }
-
 export interface Tipo_MantenimientoAttributes {
   ID_Tipo_Mantenimiento?: number
   Tipo: string
 }
-
 export interface CategoriasAttributes {
   ID_Categoria?: number
   Nombre_Categoria: string
 }
-
 export interface Estados_RevisionAttributes {
   ID_Estado?: number
   Nombre_Estado: string
 }
-
 export interface UsuariosAttributes {
   ID_Usuario?: number
   identificacion: string
   Rol: string
   contrasena: string
 }
-
 export interface Orden_MantenimientoAttributes {
   ID_Orden?: number;
   ID_Equipo: number;
@@ -60,7 +55,6 @@ export interface Orden_MantenimientoAttributes {
   fecha: Date;
   presupuesto:number
 }
-
 export interface PresupuestoAttributes {
   ID_Presupuesto: number;
   Tipo: string;

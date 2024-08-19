@@ -60,7 +60,7 @@ export const Input_UI_subTexto = ({texto , subTexto , type , value ,name , requi
     <label className="text-2xl font-thin font-serif" htmlFor={`input${texto}`}>
       {texto}
     </label>
-    <p className="text-xl font-thin font-serif">{subTexto}</p>
+    <p className="text-xl font-extralight font-sans">{subTexto}</p>
     <input
       className="border border-black py-1 px-3 rounded-md w-fit"
       type={type}

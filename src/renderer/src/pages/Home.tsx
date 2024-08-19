@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
+import { AppContext } from '@renderer/Data/Store'
 import { RootLayout } from '@renderer/components/AppLayout'
-import { useCallback, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Categorias, Equipos, Estados_Revision } from 'src/main/db/Models'
 
@@ -8,24 +9,14 @@ const Home = (): JSX.Element => {
   const [lista_areas, setLista_areas] = useState<Categorias[]>([])
   const [productos, setProductos] = useState<Equipos[]>([])
   const [listEstados, setListEstados] = useState<Estados_Revision[]>([])
-
-  const fetchAllData = useCallback(() => {
-    Promise.all([
-      window.context.getCategorias_All(),
-      window.context.getEstados_Revision_All(),
-      window.context.getEquipos_All()
-    ])
-      .then(([categoriasData, EstadosRevisionData, EquiposData]) => {
-        setLista_areas(categoriasData)
-        setListEstados(EstadosRevisionData)
-        setProductos(EquiposData)
-      })
-      .catch((error) => console.log(error))
-  }, [])
+  const context = useContext(AppContext)
 
   useEffect(() => {
-    fetchAllData()
-  }, [fetchAllData])
+    const { categorias, estados, equipos } = context.data
+    setLista_areas(categorias.data)
+    setListEstados(estados.data)
+    setProductos(equipos.data)
+  }, [])
 
   return (
     <RootLayout>
@@ -78,7 +69,7 @@ const ItemOfList_NavigationContent = ({
 }): JSX.Element => {
   const [producto, setProducto] = useState<Equipos[] | null>(null)
   useEffect(() => {
-    if (nombre !== "Todos") {
+    if (nombre !== 'Todos') {
       window.context
         .getEquipos_By_Categoria(id)
         .then((response) => {

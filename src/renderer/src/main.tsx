@@ -17,6 +17,7 @@ import {
 } from './pages'
 import { Orden } from './pages/Orden'
 import { PrivateRouteAdmin, PrivateRouteUser } from './components/PrivateRoute'
+import { AppProvider } from './Data/Store'
 
 const router = createHashRouter([
   {
@@ -118,7 +119,9 @@ const router = createHashRouter([
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AppProvider>
+      <RouterProvider router={router} />
+    </AppProvider>
   </React.StrictMode>
 )
 

@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
-import { useCallback, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Categorias, Estados_Revision, Tipo_Mantenimiento } from 'src/main/db/Models'
 import { addDays } from 'date-fns'
 import React from 'react'
@@ -9,6 +9,7 @@ import { DateRange } from 'react-date-range'
 import 'react-date-range/dist/styles.css' // main css file
 import 'react-date-range/dist/theme/default.css' // theme css file
 import { useParams } from 'react-router-dom'
+import { AppContext } from '@renderer/Data/Store'
 
 export interface fechaType {
   startDate: Date
@@ -19,6 +20,7 @@ export interface fechaType {
 
 const Anadir = (): JSX.Element => {
   const { opcion: ver } = useParams()
+  const context = useContext(AppContext)
 
   const [fechaMantenimiento, setFechaMantenimiento] = useState<fechaType[]>([
     {
@@ -126,23 +128,13 @@ const Anadir = (): JSX.Element => {
       alert('Existio un Error: ' + error)
     }
   }
-  const fetchAllData = useCallback(() => {
-    Promise.all([
-      window.context.getCategorias_All(),
-      window.context.getTipo_Mantenimiento_All(),
-      window.context.getEstados_Revision_All()
-    ])
-      .then(([categoriaData, tipoMantenimientoData, estadoData]) => {
-        setcategoriaData(categoriaData)
-        setTipoMantenimientoData(tipoMantenimientoData)
-        setEstadoData(estadoData)
-      })
-      .catch((error) => console.log(error))
-  }, [])
 
   useEffect(() => {
-    fetchAllData()
-  }, [fetchAllData])
+    const { categorias, tipo_mantenimiento, estados } = context.data
+    setcategoriaData(categorias.data)
+    setTipoMantenimientoData(tipo_mantenimiento.data)
+    setEstadoData(estados.data)
+  }, [])
 
   useEffect(() => {
     setFecha_mantenimiento((prevFecha) => {
