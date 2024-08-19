@@ -175,7 +175,7 @@ export const Orden = () => {
             id: item.dataValues.ID_Orden ?? -1,
             date: item.dataValues.fecha,
             ciclo: 'orden',
-            tipoMantenimiento: 'Orden Pendiente',
+            tipoMantenimiento: 'Orden Imprevista',
             nombre: 'orden'
           }))
 
@@ -195,9 +195,7 @@ export const Orden = () => {
       const areaResponse = await window.context.getCategorias_By_ID(orden!.ID_Area)
       const estadoImprimir = await window.context.getEstados_Revision_By_Id(orden!.ID_Estado)
       const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden!.ID_Presupuesto)
-      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
-        equipoSeleccionado!.dataValues!.TipoMantenimiento
-      )
+      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(orden?.tipo_mantenimiento ?? equipoSeleccionado!.dataValues!.TipoMantenimiento)
       setEquipoImprimir(response)
       setAreaImprimir(areaResponse)
       setEstadoImprimir(estadoImprimir)
@@ -218,7 +216,9 @@ export const Orden = () => {
       const estadoImprimir = await window.context.getEstados_Revision_By_Id(
         equipoSeleccionado!.dataValues.Estado
       )
-      const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(orden?.ID_Presupuesto ?? 2)
+      const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(
+        orden?.ID_Presupuesto ?? 2
+      )
       const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
         equipoSeleccionado!.dataValues!.TipoMantenimiento
       )
@@ -227,7 +227,6 @@ export const Orden = () => {
       setEstadoImprimir(estadoImprimir)
       setTipo_Trabajo(tipo_trabajoResponse)
       seTipo_Mantenimiento(tipo_mante)
-      
     }
     equipoSearch()
   }, [equipoSeleccionado, equiposSeleccionadoLista])
@@ -260,26 +259,29 @@ export const Orden = () => {
     }
   }, [date])
 
+  /* Si existe ID equipo por parametros */
   useEffect(() => {
     const equipoSearch = async () => {
       const response = await window.context.getEquipos_By_Id(equipoID)
-      const areaResponse = await window.context.getCategorias_By_ID(
-        response!.dataValues.CategoriasID
-      )
-      const estadoImprimir = await window.context.getEstados_Revision_By_Id(
-        response!.dataValues.Estado
-      )
-      //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado!.dataValues.p)
-      const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
-        response!.dataValues.TipoMantenimiento
-      )
-      setEquipoImprimir(response)
-      setAreaImprimir(areaResponse)
-      setEstadoImprimir(estadoImprimir)
-      //setTipo_Trabajo(tipo_trabajoResponse)
-      seTipo_Mantenimiento(tipo_mante)
+      if (response) {
+        const areaResponse = await window.context.getCategorias_By_ID(
+          response!.dataValues.CategoriasID
+        )
+        const estadoImprimir = await window.context.getEstados_Revision_By_Id(
+          response!.dataValues.Estado
+        )
+        //const tipo_trabajoResponse = await window.context.getPresupuestos_By_Id(equipoSeleccionado!.dataValues.p)
+        const tipo_mante = await window.context.getTipo_Mantenimiento_By_Id(
+          response!.dataValues.TipoMantenimiento
+        )
+        setEquipoImprimir(response)
+        setAreaImprimir(areaResponse)
+        setEstadoImprimir(estadoImprimir)
+        //setTipo_Trabajo(tipo_trabajoResponse)
+        seTipo_Mantenimiento(tipo_mante)
 
-      setEquipoSeleccionado(response)
+        setEquipoSeleccionado(response)
+      }
     }
     equipoSearch()
   }, [])
@@ -290,31 +292,48 @@ export const Orden = () => {
       const formData = new FormData(e.currentTarget)
 
       const newOrden: Orden_MantenimientoAttributes = {
-        ID_Equipo:
-          parseInt(formData.get('idEquipo') as string) ?? equipoSeleccionado?.dataValues.ID_Equipo,
-        ID_Usuario: parseInt(formData.get('idUsuario') as string),
-        ID_Estado: parseInt(formData.get('idestado') as string),
-        horarioParada: formData.get('horarioParada') as string,
-        horarioComienzo: formData.get('horarioComienzo') as string,
-        horarioPuestaMarcha: formData.get('horarioPuestaMarcha') as string,
-        horarioCulminacion: formData.get('horarioCulminacion') as string,
-        materialesUsados: ' ',
-        observaciones: formData.get('observaciones') as string,
-        solicitadoPor: formData.get('solicitadoPor') as string,
+        ID_Equipo:parseInt(formData.get('idEquipo') as string) ?? orden?.ID_Equipo ?? equipoSeleccionado?.dataValues.ID_Equipo,
+        ID_Usuario: parseInt((formData.get('idUsuario') as string) ?? orden?.ID_Usuario),
+        ID_Estado: parseInt((formData.get('idestado') as string) ?? orden?.ID_Estado),
+        horarioParada: (formData.get('horarioParada') as string) ?? orden?.horarioParada,
+        horarioComienzo: (formData.get('horarioComienzo') as string) ?? orden?.horarioComienzo,
+        horarioPuestaMarcha:
+          (formData.get('horarioPuestaMarcha') as string) ?? orden?.horarioPuestaMarcha,
+        horarioCulminacion:
+          (formData.get('horarioCulminacion') as string) ?? orden?.horarioCulminacion,
+        materialesUsados: orden?.materialesUsados ?? '',
+        observaciones: (formData.get('observaciones') as string) ?? orden?.observaciones,
+        solicitadoPor: (formData.get('solicitadoPor') as string) ?? orden?.solicitadoPor,
         aprobadoPor: 'Director',
-        terminadoPor: formData.get('terminadoPor') as string,
-        revisadoPor: formData.get('revisadoPor') as string,
-        valeSalida: formData.get('valeSalida') as string,
-        objetivos: ' ',
-        tipo_trabajo: formData.get('trabajo') as string,
-        tipo_mantenimiento: parseInt((formData.get('mantenimiento') as string) ?? 2),
-        fecha: date[0].startDate,
-        ID_Presupuesto: parseInt(formData.get('trabajo') as string),
-        presupuesto: parseInt(formData.get('presupuesto') as string),
-        ID_Area: orden?.ID_Area ?? equipoSeleccionado!.dataValues.CategoriasID
+        terminadoPor: (formData.get('terminadoPor') as string) ?? orden?.terminadoPor,
+        revisadoPor: (formData.get('revisadoPor') as string) ?? orden?.revisadoPor,
+        valeSalida: (formData.get('valeSalida') as string) ?? orden?.valeSalida,
+        objetivos: orden?.objetivos ?? '',
+        tipo_trabajo: (formData.get('trabajo') as string) ?? orden?.tipo_trabajo,
+        tipo_mantenimiento: parseInt(
+          (formData.get('mantenimiento') as string) ?? orden?.tipo_mantenimiento
+        ),
+        fecha: date[0].startDate ?? orden?.fecha,
+        ID_Presupuesto: parseInt((formData.get('trabajo') as string) ?? orden?.ID_Presupuesto),
+        presupuesto: parseInt((formData.get('presupuesto') as string) ?? orden?.presupuesto),
+        ID_Area: orden?.ID_Area ?? equipoSeleccionado?.dataValues.CategoriasID ?? equipos.find(e => e.dataValues.ID_Equipo === parseInt(formData.get('idEquipo') as string))?.dataValues.CategoriasID ?? -1
       }
 
-      setOrden(newOrden)
+      if (orden?.ID_Orden) {
+        const res = await window.context.editOrden_Mantenimiento_By_Id(orden.ID_Orden, newOrden)
+        if (res) {
+          setOrden(res.dataValues)
+          alert('Orden de mantenimiento creada exitosamente')
+        }
+      } else {
+        setOrden(newOrden)
+        const res = await window.context.createOrden_Mantenimiento(newOrden)
+        if (res) {
+          setOrden(res.dataValues)
+          alert('Orden de mantenimiento creada exitosamente')
+        }
+      }
+
       if (newOrden.presupuesto) {
         const prevPresupuesto = await window.context.getPresupuestos_By_Id(newOrden.ID_Presupuesto)
         prevPresupuesto.dataValues.monto = prevPresupuesto.dataValues.monto - newOrden.presupuesto
@@ -323,14 +342,10 @@ export const Orden = () => {
           newOrden.ID_Presupuesto,
           prevPresupuesto.dataValues
         )
-        if (newPresupuesto.dataValues.monto < 0) {
+        if (newPresupuesto && newPresupuesto.dataValues.monto < 0) {
           alert('Ha sobrepasado el presupuesto! \n Deuda: ' + newPresupuesto.dataValues.monto)
         }
       }
-      const res = await window.context.createOrden_Mantenimiento(newOrden)
-      setOrden(res.dataValues)
-      console.log(res)
-      alert('Orden de mantenimiento creada exitosamente')
     } catch (error: any) {
       alert('Error: ' + error.message)
     }
@@ -361,7 +376,7 @@ export const Orden = () => {
 
   return (
     <RootLayout>
-      <div className="absolute static top-24 left-0 flex flex-row items-center justify-start gap-x-2 m-2">
+      <div className="absolute top-24 left-0 flex flex-row items-center justify-start gap-x-2 m-2">
         <Button_UI texto="Ver Ordenes" type="button" funcion={() => setVer('ver-orden')} />
         <Button_UI texto="Crear Orden" type="button" funcion={() => setVer('crear-orden')} />
       </div>
