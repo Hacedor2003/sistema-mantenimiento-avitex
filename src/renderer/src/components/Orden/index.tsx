@@ -103,6 +103,7 @@ export const VerOrden = ({
             <thead>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Identificación</th>
               <th>Fecha</th>
               <th>Ciclo</th>
               <th>Tipo de Mantenimiento</th>
@@ -126,7 +127,8 @@ export const VerOrden = ({
                     }}
                   >
                     <td>{itemOrden.id}</td>
-                    <td>{'Nombre'}</td>
+                    <td>{itemOrden.nombre ?? 'Nombre'}</td>
+                    <td>{itemOrden.identificacion ?? 'Identificacion'}</td>
                     <td>{itemOrden.date.toLocaleDateString()}</td>
                     <td>{itemOrden.ciclo}</td>
                     <td>{itemOrden.tipoMantenimiento ? itemOrden.tipoMantenimiento : ''}</td>
@@ -151,6 +153,7 @@ export const VerOrden = ({
                   >
                     <td>{itemOrden.id}</td>
                     <td>{itemOrden.nombre}</td>
+                    <td>{itemOrden.identificacion}</td>
                     <td>{itemOrden.date.toLocaleDateString()}</td>
                     <td>{itemOrden.ciclo}</td>
                     <td>{itemOrden.tipoMantenimiento}</td>

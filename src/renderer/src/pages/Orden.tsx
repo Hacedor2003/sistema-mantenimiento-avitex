@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React from 'react'
+import React, { useContext } from 'react'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI } from '@renderer/components/UI_Component'
 import { useEffect, useState } from 'react'
@@ -17,6 +17,7 @@ import { Orden_MantenimientoAttributes } from 'src/shared/types'
 import { fechaType } from './Anadir'
 import { CrearOrden, ImprimirOrden, VerOrden } from '../components/Orden'
 import { useParams } from 'react-router-dom'
+import { AppContext } from '@renderer/Data/Store'
 
 export type itemOrdenes = {
   id: number
@@ -24,6 +25,7 @@ export type itemOrdenes = {
   ciclo: string
   tipoMantenimiento: string
   nombre: string
+  identificacion: string
 }
 
 export const Orden = () => {
@@ -61,44 +63,22 @@ export const Orden = () => {
     { startDate: new Date(), endDate: new Date(), key: 'selection', tipoMantenimiento: '' }
   ])
   const [searching, setSearching] = useState(false)
+  
+  const context = useContext(AppContext)
 
   useEffect(() => {
     const obtenerDatos = async () => {
       try {
-        const [
-          responseEquipos,
-          responseUsuarios,
-          responseOrdenes,
-          responseEstados_Revision_All,
-          responsePresupuesto,
-          responseTiposMantenimiento
-        ] = await Promise.all([
-          window.context.getEquipos_All(),
-          window.context.getUsuarios_All(),
-          window.context.getOrden_Mantenimiento_All(),
-          window.context.getEstados_Revision_All(),
-          window.context.getPresupuestos_All(),
-          window.context.getTipo_Mantenimiento_All()
-        ])
-        if (responseEquipos.length > 0) {
-          setEquipos(responseEquipos)
-        } else alert('No hay equipos')
-        if (responseUsuarios.length > 0) {
-          setUsuarios(responseUsuarios)
-        } else alert('No hay usuarios')
-        if (responseTiposMantenimiento.length > 0) {
-          setTipo_Mantenimiento(responseTiposMantenimiento)
-        } else alert('No hay tipos de mantenimiento')
-        if (responseEstados_Revision_All.length > 0) {
-          setEstados(responseEstados_Revision_All)
-        } else alert('No hay estados de revision')
-        if (responsePresupuesto.length > 0) {
-          setPresupuesto(responsePresupuesto)
-        } else alert('No hay presupuesto')
-        setOrdenes(responseOrdenes)
+        const {equipos,usuarios,tipo_mantenimiento,estados,presupuestos,ordenes} = context.data
+          setEquipos(equipos.data)
+          setUsuarios(usuarios.data)
+          setTipo_Mantenimiento(tipo_mantenimiento.data)
+          setEstados(estados.data)
+          setPresupuesto(presupuestos.data)
+        setOrdenes(ordenes.data)
 
         setOrdenesVerLista(
-          responseEquipos.flatMap((item) => [
+          equipos.data.flatMap((item) => [
             ...item.dataValues.fecha_lubricamiento.flatMap((itemItem) => {
               if (
                 new Date(itemItem.startDate).toLocaleDateString() !==
@@ -110,10 +90,12 @@ export const Orden = () => {
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'lubricación',
+                    identificacion:item.dataValues.Identificacion,
                     tipoMantenimiento: ''
                   },
                   {
                     nombre: item.dataValues.Nombre,
+                    identificacion:item.dataValues.Identificacion,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.endDate),
                     ciclo: 'lubricación',
@@ -124,6 +106,7 @@ export const Orden = () => {
                 return [
                   {
                     nombre: item.dataValues.Nombre,
+                    identificacion:item.dataValues.Identificacion,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'lubricación',
@@ -137,6 +120,7 @@ export const Orden = () => {
                 return [
                   {
                     nombre: item.dataValues.Nombre,
+                    identificacion:item.dataValues.Identificacion,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'mantenimiento',
@@ -146,6 +130,7 @@ export const Orden = () => {
                   },
                   {
                     nombre: item.dataValues.Nombre,
+                    identificacion:item.dataValues.Identificacion,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.endDate),
                     ciclo: 'mantenimiento',
@@ -158,6 +143,7 @@ export const Orden = () => {
                 return [
                   {
                     nombre: item.dataValues.Nombre,
+                    identificacion:item.dataValues.Identificacion,
                     id: item.dataValues.ID_Equipo,
                     date: new Date(itemItem.startDate),
                     ciclo: 'mantenimiento',
@@ -171,8 +157,9 @@ export const Orden = () => {
           ])
         )
         setOrdenesVerLista((prevItems) => {
-          const nuevosItems = responseOrdenes.map((item) => ({
+          const nuevosItems = ordenes.data.map((item) => ({
             id: item.dataValues.ID_Orden ?? -1,
+            identificacion:'identificacion',
             date: item.dataValues.fecha,
             ciclo: 'orden',
             tipoMantenimiento: 'Orden Imprevista',
