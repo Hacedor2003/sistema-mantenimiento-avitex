@@ -1,18 +1,10 @@
 /* eslint-disable prettier/prettier */
+import { fechaType } from '@renderer/Interface'
+import { itemOrdenes } from '@renderer/pages/Orden'
 import React, { useState } from 'react'
 import { DateRange } from 'react-date-range'
-import {
-  Categorias,
-  Equipos,
-  Estados_Revision,
-  Presupuesto,
-  Tipo_Mantenimiento,
-  Usuarios
-} from '../../../../main/db/Models'
-import { Button_UI, SelectComponent, Input_UI } from '../UI_Component'
-import { fechaType } from '@renderer/pages/Anadir'
-import { itemOrdenes } from '@renderer/pages/Orden'
-import { Orden_MantenimientoAttributes } from 'src/shared/types'
+import { CategoriasAttributes, EquiposAttributes, Estados_RevisionAttributes, Orden_MantenimientoAttributes, PresupuestoAttributes, Tipo_MantenimientoAttributes, UsuariosAttributes } from 'src/shared/types'
+import { Button_UI, Input_UI, SelectComponent } from '../UI_Component'
 
 export const VerOrden = ({
 
@@ -26,7 +18,7 @@ export const VerOrden = ({
   setVer,
   handleSetOrden
 }: {
-  presupuesto: Presupuesto[]
+  presupuesto: PresupuestoAttributes[]
   searching: boolean
   date: fechaType[]
   searchedOrden: itemOrdenes[]
@@ -49,9 +41,9 @@ export const VerOrden = ({
         <div className="w-full flex items-center justify-around">
           {presupuesto.map((presupuestoItem, index) => (
             <p key={index} className="text-xl font-bold font-sans">
-              Presupuesto {presupuestoItem.dataValues.Tipo}:{' '}
+              Presupuesto {presupuestoItem.Tipo}:{' '}
               <span className="text-base font-mono font-thin">
-                {presupuestoItem.dataValues.monto}
+                {presupuestoItem.monto}
               </span>
             </p>
           ))}
@@ -182,14 +174,14 @@ export const CrearOrden = ({
   setSearching,
   setVer
 }: {
-  equipos: Equipos[]
-  estados: Estados_Revision[]
-  usuarios: Usuarios[]
-  tipos_mantenimientos: Tipo_Mantenimiento[]
+  equipos: EquiposAttributes[]
+  estados: Estados_RevisionAttributes[]
+  usuarios: UsuariosAttributes[]
+  tipos_mantenimientos: Tipo_MantenimientoAttributes[]
   orden: Orden_MantenimientoAttributes | null
   date: fechaType[]
-  presupuesto: Presupuesto[]
-  equipoSeleccionado: Equipos | null
+  presupuesto: PresupuestoAttributes[]
+  equipoSeleccionado: EquiposAttributes | null
   equiposSeleccionadoLista: itemOrdenes | null
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>
   setDate: React.Dispatch<React.SetStateAction<fechaType[]>>
@@ -215,11 +207,11 @@ export const CrearOrden = ({
           <section className="flex flex-row gap-x-10 mb-5">
             <SelectComponent
               options={equipos.map((equipo) => (
-                <option key={equipo.dataValues.ID_Equipo} value={equipo.dataValues.ID_Equipo}>
-                  {equipo.dataValues.Nombre}
+                <option key={equipo.ID_Equipo} value={equipo.ID_Equipo}>
+                  {equipo.Nombre}
                 </option>
               ))}
-              value={equipoSeleccionado?.dataValues.ID_Equipo ?? ordenEditar?.ID_Equipo ?? undefined}
+              value={equipoSeleccionado?.ID_Equipo ?? ordenEditar?.ID_Equipo ?? undefined}
               required
               onChange={() => {}}
               name="idEquipo"
@@ -229,8 +221,8 @@ export const CrearOrden = ({
             />
             <SelectComponent
               options={usuarios.map((usuario) => (
-                <option key={usuario.dataValues.ID_Usuario} value={usuario.dataValues.ID_Usuario}>
-                  {usuario.dataValues.identificacion}
+                <option key={usuario.ID_Usuario} value={usuario.ID_Usuario}>
+                  {usuario.identificacion}
                 </option>
               ))}
               value={ordenEditar?.ID_Usuario ?? undefined}
@@ -275,8 +267,8 @@ export const CrearOrden = ({
           <div className="w-full flex gap-x-10">
             <SelectComponent
               options={estados.map((estado) => (
-                <option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>
-                  {estado.dataValues.Nombre_Estado}
+                <option key={estado.ID_Estado} value={estado.ID_Estado}>
+                  {estado.Nombre_Estado}
                 </option>
               ))}
               value={ordenEditar?.ID_Estado ?? undefined}
@@ -295,9 +287,9 @@ export const CrearOrden = ({
                   <option
                     className="first-letter:uppercase"
                     key={index}
-                    value={trabajo.dataValues.ID_Presupuesto ?? ordenEditar?.tipo_trabajo}
+                    value={trabajo.ID_Presupuesto ?? ordenEditar?.tipo_trabajo}
                   >
-                    {trabajo.dataValues.Tipo}
+                    {trabajo.Tipo}
                   </option>
                 ))}
                 value={equiposSeleccionadoLista ?  2 :  ordenEditar ? parseInt(ordenEditar.tipo_trabajo) : undefined}
@@ -312,8 +304,8 @@ export const CrearOrden = ({
             {!equiposSeleccionadoLista && (
               <SelectComponent
                 options={tipos_mantenimientos?.map((trabajo, index) => (
-                  <option className="first-letter:uppercase" key={index} value={trabajo.dataValues.ID_Tipo_Mantenimiento}>
-                    {trabajo.dataValues.Tipo}
+                  <option className="first-letter:uppercase" key={index} value={trabajo.ID_Tipo_Mantenimiento}>
+                    {trabajo.Tipo}
                   </option>
                 ))}
                 value={ ordenEditar?.tipo_mantenimiento ?? undefined}
@@ -411,11 +403,11 @@ export const ImprimirOrden = ({
   equiposSeleccionadoLista
 }: {
   orden: Orden_MantenimientoAttributes | null
-  tipo_trabajo: Presupuesto | null
-  tipo_mantenimiento: Tipo_Mantenimiento | null
-  estadoImprimir: Estados_Revision | null
-  areaImprimir: Categorias | null
-  equipoImprimir: Equipos | null
+  tipo_trabajo: PresupuestoAttributes | null
+  tipo_mantenimiento: Tipo_MantenimientoAttributes | null
+  estadoImprimir: Estados_RevisionAttributes | null
+  areaImprimir: CategoriasAttributes | null
+  equipoImprimir: EquiposAttributes | null
     imprimirOrden(): void
     equiposSeleccionadoLista:itemOrdenes | null
 }) => {
@@ -464,26 +456,26 @@ export const ImprimirOrden = ({
       <ul className="w-full border border-black grid grid-cols-6 grid-rows-1">
         <li className="col-span-1 border-r border-black">
           <h3>TIPO DE TRABAJO</h3>
-          <p>{tipo_trabajo?.dataValues.Tipo + '\n -' + (equiposSeleccionadoLista?.tipoMantenimiento ?? tipo_mantenimiento?.dataValues.Tipo)}</p>
+          <p>{tipo_trabajo?.Tipo + '\n -' + (equiposSeleccionadoLista?.tipoMantenimiento ?? tipo_mantenimiento?.Tipo)}</p>
         </li>
         <li className="col-span-1 border-r border-black">
           <h3>CRONOGRAMA</h3>
-          <p>{estadoImprimir?.dataValues.Nombre_Estado}</p>
+          <p>{estadoImprimir?.Nombre_Estado}</p>
         </li>
         <li className="col-span-4 border-r border-black">
           <h3>OBJETIVOS DEL MANTENIMIENTO:</h3>
           <div className="w-full grid grid-cols-2">
             <ul>
-              <li>Area:{areaImprimir?.dataValues.Nombre_Categoria}</li>
+              <li>Area:{areaImprimir?.Nombre_Categoria}</li>
               <li className="h-[50px]">Tiempo de Parada:{orden?.horarioParada ?? ''}</li>
               <li className="h-[50px]">Tiempo de Inicio:{orden?.horarioComienzo ?? ''}</li>
             </ul>
             <ul>
               <li>
                 Equipo:{' '}
-                {equipoImprimir?.dataValues.Nombre +
+                {equipoImprimir?.Nombre +
                   ' ' +
-                  equipoImprimir?.dataValues.Identificacion}
+                  equipoImprimir?.Identificacion}
               </li>
               <li className="h-[50px]">
                 Tiempo de Puesta en Marcha:{orden?.horarioPuestaMarcha ?? ''}

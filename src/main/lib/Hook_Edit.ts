@@ -18,7 +18,7 @@ export const editEquipos_By_Id = async (id: number, updatedEquipoData: EquiposAt
       return null;
     } else {
       console.log(`Se actualizó el equipo con ID ${id}:`, updatedEquipo?.toJSON());
-      return updatedEquipo;
+      return updatedEquipo?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar el equipo con ID ${id}:`, error);
@@ -41,7 +41,7 @@ export const editTipo_Mantenimiento_By_Id = async (id: number, updatedTipoManten
       return null;
     } else {
       console.log(`Se actualizó el tipo de mantenimiento con ID ${id}:`, updatedTipoMantenimiento?.toJSON());
-      return updatedTipoMantenimiento;
+      return updatedTipoMantenimiento?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar el tipo de mantenimiento con ID ${id}:`, error);
@@ -64,7 +64,7 @@ export const editCategorias_By_Id = async (id: number, updatedCategoriaData: Cat
       return null;
     } else {
       console.log(`Se actualizó la categoría con ID ${id}:`, updatedCategoria?.toJSON());
-      return updatedCategoria;
+      return updatedCategoria?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar la categoría con ID ${id}:`, error);
@@ -87,7 +87,7 @@ export const editEstados_Revision_By_Id = async (id: number, updatedEstadoRevisi
       return null;
     } else {
       console.log(`Se actualizó el estado de revisión con ID ${id}:`, updatedEstadoRevision?.toJSON());
-      return updatedEstadoRevision;
+      return updatedEstadoRevision?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar el estado de revisión con ID ${id}:`, error);
@@ -110,7 +110,7 @@ export const editUsuarios_By_Id = async (id: number, updatedUsuarioData: Usuario
       return null;
     } else {
       console.log(`Se actualizó el usuario con ID ${id}:`, updatedUsuario?.toJSON());
-      return updatedUsuario;
+      return updatedUsuario?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar el usuario con ID ${id}:`, error);
@@ -133,7 +133,7 @@ export const editOrden_Mantenimiento_By_Id = async (id: number, updatedOrdenMant
       return null;
     } else {
       console.log(`Se actualizó la orden de mantenimiento con ID ${id}:`, updatedOrdenMantenimiento?.toJSON());
-      return updatedOrdenMantenimiento;
+      return updatedOrdenMantenimiento?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar la orden de mantenimiento con ID ${id}:`, error);
@@ -156,7 +156,7 @@ export const editPresupuesto_By_Id = async (id: number, updatedPresupuesto: Pres
       return null;
     } else {
       console.log(`Se actualizó el presupuesto con ID ${id}:`, updatedPresupuestoData?.toJSON());
-      return updatedPresupuestoData;
+      return updatedPresupuestoData?.dataValues;
     }
   } catch (error) {
     console.error(`Error al actualizar el presupuesto con ID ${id}:`, error);

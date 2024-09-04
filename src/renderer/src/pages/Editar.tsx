@@ -7,33 +7,77 @@ import {
   Input_UI_subTexto,
   SelectComponent
 } from '@renderer/components/UI_Component'
-import { addDays } from 'date-fns'
 import React, { useContext, useEffect, useState } from 'react'
-import { DateRange } from 'react-date-range'
 import { useParams } from 'react-router-dom'
-import {
-  Categorias,
-  Equipos,
-  Estados_Revision,
-  Orden_Mantenimiento,
-  Presupuesto,
-  Tipo_Mantenimiento,
-  Usuarios
-} from 'src/main/db/Models'
-import { PresupuestoAttributes } from 'src/shared/types'
-import { fechaType } from './Anadir'
+import { EquiposAttributes, Orden_MantenimientoAttributes, PresupuestoAttributes } from 'src/shared/types'
 
 const Editar = () => {
   const { opcion: ver } = useParams()
   const context = useContext(AppContext)
+  const {
+    presupuestos,
+    equipos: maquinarias,
+    usuarios,
+    ordenes,
+    tipo_mantenimiento,
+    categorias,
+    estados
+  } = context.data
 
-  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([])
-  const [maquinarias, setMaquinarias] = useState<Equipos[]>([])
-  const [usuarios, setUsuarios] = useState<Usuarios[]>([])
-  const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([])
-  const [tipoMantenimientoData, setTipoMantenimientoData] = useState<Tipo_Mantenimiento[]>([])
-  const [categoriaData, setcategoriaData] = useState<Categorias[]>([])
-  const [estadoData, setEstadoData] = useState<Estados_Revision[]>([])
+  /* Para filtras las maquinas */
+  const [maquinariasFilter, setMaquinariasFilter] = useState(maquinarias.data)
+  const [filterMaquinas, setFilterMaquinas] = useState<string>('Todo')
+  const [filterMaquinaText, setFilterMaquinaText] = useState<string>('Todo')
+
+  /* Ver mas */
+  const [selectedMaquinaria, setSelectedMaquinaria] = useState<EquiposAttributes | null>(null)
+  const [selectedOrden, setSelectedOrden] = useState<Orden_MantenimientoAttributes | null>(null)
+  /** las fechas de Mantenimiento de la maquina seleccionada */
+  const [fechaMantenimiento, setFechaMantenimiento] = useState<any[]>([])
+  /** las fechas de lubricacion de la maquina seleccionada */
+  const [fechaLubricacion, setFechaLubricacion] = useState<any[]>([])
+  const [newFechaMantenimiento, setNewFechaMantenimiento] = useState({ date: '', tipo_mantenimiento: -1 })
+  const [newFechaLubricacion, setNewFechaLubricacion] = useState('')
+
+  /* Actualizar las maquinas buscadas por los filtros */
+  useEffect(() => {
+    const lowerCaseFilterText = filterMaquinaText.toLocaleLowerCase()
+    const filterMachines = filterMaquinas !== 'Todo'
+    const filterText = filterMaquinaText !== 'Todo'
+
+    const filteredMaquinarias = (
+      maquinariasFilter.length > 0 ? maquinariasFilter : maquinarias.data
+    ).filter((item) => {
+      const matchesCategory = !filterMachines || item.CategoriasID === parseInt(filterMaquinas)
+      const matchesText =
+        !filterText || item.Nombre.toLocaleLowerCase().includes(lowerCaseFilterText)
+      return matchesCategory && matchesText
+    })
+
+    setMaquinariasFilter(filteredMaquinarias.length === 0 ? maquinarias.data : filteredMaquinarias)
+  }, [maquinarias, filterMaquinaText, filterMaquinas])
+
+  const handleDelete = (index: number, type: 'mantenimiento' | 'lubricacion') => {
+    if (type === 'mantenimiento') {
+      const updatedMantenimiento = fechaMantenimiento.filter((_, i) => i !== index)
+      setFechaMantenimiento(updatedMantenimiento)
+    } else {
+      const updatedLubricacion = fechaLubricacion.filter((_, i) => i !== index)
+      setFechaLubricacion(updatedLubricacion)
+    }
+  }
+
+  const handleTipoMantenimientoChange = (e, index, setFecha_mantenimiento) => {
+    const selectedTipoMantenimiento = parseInt(e.target.value)
+    setFecha_mantenimiento((prevFecha_mantenimiento) => {
+      const updatedFecha_mantenimiento = [...prevFecha_mantenimiento]
+      updatedFecha_mantenimiento[index] = {
+        ...updatedFecha_mantenimiento[index],
+        tipoMantenimiento: selectedTipoMantenimiento
+      }
+      return updatedFecha_mantenimiento
+    })
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -47,7 +91,7 @@ const Editar = () => {
           {
             const idPresupuesto = parseInt(formData.get('idpresupuesto') as string)
             const prevPresupuesto = await window.context.getPresupuestos_By_Id(idPresupuesto)
-            const newPresupuestoEdited: PresupuestoAttributes = { ...prevPresupuesto.dataValues }
+            const newPresupuestoEdited: PresupuestoAttributes = { ...prevPresupuesto }
             newPresupuestoEdited.monto = parseInt(formData.get('presupuesto') as string)
             newPresupuestoEdited.Fecha = new Date()
             const newPresupuesto = await window.context.editPresupuesto_By_Id(
@@ -114,26 +158,38 @@ const Editar = () => {
               await window.context.deleteEquipos_By_Id(idBorrar)
               window.alert('Equipo eliminado exitosamente')
             } else if (idEditar) {
-              const prevEquipo = maquinarias.find((i) => i.dataValues.ID_Equipo === idEditar)
-              const nombre = ((formData.get('nombre') as string) ?? '').length > 0 ? (formData.get('nombre') as string) : prevEquipo!.dataValues.Nombre
-              const identificacion = ((formData.get('identificacion') as string) ?? '').length > 0 ? (formData.get('identificacion') as string) : prevEquipo!.dataValues.Identificacion
-              const categoria = ((formData.get('categoria') as string) ?? '').length > 0 ? (formData.get('categoria') as string) : prevEquipo!.dataValues.CategoriasID
-              const comentarios = ((formData.get('comentarios') as string) ?? '').length > 0 ? (formData.get('comentarios') as string) : prevEquipo!.dataValues.Comentarios
-              const estado = ((formData.get('estado') as string) ?? '').length > 0 ? (formData.get('estado') as string) : prevEquipo!.dataValues.Estado
-              const origen = ((formData.get('origen') as string) ?? '').length > 0 ? (formData.get('origen') as string) : prevEquipo!.dataValues.Origen
-              const mantenimiento = ((formData.get('mantenimiento') as string) ?? '').length > 0 ? (formData.get('mantenimiento') as string) : prevEquipo!.dataValues.TipoMantenimiento
-              const fechamantenimiento = fechaMantenimiento.map((item) => ({
-                startDate: new Date(item.startDate).toISOString(),
-                endDate: new Date(item.endDate).toISOString(),
-                key: item.key,
-                tipoMantenimiento: item.tipoMantenimiento
-              }))
-              const fechalubricamiento = fechaLubricamiento.map((item) => ({
-                startDate: new Date(item.startDate).toISOString(),
-                endDate: new Date(item.endDate).toISOString(),
-                key: item.key
-              }))
-              const updatedEquipo = await window.context.editEquipos_By_Id(idEditar, {
+              const prevEquipo = maquinarias.data.find((i) => i.ID_Equipo === idEditar)
+              const nombre =
+                ((formData.get('nombre') as string) ?? '').length > 0
+                  ? (formData.get('nombre') as string)
+                  : prevEquipo!.Nombre
+              const identificacion =
+                ((formData.get('identificacion') as string) ?? '').length > 0
+                  ? (formData.get('identificacion') as string)
+                  : prevEquipo!.Identificacion
+              const categoria =
+                ((formData.get('categoria') as string) ?? '').length > 0
+                  ? (formData.get('categoria') as string)
+                  : prevEquipo!.CategoriasID
+              const comentarios =
+                ((formData.get('comentarios') as string) ?? '').length > 0
+                  ? (formData.get('comentarios') as string)
+                  : prevEquipo!.Comentarios
+              const estado =
+                ((formData.get('estado') as string) ?? '').length > 0
+                  ? (formData.get('estado') as string)
+                  : prevEquipo!.Estado
+              const origen =
+                ((formData.get('origen') as string) ?? '').length > 0
+                  ? (formData.get('origen') as string)
+                  : prevEquipo!.Origen
+              const mantenimiento =
+                ((formData.get('mantenimiento') as string) ?? '').length > 0
+                  ? (formData.get('mantenimiento') as string)
+                  : prevEquipo!.TipoMantenimiento
+              const fechamantenimiento = fechaMantenimiento
+              const fechalubricamiento = fechaLubricacion
+              await window.context.editEquipos_By_Id(idEditar, {
                 Nombre: nombre,
                 Identificacion: identificacion,
                 Origen: origen,
@@ -144,9 +200,6 @@ const Editar = () => {
                 fecha_lubricamiento: fechalubricamiento,
                 fecha_mantenimiento: fechamantenimiento
               })
-              if (updatedEquipo) {
-                window.alert('Equipo actualizado exitosamente')
-              }
             }
           }
           break
@@ -156,19 +209,19 @@ const Editar = () => {
               await window.context.deleteUsuarios_By_Id(idBorrar)
               window.alert('Usuario eliminado exitosamente')
             } else if (idEditar) {
-              const prevUser = usuarios.find((i) => i.dataValues.ID_Usuario === idEditar)
+              const prevUser = usuarios.data.find((i) => i.ID_Usuario === idEditar)
               const identificacion =
                 ((formData.get('identificacion') as string) ?? '').length > 0
                   ? (formData.get('identificacion') as string)
-                  : prevUser!.dataValues.identificacion
+                  : prevUser!.identificacion
               const rol =
                 ((formData.get('rol') as string) ?? '').length > 0
                   ? (formData.get('rol') as string)
-                  : prevUser!.dataValues.Rol
+                  : prevUser!.Rol
               const contrasena =
                 ((formData.get('contrasena') as string) ?? '').length > 0
                   ? (formData.get('contrasena') as string)
-                  : prevUser!.dataValues.contrasena
+                  : prevUser!.contrasena
 
               const updatedUsuario = await window.context.editUsuarios_By_Id(idEditar, {
                 identificacion: identificacion,
@@ -188,101 +241,101 @@ const Editar = () => {
               window.alert('Orden eliminada exitosamente')
               setSelectedOrden(null)
             } else if (idEditar) {
-              const prevOrdenList = ordenes.find((i) => i.dataValues.ID_Orden === idEditar)
+              const prevOrdenList = ordenes.data.find((i) => i.ID_Orden === idEditar)
 
-              prevOrdenList!.dataValues.ID_Equipo = parseInt(
+              prevOrdenList!.ID_Equipo = parseInt(
                 ((formData.get('ID_Equipo') as string) ?? '').length > 0
                   ? (formData.get('ID_Equipo') as string)
-                  : prevOrdenList!.dataValues.ID_Equipo + ''
+                  : prevOrdenList!.ID_Equipo + ''
               )
-              prevOrdenList!.dataValues.ID_Usuario = parseInt(
+              prevOrdenList!.ID_Usuario = parseInt(
                 ((formData.get('ID_Usuario') as string) ?? '').length > 0
                   ? (formData.get('ID_Usuario') as string)
-                  : prevOrdenList!.dataValues.ID_Usuario + ''
+                  : prevOrdenList!.ID_Usuario + ''
               )
-              prevOrdenList!.dataValues.ID_Estado = parseInt(
+              prevOrdenList!.ID_Estado = parseInt(
                 ((formData.get('ID_Estado') as string) ?? '').length > 0
                   ? (formData.get('ID_Estado') as string)
-                  : prevOrdenList!.dataValues.ID_Estado + ''
+                  : prevOrdenList!.ID_Estado + ''
               )
-              prevOrdenList!.dataValues.ID_Area = parseInt(
+              prevOrdenList!.ID_Area = parseInt(
                 ((formData.get('ID_Area') as string) ?? '').length > 0
                   ? (formData.get('ID_Area') as string)
-                  : prevOrdenList!.dataValues.ID_Area + ''
+                  : prevOrdenList!.ID_Area + ''
               )
-              prevOrdenList!.dataValues.ID_Presupuesto = parseInt(
+              prevOrdenList!.ID_Presupuesto = parseInt(
                 ((formData.get('ID_Presupuesto') as string) ?? '').length > 0
                   ? (formData.get('ID_Presupuesto') as string)
-                  : prevOrdenList!.dataValues.ID_Presupuesto + ''
+                  : prevOrdenList!.ID_Presupuesto + ''
               )
-              prevOrdenList!.dataValues.horarioParada =
+              prevOrdenList!.horarioParada =
                 ((formData.get('horarioParada') as string) ?? '').length > 0
                   ? (formData.get('horarioParada') as string)
-                  : prevOrdenList!.dataValues.horarioParada
-              prevOrdenList!.dataValues.horarioComienzo =
+                  : prevOrdenList!.horarioParada
+              prevOrdenList!.horarioComienzo =
                 ((formData.get('horarioComienzo') as string) ?? '').length > 0
                   ? (formData.get('horarioComienzo') as string)
-                  : prevOrdenList!.dataValues.horarioComienzo
-              prevOrdenList!.dataValues.horarioPuestaMarcha =
+                  : prevOrdenList!.horarioComienzo
+              prevOrdenList!.horarioPuestaMarcha =
                 ((formData.get('horarioPuestaMarcha') as string) ?? '').length > 0
                   ? (formData.get('horarioPuestaMarcha') as string)
-                  : prevOrdenList!.dataValues.horarioPuestaMarcha
-              prevOrdenList!.dataValues.horarioCulminacion =
+                  : prevOrdenList!.horarioPuestaMarcha
+              prevOrdenList!.horarioCulminacion =
                 ((formData.get('horarioCulminacion') as string) ?? '').length > 0
                   ? (formData.get('horarioCulminacion') as string)
-                  : prevOrdenList!.dataValues.horarioCulminacion
-              prevOrdenList!.dataValues.materialesUsados =
+                  : prevOrdenList!.horarioCulminacion
+              prevOrdenList!.materialesUsados =
                 ((formData.get('materialesUsados') as string) ?? '').length > 0
                   ? (formData.get('materialesUsados') as string)
-                  : prevOrdenList!.dataValues.materialesUsados
-              prevOrdenList!.dataValues.observaciones =
+                  : prevOrdenList!.materialesUsados
+              prevOrdenList!.observaciones =
                 ((formData.get('observaciones') as string) ?? '').length > 0
                   ? (formData.get('observaciones') as string)
-                  : prevOrdenList!.dataValues.observaciones
-              prevOrdenList!.dataValues.solicitadoPor =
+                  : prevOrdenList!.observaciones
+              prevOrdenList!.solicitadoPor =
                 ((formData.get('solicitadoPor') as string) ?? '').length > 0
                   ? (formData.get('solicitadoPor') as string)
-                  : prevOrdenList!.dataValues.solicitadoPor
-              prevOrdenList!.dataValues.aprobadoPor =
+                  : prevOrdenList!.solicitadoPor
+              prevOrdenList!.aprobadoPor =
                 ((formData.get('aprobadoPor') as string) ?? '').length > 0
                   ? (formData.get('aprobadoPor') as string)
-                  : prevOrdenList!.dataValues.aprobadoPor
-              prevOrdenList!.dataValues.terminadoPor =
+                  : prevOrdenList!.aprobadoPor
+              prevOrdenList!.terminadoPor =
                 ((formData.get('terminadoPor') as string) ?? '').length > 0
                   ? (formData.get('terminadoPor') as string)
-                  : prevOrdenList!.dataValues.terminadoPor
-              prevOrdenList!.dataValues.revisadoPor =
+                  : prevOrdenList!.terminadoPor
+              prevOrdenList!.revisadoPor =
                 ((formData.get('revisadoPor') as string) ?? '').length > 0
                   ? (formData.get('revisadoPor') as string)
-                  : prevOrdenList!.dataValues.revisadoPor
-              prevOrdenList!.dataValues.valeSalida =
+                  : prevOrdenList!.revisadoPor
+              prevOrdenList!.valeSalida =
                 ((formData.get('valeSalida') as string) ?? '').length > 0
                   ? (formData.get('valeSalida') as string)
-                  : prevOrdenList!.dataValues.valeSalida
-              prevOrdenList!.dataValues.objetivos =
+                  : prevOrdenList!.valeSalida
+              prevOrdenList!.objetivos =
                 ((formData.get('objetivos') as string) ?? '').length > 0
                   ? (formData.get('objetivos') as string)
-                  : prevOrdenList!.dataValues.objetivos
-              prevOrdenList!.dataValues.tipo_trabajo =
+                  : prevOrdenList!.objetivos
+              prevOrdenList!.tipo_trabajo =
                 ((formData.get('tipo_trabajo') as string) ?? '').length > 0
                   ? (formData.get('tipo_trabajo') as string)
-                  : prevOrdenList!.dataValues.tipo_trabajo
-              prevOrdenList!.dataValues.tipo_mantenimiento = parseInt(
+                  : prevOrdenList!.tipo_trabajo
+              prevOrdenList!.tipo_mantenimiento = parseInt(
                 ((formData.get('tipo_mantenimiento') as string) ?? '').length > 0
                   ? (formData.get('tipo_mantenimiento') as string)
-                  : prevOrdenList!.dataValues.tipo_mantenimiento + ''
+                  : prevOrdenList!.tipo_mantenimiento + ''
               )
-              prevOrdenList!.dataValues.fecha = new Date(formData.get('fecha') as string)
-              prevOrdenList!.dataValues.presupuesto = parseInt(
+              prevOrdenList!.fecha = new Date(formData.get('fecha') as string)
+              prevOrdenList!.presupuesto = parseInt(
                 ((formData.get('presupuesto') as string) ?? '').length > 0
                   ? (formData.get('presupuesto') as string)
-                  : prevOrdenList!.dataValues.presupuesto + ''
+                  : prevOrdenList!.presupuesto + ''
               )
 
               try {
                 const updatedOrden = await window.context.editOrden_Mantenimiento_By_Id(
                   idEditar,
-                  prevOrdenList!.dataValues
+                  prevOrdenList!
                 )
                 if (updatedOrden) {
                   window.alert('Orden actualizada exitosamente')
@@ -303,114 +356,32 @@ const Editar = () => {
     }
   }
 
-  const handleDelete = (
-    item: fechaType,
-    setFunction: React.Dispatch<React.SetStateAction<fechaType[]>>
-  ) => {
-    setFunction((prevFecha) => {
-      return prevFecha.filter((fecha) => {
-        const fechaStartDate = new Date(fecha.startDate)
-        const fechaEndDate = new Date(fecha.endDate)
-        const itemStartDate = new Date(item.startDate)
-        const itemEndDate = new Date(item.endDate)
-
-        return (
-          fechaStartDate.toISOString() !== itemStartDate.toISOString() || fechaEndDate.toISOString() !== itemEndDate.toISOString()
-        )
-      })
-    })
-  }
-
-  /* Para filtras las maquinas */
-  const [maquinariasFilter, setMaquinariasFilter] = useState(maquinarias)
-  const [filterMaquinas, setFilterMaquinas] = useState<string>('Todo')
-  const [filterMaquinaText, setFilterMaquinaText] = useState<string>('Todo')
-
-  /* Ver mas */
-  const [selectedMaquinaria, setSelectedMaquinaria] = useState<Equipos | null>(null)
-  const [selectedOrden, setSelectedOrden] = useState<Orden_Mantenimiento | null>(null)
-
-  const [fechaMantenimiento, setFechaMantenimiento] = useState<fechaType[]>([
-    {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
-      key: 'selection',
-      tipoMantenimiento: ''
+  const handleNewMantenimiento = () => {
+    if (newFechaMantenimiento) {
+    const newMantenimiento = [...fechaMantenimiento, newFechaMantenimiento]
+      setFechaMantenimiento(newMantenimiento)
+      setNewFechaMantenimiento({date:'',tipo_mantenimiento:-1})
+    } else {
+      alert('Por favor, seleccione una fecha válida.');
     }
-  ])
-  const [fechaLubricamiento, setFechaLubricamiento] = useState<fechaType[]>([
-    {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
-      key: 'selection',
-      tipoMantenimiento: ''
-    }
-  ])
-
-  const handleTipoMantenimientoChange = (e, index, setFecha_mantenimiento) => {
-    const selectedTipoMantenimiento = parseInt(e.target.value)
-    setFecha_mantenimiento((prevFecha_mantenimiento) => {
-      const updatedFecha_mantenimiento = [...prevFecha_mantenimiento]
-      updatedFecha_mantenimiento[index] = {
-        ...updatedFecha_mantenimiento[index],
-        tipoMantenimiento: selectedTipoMantenimiento
-      }
-      return updatedFecha_mantenimiento
-    })
   }
-
-  useEffect(() => {
-    const lowerCaseFilterText = filterMaquinaText.toLocaleLowerCase()
-    const filterMachines = filterMaquinas !== 'Todo'
-    const filterText = filterMaquinaText !== 'Todo'
-
-    const filteredMaquinarias = (
-      maquinariasFilter.length > 0 ? maquinariasFilter : maquinarias
-    ).filter((item) => {
-      const matchesCategory =
-        !filterMachines || item.dataValues.CategoriasID === parseInt(filterMaquinas)
-      const matchesText =
-        !filterText || item.dataValues.Nombre.toLocaleLowerCase().includes(lowerCaseFilterText)
-      return matchesCategory && matchesText
-    })
-
-    setMaquinariasFilter(filteredMaquinarias.length === 0 ? maquinarias : filteredMaquinarias)
-  }, [maquinarias, filterMaquinaText, filterMaquinas])
-
-  useEffect(() => {
-    const { presupuestos, equipos, usuarios, ordenes, tipo_mantenimiento, categorias, estados } = context.data
-    setPresupuestos(presupuestos.data)
-    setMaquinarias(equipos.data)
-    setUsuarios(usuarios.data)
-    setOrdenes(ordenes.data)
-    setTipoMantenimientoData(tipo_mantenimiento.data)
-    setcategoriaData(categorias.data)
-    setEstadoData(estados.data)
-  }, [])
-  
-  useEffect(() => {
-    setPresupuestos(context.data.presupuestos.data)
-  }, [presupuestos])
-  useEffect(() => {
-    setMaquinarias(context.data.equipos.data)
-  }, [maquinarias])
-  useEffect(() => {
-    setUsuarios(context.data.usuarios.data)
-  }, [usuarios])
-  useEffect(() => {
-    setOrdenes(context.data.ordenes.data)
-  }, [ordenes])
-  useEffect(() => {
-    setTipoMantenimientoData(context.data.tipo_mantenimiento.data)
-  }, [tipoMantenimientoData])
-  useEffect(() => {
-    setcategoriaData(context.data.categorias.data)
-  }, [categoriaData])
-  useEffect(() => {
-    setEstadoData(context.data.estados.data)
-  }, [estadoData])
-  
-  
+  const handleNewLubricacion = () => {
+    if (newFechaLubricacion) {
+      const newLubricacion = [...fechaLubricacion, newFechaLubricacion];
+      setFechaLubricacion(newLubricacion);
+      setNewFechaLubricacion('');
+    } else {
+      alert('Por favor, seleccione una fecha válida.');
+    }
+  }
+  const handleSaveMantenimiento = () => {
+    selectedMaquinaria!.fecha_mantenimiento = fechaMantenimiento
+    setSelectedMaquinaria(selectedMaquinaria)
+  }
+  const handleSaveLubricamiento = () => {
+    selectedMaquinaria!.fecha_lubricamiento = fechaLubricacion
+    setSelectedMaquinaria(selectedMaquinaria)
+  }
   
 
   return (
@@ -420,21 +391,17 @@ const Editar = () => {
       </h1>
       {ver === 'presupuesto' && (
         <div className="w-full flex items-center justify-around">
-          {presupuestos.map((presupuestoItem, index) => (
+          {presupuestos.data.map((presupuestoItem, index) => (
             <form
               key={index}
               className="p-2 border-2 border-[#b70909] rounded-xl m-1"
               onSubmit={handleSubmit}
             >
-              <input
-                type="hidden"
-                name="idpresupuesto"
-                value={presupuestoItem.dataValues.ID_Presupuesto}
-              />
+              <input type="hidden" name="idpresupuesto" value={presupuestoItem.ID_Presupuesto} />
               <Input_UI
                 value={undefined}
                 type="number"
-                texto={`Presupuesto ${presupuestoItem.dataValues.Tipo} ${presupuestoItem.dataValues.monto} CUP`}
+                texto={`Presupuesto ${presupuestoItem.Tipo} ${presupuestoItem.monto} CUP`}
                 name="presupuesto"
                 funcion={() => {}}
                 required={false}
@@ -446,17 +413,17 @@ const Editar = () => {
       )}
       {ver === 'area' && (
         <div className="w-full grid grid-cols-3">
-          {categoriaData.map((categoriaItem, index) => (
+          {categorias.data.map((categoriaItem, index) => (
             <section key={index} className="flex gap-x-2 items-end m-1">
               <form
                 onSubmit={handleSubmit}
                 className="p-2 border-2 border-[#b70909] rounded-xl m-1"
               >
-                <input type="hidden" name="editar" value={categoriaItem.dataValues.ID_Categoria} />
+                <input type="hidden" name="editar" value={categoriaItem.ID_Categoria} />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`${categoriaItem.dataValues.Nombre_Categoria}`}
+                  texto={`${categoriaItem.Nombre_Categoria}`}
                   required={false}
                   name="nombre"
                   funcion={() => {}}
@@ -464,7 +431,7 @@ const Editar = () => {
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={categoriaItem.dataValues.ID_Categoria} />
+                <input type="hidden" name="borrar" value={categoriaItem.ID_Categoria} />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
             </section>
@@ -473,17 +440,17 @@ const Editar = () => {
       )}
       {ver === 'estado' && (
         <div className="w-full grid grid-cols-3">
-          {estadoData.map((estadoItem, index) => (
+          {estados.data.map((estadoItem, index) => (
             <section key={index} className="flex gap-x-2 items-end m-1">
               <form
                 onSubmit={handleSubmit}
                 className="p-2 border-2 border-[#b70909] rounded-xl m-1"
               >
-                <input type="hidden" name="editar" value={estadoItem.dataValues.ID_Estado} />
+                <input type="hidden" name="editar" value={estadoItem.ID_Estado} />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`${estadoItem.dataValues.Nombre_Estado}`}
+                  texto={`${estadoItem.Nombre_Estado}`}
                   required={false}
                   name="nombre"
                   funcion={() => {}}
@@ -491,7 +458,7 @@ const Editar = () => {
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={estadoItem.dataValues.ID_Estado} />
+                <input type="hidden" name="borrar" value={estadoItem.ID_Estado} />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
             </section>
@@ -500,7 +467,7 @@ const Editar = () => {
       )}
       {ver === 'mantenimiento' && (
         <div className="w-full grid grid-cols-3">
-          {tipoMantenimientoData.map((tipoMantenimientoItem, index) => (
+          {tipo_mantenimiento.data.map((tipoMantenimientoItem, index) => (
             <section key={index} className="flex gap-x-2 items-end m-1">
               <form
                 onSubmit={handleSubmit}
@@ -509,12 +476,12 @@ const Editar = () => {
                 <input
                   type="hidden"
                   name="editar"
-                  value={tipoMantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
+                  value={tipoMantenimientoItem.ID_Tipo_Mantenimiento}
                 />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`${tipoMantenimientoItem.dataValues.Tipo}`}
+                  texto={`${tipoMantenimientoItem.Tipo}`}
                   required={false}
                   name="nombre"
                   funcion={() => {}}
@@ -525,7 +492,7 @@ const Editar = () => {
                 <input
                   type="hidden"
                   name="borrar"
-                  value={tipoMantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
+                  value={tipoMantenimientoItem.ID_Tipo_Mantenimiento}
                 />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
@@ -539,9 +506,9 @@ const Editar = () => {
           <ul className="col-span-1 flex flex-col items-start">
             <li>
               <SelectComponent
-                options={categoriaData.map((item, index) => (
-                  <option key={index} value={item.dataValues.ID_Categoria}>
-                    {item.dataValues.Nombre_Categoria}
+                options={categorias.data.map((item, index) => (
+                  <option key={index} value={item.ID_Categoria}>
+                    {item.Nombre_Categoria}
                   </option>
                 ))}
                 value={parseInt(filterMaquinas)}
@@ -566,25 +533,20 @@ const Editar = () => {
           </ul>
           <ul className="col-span-1 flex flex-col items-start">
             <li className="text-xl font-bold">Equipos:</li>
-            {maquinariasFilter.map((maquinariaItem, index) => {
-              const { Nombre, fecha_mantenimiento, fecha_lubricamiento, Identificacion } =
-                maquinariaItem.dataValues
-
-              const handleClick = () => {
-                setSelectedMaquinaria(maquinariaItem)
-                setFechaMantenimiento(fecha_mantenimiento)
-                setFechaLubricamiento(fecha_lubricamiento)
-              }
-
-              return (
-                <li key={index} className="flex flex-col">
-                  <p onClick={handleClick} className="font-semibold">
-                    {Nombre}
-                  </p>
-                  <p className="text-gray-500">ID: {Identificacion}</p>
-                </li>
-              )
-            })}
+            {maquinariasFilter.map((maquinariaItem, index) => (
+              <li
+                key={index}
+                className="flex flex-col"
+                onClick={() => {
+                  setSelectedMaquinaria(maquinariaItem)
+                  setFechaMantenimiento(maquinariaItem.fecha_mantenimiento)
+                  setFechaLubricacion(maquinariaItem.fecha_lubricamiento)
+                }}
+              >
+                <p className="font-semibold">{maquinariaItem.Nombre}</p>
+                <p className="text-gray-500">ID: {maquinariaItem.Identificacion}</p>
+              </li>
+            ))}
           </ul>
 
           {selectedMaquinaria && (
@@ -593,15 +555,11 @@ const Editar = () => {
                 onSubmit={handleSubmit}
                 className="p-2 border-2 border-[#b70909] rounded-xl m-1 h-max"
               >
-                <input
-                  type="hidden"
-                  name="editar"
-                  value={selectedMaquinaria?.dataValues.ID_Equipo}
-                />
+                <input type="hidden" name="editar" value={selectedMaquinaria.ID_Equipo} />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Nombre: ${selectedMaquinaria?.dataValues.Nombre}`}
+                  texto={`Nombre: ${selectedMaquinaria.Nombre}`}
                   required={false}
                   name="nombre"
                   funcion={() => {}}
@@ -609,7 +567,7 @@ const Editar = () => {
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Identificacion: ${selectedMaquinaria?.dataValues.Identificacion}`}
+                  texto={`Identificacion: ${selectedMaquinaria.Identificacion}`}
                   required={false}
                   name="identificacion"
                   funcion={() => {}}
@@ -617,149 +575,185 @@ const Editar = () => {
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Comentarios: ${selectedMaquinaria?.dataValues.Comentarios}`}
+                  texto={`Comentarios: ${selectedMaquinaria.Comentarios}`}
                   required={false}
                   name="comentarios"
                   funcion={() => {}}
                 />
                 <SelectComponent
-                  className=''
-                  id='selectEstate'
-                  name='estado'
-                  onChange={() => { }}
+                  className=""
+                  id="selectEstate"
+                  name="estado"
+                  onChange={() => {}}
                   required={false}
                   value={undefined}
-                  label={`Estado: ${selectedMaquinaria.dataValues.Estado}`}
-                  options={estadoData.map((estado) => (
-                    <option key={estado.dataValues.ID_Estado} value={estado.dataValues.ID_Estado}>
-                      {estado.dataValues.Nombre_Estado}
+                  label={`Estado: ${selectedMaquinaria.Estado}`}
+                  options={estados.data.map((estado) => (
+                    <option key={estado.ID_Estado} value={estado.ID_Estado}>
+                      {estado.Nombre_Estado}
                     </option>
                   ))}
                 />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Origen: ${selectedMaquinaria?.dataValues.Origen}`}
+                  texto={`Origen: ${selectedMaquinaria.Origen}`}
                   required={false}
                   name="origen"
                   funcion={() => {}}
                 />
-                <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
-                  <div>
-                    <h4>Escoga la fecha del Mantenimiento:</h4>
-                    <DateRange
-                      editableDateInputs={true}
-                      onChange={(item) => setFechaMantenimiento([item.selection])}
-                      moveRangeOnFirstSelection={false}
-                      ranges={selectedMaquinaria.dataValues.fecha_mantenimiento}
-                    />
-                  </div>
-                  <div>
-                    <h3>Mantenimiento</h3>
-                    <ul>
-                      {fechaMantenimiento.length > 0
-                        ? fechaMantenimiento.map((item, index) => (
-                            <li key={new Date(item.startDate).getMilliseconds()} className="p-1 flex flex-row items-center">
-                              <div className="flex flex-col items-center mx-2">
-                                <h6>Fecha Inicial</h6>
-                                <p>
-                                  {new Date(item.startDate).toLocaleDateString() ??
-                                    item.startDate.toLocaleDateString() ??
-                                    ''}
-                                </p>
-                              </div>
-                              <div className="flex flex-col items-center mx-2">
-                                <h6>Fecha Final</h6>
-                                <p>
-                                  {new Date(item.endDate).toLocaleDateString() ??
-                                    item.endDate.toLocaleDateString() ??
-                                    ''}
-                                </p>
-                              </div>
-                              <div>
-                                <h6>Tipo de Mantenimiento</h6>
-                                <select
-                                  id="inputMantenimiento"
-                                  className="w-fit border border-black p-2 rounded-md cursor-pointer"
-                                  name="tipoMantenimientoFecha"
-                                  onChange={(e) =>
-                                    handleTipoMantenimientoChange(e, index, setFechaMantenimiento)
-                                  }
-                                  value={parseInt(item.tipoMantenimiento)}
-                                >
-                                  <option value={-1}> Tipo de Mantenimiento </option>
-                                  {tipoMantenimientoData.map((mantenimientoItem) => (
-                                    <option
-                                      key={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
-                                      value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
-                                    >
-                                      {mantenimientoItem.dataValues.Tipo}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-                              <Button_UI
-                                type="button"
-                                texto="Borrar"
-                                funcion={() => handleDelete(item, setFechaMantenimiento)}
-                              />
-                            </li>
-                          ))
-                        : null}
-                    </ul>
-                  </div>
-                  <div className="self-center p-5 flex flex-col items-start justify-center gap-x-10">
+                {/* Fechas */}
+                <section className="w-full flex flex-col items-start gap-2">
+                  {/* Mantenimiento */}
+                  <div className="px-5 flex flex-col items-start justify-center gap-x-10">
                     <div>
-                      <h4>Escoga la fecha del Lubricación:</h4>
-                      <DateRange
-                        editableDateInputs={true}
-                        onChange={(item) => setFechaLubricamiento([item.selection])}
-                        moveRangeOnFirstSelection={false}
-                        ranges={fechaLubricamiento}
+                      <h4 className="text-xl">Escoga la fecha del Mantenimiento:</h4>
+                      <input
+                        className="border border-black p-2 my-1 rounded-lg"
+                        type="date"
+                        name="newFechaMantenimiento"
+                        onChange={(event) => setNewFechaMantenimiento(e => { return { ...e, date: event.target.value } })}
+                        value={newFechaMantenimiento.date}
                       />
+                      <select
+                        id="inputMantenimientoFecha"
+                        className="w-fit border border-black p-2 rounded-md cursor-pointer"
+                        name="newTipoMantenimientoFecha"
+                        onChange={(event) => setNewFechaMantenimiento(e => { return { ...e, tipo_mantenimiento: +event.target.value } })}
+                        value={newFechaMantenimiento.tipo_mantenimiento}
+                      >
+                        <option key={123} value={-1}>
+                          Seleccione:
+                        </option>
+                        {tipo_mantenimiento.data.map((mantenimientoItem) => (
+                          <option
+                            key={mantenimientoItem.ID_Tipo_Mantenimiento}
+                            value={mantenimientoItem.ID_Tipo_Mantenimiento}
+                          >
+                            {mantenimientoItem.Tipo}
+                          </option>
+                        ))}
+                      </select>
+                      <Button_UI type="button" texto="Añadir" funcion={handleNewMantenimiento} />
                     </div>
-                    <div>
-                      <h3>Lubricación</h3>
-                      <ul>
-                        {fechaLubricamiento.length > 0
-                          ? fechaLubricamiento.map((item) => (
-                              <li key={new Date(item.startDate).getMilliseconds()} className="p-1 flex flex-row items-center">
-                                <div className="flex flex-col items-center mx-2">
-                                  <h6>Fecha Inicial</h6>
-                                  <p>
-                                    {item.startDate
-                                      ? new Date(item.startDate).toLocaleDateString() ?? ''
-                                      : ''}
-                                  </p>
+                    {/* Ver Lista de las fechas del mantenimiento */}
+                    {fechaMantenimiento.length > 0 && (
+                      <div className="border-2 border-[#b70909] rounded-xl p-2 m-1">
+                        <h3 className="text-xl font-bold">Mantenimientos</h3>
+                        <ul>
+                          {fechaMantenimiento.map((item, index) => {
+                            const fecha = new Date(item.date ?? item.startDate)
+                            const mant = item.tipo_mantenimiento ?? item.tipoMantenimiento ?? 0
+
+                            return (
+                              <li
+                                key={fecha.getMilliseconds()}
+                                className="p-1 flex flex-row items-center"
+                              >
+                                <div className="mr-2">
+                                  <p>Fecha:</p>
+                                  <p>{fecha.toLocaleDateString()}</p>
                                 </div>
-                                <div className="flex flex-col items-center mx-2">
-                                  <h6>Fecha Final</h6>
-                                  <p>
-                                    {item.endDate
-                                      ? new Date(item.endDate).toLocaleDateString() ?? ''
-                                      : ''}
-                                  </p>
+                                <div>
+                                  <h6>Tipo de Mantenimiento</h6>
+                                  <select
+                                    id="inputMantenimiento"
+                                    className="w-fit border border-black p-2 rounded-md cursor-pointer"
+                                    name="tipoMantenimientoFecha"
+                                    onChange={(e) =>
+                                      handleTipoMantenimientoChange(e, index, setFechaMantenimiento)
+                                    }
+                                    value={mant}
+                                  >
+                                    <option key={123} value={-1}>
+                                      Seleccione:
+                                    </option>
+                                    {tipo_mantenimiento.data.map((mantenimientoItem) => (
+                                      <option
+                                        key={mantenimientoItem.ID_Tipo_Mantenimiento}
+                                        value={mantenimientoItem.ID_Tipo_Mantenimiento}
+                                      >
+                                        {mantenimientoItem.Tipo}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                                 <Button_UI
                                   type="button"
                                   texto="Borrar"
-                                  funcion={() => handleDelete(item, setFechaLubricamiento)}
+                                  funcion={() => handleDelete(index, 'mantenimiento')}
+                                  className="mx-1"
                                 />
                               </li>
-                            ))
-                          : null}
-                      </ul>
-                    </div>
+                            )
+                          })}
+                          <Button_UI
+                            type="button"
+                            texto="Guardar"
+                            funcion={handleSaveMantenimiento}
+                            className="mx-1"
+                          />
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
+                  {/* Lubricamiento */}
+                  <div className="px-5 flex flex-col items-start justify-center gap-x-10">
+                    <div className="mr-2">
+                      <h4 className="text-xl">Escoga la fecha del Lubricación:</h4>
+                      <input
+                        className="border border-black p-2 my-1 rounded-lg"
+                        type="date"
+                        name=""
+                        id=""
+                        onChange={(e) => setNewFechaLubricacion(e.target.value)}
+                        value={newFechaLubricacion}
+                      />
+                      <Button_UI type="button" texto="Añadir" funcion={handleNewLubricacion} />
+                    </div>
+                    {fechaLubricacion.length > 0 && (
+                      <div className="border-2 border-[#b70909] rounded-xl p-2 m-1">
+                        <h3 className="text-xl font-bold">Lubricaciones</h3>
+                        <ul>
+                          {fechaLubricacion.map((item, index) => {
+                            let fecha;
+                            if (item instanceof Object) {
+                              fecha = new Date(item.startDate).toLocaleDateString()
+                            } else {
+                              fecha = item
+                            }
+
+                            return (
+                              <li
+                                key={fecha}
+                                className="p-1 flex flex-row items-center"
+                              >
+                                <div className="mr-2">
+                                  <p>Fecha:</p>
+                                  <p>{fecha}</p>
+                                </div>
+                                <Button_UI
+                                  type="button"
+                                  texto="Borrar"
+                                  funcion={() => handleDelete(index, 'lubricacion')}
+                                />
+                              </li>
+                            )
+                          })}
+                          <Button_UI
+                            type="button"
+                            texto="Guardar"
+                            funcion={() => /* handleDelete(index, 'lubricacion') */ {}}
+                          />
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </section>
+                <Button_UI type="submit" texto="Guardar" funcion={handleSaveLubricamiento} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input
-                  type="hidden"
-                  name="borrar"
-                  value={selectedMaquinaria?.dataValues.ID_Equipo}
-                />
+                <input type="hidden" name="borrar" value={selectedMaquinaria?.ID_Equipo} />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
             </div>
@@ -768,17 +762,17 @@ const Editar = () => {
       )}
       {ver === 'usuario' && (
         <div className="w-full grid grid-cols-3">
-          {usuarios.map((usuarioItem, index) => (
+          {usuarios.data.map((usuarioItem, index) => (
             <section key={index} className="flex gap-x-2 items-end m-1">
               <form
                 onSubmit={handleSubmit}
                 className="p-2 border-2 border-[#b70909] rounded-xl m-1"
               >
-                <input type="hidden" name="editar" value={usuarioItem.dataValues.ID_Usuario} />
+                <input type="hidden" name="editar" value={usuarioItem.ID_Usuario} />
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`User: ${usuarioItem.dataValues.identificacion}`}
+                  texto={`User: ${usuarioItem.identificacion}`}
                   required={false}
                   name="identificacion"
                   funcion={() => {}}
@@ -786,7 +780,7 @@ const Editar = () => {
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Rol: ${usuarioItem.dataValues.Rol}`}
+                  texto={`Rol: ${usuarioItem.Rol}`}
                   required={false}
                   name="rol"
                   funcion={() => {}}
@@ -794,7 +788,7 @@ const Editar = () => {
                 <Input_UI
                   value={undefined}
                   type="text"
-                  texto={`Contraseña: ${usuarioItem.dataValues.contrasena}`}
+                  texto={`Contraseña: ${usuarioItem.contrasena}`}
                   required={false}
                   name="contrasena"
                   funcion={() => {}}
@@ -802,7 +796,7 @@ const Editar = () => {
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={usuarioItem.dataValues.ID_Usuario} />
+                <input type="hidden" name="borrar" value={usuarioItem.ID_Usuario} />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
             </section>
@@ -812,7 +806,7 @@ const Editar = () => {
       {ver === 'orden' && (
         <div className="w-full grid grid-cols-3">
           <ul className="col-span-2">
-            {ordenes.map((orden, index) => (
+            {ordenes.data.map((orden, index) => (
               <li
                 key={index}
                 className="grid grid-cols-4 my-2 px-2"
@@ -820,27 +814,16 @@ const Editar = () => {
               >
                 <p>
                   Area:{' '}
-                  {
-                    categoriaData.find(
-                      (i) => i.dataValues.ID_Categoria === orden.dataValues.ID_Area
-                    )?.dataValues.Nombre_Categoria
-                  }
+                  {categorias.data.find((i) => i.ID_Categoria === orden.ID_Area)?.Nombre_Categoria}
                 </p>
                 <p>
-                  Equipo:{' '}
-                  {
-                    maquinarias.find((i) => i.dataValues.ID_Equipo === orden.dataValues.ID_Equipo)
-                      ?.dataValues.Nombre
-                  }
+                  Equipo: {maquinarias.data.find((i) => i.ID_Equipo === orden.ID_Equipo)?.Nombre}
                 </p>
                 <p>
                   Identificacion:{' '}
-                  {
-                    maquinarias.find((i) => i.dataValues.ID_Equipo === orden.dataValues.ID_Equipo)
-                      ?.dataValues.Identificacion
-                  }
+                  {maquinarias.data.find((i) => i.ID_Equipo === orden.ID_Equipo)?.Identificacion}
                 </p>
-                <p>Fecha: {orden.dataValues.fecha.toLocaleDateString()}</p>
+                <p>Fecha: {orden.fecha.toLocaleDateString()}</p>
               </li>
             ))}
           </ul>
@@ -853,15 +836,14 @@ const Editar = () => {
                 <label className="w-full text-center text-xl font-bold">
                   Identificación{' '}
                   {
-                    maquinarias.find(
-                      (i) => i.dataValues.ID_Equipo === selectedOrden.dataValues.ID_Equipo
-                    )?.dataValues.Identificacion
+                    maquinarias.data.find((i) => i.ID_Equipo === selectedOrden.ID_Equipo)
+                      ?.Identificacion
                   }
                 </label>
-                <input type="hidden" name="editar" value={selectedOrden.dataValues.ID_Orden} />
+                <input type="hidden" name="editar" value={selectedOrden.ID_Orden} />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.horarioParada}
+                  subTexto={selectedOrden.horarioParada}
                   value={undefined}
                   type="text"
                   texto="Horario de Parada"
@@ -870,7 +852,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.horarioComienzo}
+                  subTexto={selectedOrden.horarioComienzo}
                   value={undefined}
                   type="text"
                   texto="Horario de Comienzo"
@@ -879,7 +861,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.horarioPuestaMarcha}
+                  subTexto={selectedOrden.horarioPuestaMarcha}
                   value={undefined}
                   type="text"
                   texto="Horario de Puesta en Marcha"
@@ -888,7 +870,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.horarioCulminacion}
+                  subTexto={selectedOrden.horarioCulminacion}
                   value={undefined}
                   type="text"
                   texto="Horario de Culminacion"
@@ -897,7 +879,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.materialesUsados}
+                  subTexto={selectedOrden.materialesUsados}
                   value={undefined}
                   type="text"
                   texto="Materiales Usados"
@@ -906,7 +888,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.observaciones}
+                  subTexto={selectedOrden.observaciones}
                   value={undefined}
                   type="text"
                   texto="Observaciones"
@@ -915,7 +897,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.solicitadoPor}
+                  subTexto={selectedOrden.solicitadoPor}
                   value={undefined}
                   type="text"
                   texto="Solicitiado Por"
@@ -924,7 +906,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.aprobadoPor}
+                  subTexto={selectedOrden.aprobadoPor}
                   value={undefined}
                   type="text"
                   texto="Aprobado Por"
@@ -933,7 +915,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.terminadoPor}
+                  subTexto={selectedOrden.terminadoPor}
                   value={undefined}
                   type="text"
                   texto="Terminado Por"
@@ -942,7 +924,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.revisadoPor}
+                  subTexto={selectedOrden.revisadoPor}
                   value={undefined}
                   type="text"
                   texto="Revisado Por"
@@ -951,7 +933,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.valeSalida}
+                  subTexto={selectedOrden.valeSalida}
                   value={undefined}
                   type="text"
                   texto="Vale de Salida"
@@ -960,7 +942,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.objetivos}
+                  subTexto={selectedOrden.objetivos}
                   value={undefined}
                   type="text"
                   texto="Objetivos"
@@ -969,7 +951,7 @@ const Editar = () => {
                 />
                 <Input_UI_subTexto
                   required={false}
-                  subTexto={selectedOrden.dataValues.presupuesto + ''}
+                  subTexto={selectedOrden.presupuesto + ''}
                   value={undefined}
                   type="text"
                   texto="Presupuesto"
@@ -980,7 +962,7 @@ const Editar = () => {
                 <Button_UI type="submit" texto="Guardar" funcion={() => {}} />
               </form>
               <form onSubmit={handleSubmit}>
-                <input type="hidden" name="borrar" value={selectedOrden.dataValues.ID_Orden} />
+                <input type="hidden" name="borrar" value={selectedOrden.ID_Orden} />
                 <Button_UI texto="Borrar" type="submit" funcion={() => {}} />
               </form>
             </div>

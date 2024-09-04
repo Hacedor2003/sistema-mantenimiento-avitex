@@ -15,7 +15,7 @@ import {
 export const getEquipos_All = async () => {
   try {
     const equipos = await Equipos.findAll()
-    return equipos
+    return equipos.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
     throw error
@@ -25,7 +25,7 @@ export const getEquipos_All = async () => {
 export const getEquipos_By_Id = async (id) => {
   try {
     const equipo = await Equipos.findByPk(id)
-    return equipo
+    return equipo?.dataValues
   } catch (error) {
     console.error(`Error al obtener el equipo con ID ${id}:`, error)
     throw error
@@ -39,7 +39,7 @@ export const getEquipos_By_Categoria = async (categoriasid) => {
         CategoriasID: categoriasid
       }
     })
-    return equipo
+    return equipo.map(e=>e.dataValues)
   } catch (error) {
     console.error(`Error al obtener el equipo con categoria ${categoriasid}:`, error)
     throw error
@@ -49,7 +49,7 @@ export const getEquipos_By_Categoria = async (categoriasid) => {
 export const getTipo_Mantenimiento_All = async () => {
   try {
     const tiposMantenimiento = await Tipo_Mantenimiento.findAll()
-    return tiposMantenimiento
+    return tiposMantenimiento.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los tipos de mantenimiento:', error)
     throw error
@@ -59,7 +59,7 @@ export const getTipo_Mantenimiento_All = async () => {
 export const getTipo_Mantenimiento_By_Tipo = async (tipo) => {
   try {
     const tipoMantenimiento = await Tipo_Mantenimiento.findOne({ where: { Tipo: tipo } })
-    return tipoMantenimiento
+    return tipoMantenimiento?.dataValues
   } catch (error) {
     console.error(`Error al obtener el tipo de mantenimiento "${tipo}":`, error)
     throw error
@@ -69,18 +69,17 @@ export const getTipo_Mantenimiento_By_Tipo = async (tipo) => {
 export const getTipo_Mantenimiento_By_Id = async (id) => {
   try {
     const tipoMantenimiento = await Tipo_Mantenimiento.findOne({ where: { ID_Tipo_Mantenimiento: id } })
-    return tipoMantenimiento
+    return tipoMantenimiento?.dataValues
   } catch (error) {
     console.error(`Error al obtener el tipo de mantenimiento "${id}":`, error)
     throw error
   }
 }
 
-
 export const getCategorias_All = async () => {
   try {
     const equipos = await Categorias.findAll()
-    return equipos
+    return equipos.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
     throw error
@@ -90,7 +89,7 @@ export const getCategorias_All = async () => {
 export const getCategorias_By_Nombre = async (nombre) => {
   try {
     const categoria = await Categorias.findOne({ where: { Nombre_Categoria: nombre } })
-    return categoria
+    return categoria?.dataValues
   } catch (error) {
     console.error(`Error al obtener la categoría por nombre "${nombre}":`, error)
     throw error
@@ -100,7 +99,7 @@ export const getCategorias_By_Nombre = async (nombre) => {
 export const getCategorias_By_ID = async (id) => {
   try {
     const categoria = await Categorias.findOne({ where: { ID_Categoria: id } })
-    return categoria
+    return categoria?.dataValues
   } catch (error) {
     console.error(`Error al obtener la categoría por id "${id}":`, error)
     throw error
@@ -110,7 +109,7 @@ export const getCategorias_By_ID = async (id) => {
 export const getEstados_Revision_All = async () => {
   try {
     const equipos = await Estados_Revision.findAll()
-    return equipos
+    return equipos.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
     throw error
@@ -120,7 +119,7 @@ export const getEstados_Revision_All = async () => {
 export const getEstados_Revision_By_Nombre = async (nombre) => {
   try {
     const estadoRevision = await Estados_Revision.findOne({ where: { Nombre_Estado: nombre } })
-    return estadoRevision
+    return estadoRevision?.dataValues
   } catch (error) {
     console.error(`Error al obtener el estado de revisión por nombre "${nombre}":`, error)
     throw error
@@ -130,7 +129,7 @@ export const getEstados_Revision_By_Nombre = async (nombre) => {
 export const getEstados_Revision_By_Id = async (id) => {
   try {
     const estadoRevision = await Estados_Revision.findOne({ where: { ID_Estado: id } })
-    return estadoRevision
+    return estadoRevision?.dataValues
   } catch (error) {
     console.error(`Error al obtener el estado de revisión por id "${id}":`, error)
     throw error
@@ -140,7 +139,7 @@ export const getEstados_Revision_By_Id = async (id) => {
 export const getUsuarios_All = async () => {
   try {
     const equipos = await Usuarios.findAll()
-    return equipos
+    return equipos.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
     throw error
@@ -150,7 +149,7 @@ export const getUsuarios_All = async () => {
 export const getUsuarios_By_Rol = async (rol) => {
   try {
     const usuarios = await Usuarios.findAll({ where: { Rol: rol } })
-    return usuarios
+    return usuarios.map(e=>e.dataValues)
   } catch (error) {
     console.error(`Error al obtener los usuarios por rol "${rol}":`, error)
     throw error
@@ -160,7 +159,7 @@ export const getUsuarios_By_Rol = async (rol) => {
 export const getOrden_Mantenimiento_All = async () => {
   try {
     const equipos = await Orden_Mantenimiento.findAll()
-    return equipos
+    return equipos.map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los equipos:', error)
     throw error
@@ -169,7 +168,7 @@ export const getOrden_Mantenimiento_All = async () => {
 
 export const getPresupuestos_All = async () => {
   try {
-    return await Presupuesto.findAll()
+    return (await Presupuesto.findAll()).map(e=>e.dataValues)
   } catch (error) {
     console.error('Error al obtener todos los presupuestos:', error)
     throw error
@@ -178,7 +177,7 @@ export const getPresupuestos_All = async () => {
 
 export const getPresupuestos_By_Id = async (id:number) => {
   try {
-    return await Presupuesto.findOne({ where: { ID_Presupuesto: id } })
+    return (await Presupuesto.findOne({ where: { ID_Presupuesto: id } }))?.dataValues
   } catch (error) {
     console.error(`Error al obtener el presupuestos por id "${id}":`, error)
     throw error

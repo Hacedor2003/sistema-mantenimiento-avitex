@@ -4,11 +4,11 @@ import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI } from '@renderer/components/UI_Component'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Equipos } from 'src/main/db/Models'
+import { EquiposAttributes } from 'src/shared/types'
 
 const Details = (): JSX.Element => {
   const { details: productID } = useParams()
-  const [producto, setProducto] = useState<Equipos | null>(null)
+  const [producto, setProducto] = useState<EquiposAttributes | null>(null)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,15 +25,15 @@ const Details = (): JSX.Element => {
       <main className="w-full grid grid-cols-2 grid-rows-1 items-center px-2 text-lg">
         <section>
           <h5 className='text-3xl font-bold font-serif my-2'>Nombre:</h5>
-          <p>{producto?.dataValues.Nombre}</p>
+          <p>{producto?.Nombre}</p>
           <h5 className='text-3xl font-bold font-serif my-2'>Identificacion:</h5>
-          <p>{producto?.dataValues.Identificacion}</p>
+          <p>{producto?.Identificacion}</p>
           <h5 className='text-3xl font-bold font-serif my-2'>Origen:</h5>
-          <p>{producto?.dataValues.Origen}</p>
+          <p>{producto?.Origen}</p>
           <h5 className='text-3xl font-bold font-serif my-2'>Comentarios:</h5>
-          <p>{producto?.dataValues.Comentarios}</p>
+          <p>{producto?.Comentarios}</p>
           <Button_UI type='button' texto='Crear Orden' funcion={()=>navigate(`/home/orden/${productID}`)}/>
-          <ItemOfList_ComponentsContent id={producto?.dataValues.ID_Equipo ?? -1} />
+          <ItemOfList_ComponentsContent id={producto?.ID_Equipo ?? -1} />
         </section>
       </main>
     </RootLayout>

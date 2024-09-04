@@ -30,11 +30,11 @@ const Login = (): JSX.Element => {
     } else if (carnet !== 'bryanlenier' && contrasena !== 'espinosa') {
       const userFind = context.data.usuarios.data.find(
         (userDb) =>
-          userDb.dataValues.identificacion === carnet && userDb.dataValues.contrasena === contrasena
+          userDb.identificacion === carnet && userDb.contrasena === contrasena
       )
-      if (userFind?.dataValues) {
+      if (userFind) {
         setError(false)
-        localStorage.setItem('user', JSON.stringify(userFind?.dataValues))
+        localStorage.setItem('user', JSON.stringify(userFind))
         navigate('/home')
       }
     } else {

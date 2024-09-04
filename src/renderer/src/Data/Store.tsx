@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { Context_Interface } from '@renderer/Interface'
-import { createContext, useEffect, useState } from 'react'
-import { Categorias, Equipos, Estados_Revision, Orden_Mantenimiento, Presupuesto, Tipo_Mantenimiento, Usuarios } from 'src/main/db/Models'
+import { Context_Interface } from '@renderer/Interface';
+import { createContext, useEffect, useState } from 'react';
+import { CategoriasAttributes, EquiposAttributes, Estados_RevisionAttributes, Orden_MantenimientoAttributes, PresupuestoAttributes, Tipo_MantenimientoAttributes, UsuariosAttributes } from 'src/shared/types';
 
 // Contexto para la aplicación
 const AppContext = createContext<Context_Interface>({
@@ -18,13 +18,13 @@ const AppContext = createContext<Context_Interface>({
 
 // Componente proveedor del contexto
 const AppProvider = ({ children }) => {
-  const [equipos, setEquipos] = useState<Equipos[]>([]);
-  const [tipo_mantenimiento, setTipoMantenimientos] = useState<Tipo_Mantenimiento[]>([]);
-  const [categorias, setCategorias] = useState<Categorias[]>([]);
-  const [estados, setEstados] = useState<Estados_Revision[]>([]);
-  const [usuarios, setUsuarios] = useState<Usuarios[]>([]);
-  const [ordenes, setOrdenes] = useState<Orden_Mantenimiento[]>([]);
-  const [presupuestos, setPresupuestos] = useState<Presupuesto[]>([]);
+  const [equipos, setEquipos] = useState<EquiposAttributes[]>([]);
+  const [tipo_mantenimiento, setTipoMantenimientos] = useState<Tipo_MantenimientoAttributes[]>([]);
+  const [categorias, setCategorias] = useState<CategoriasAttributes[]>([]);
+  const [estados, setEstados] = useState<Estados_RevisionAttributes[]>([]);
+  const [usuarios, setUsuarios] = useState<UsuariosAttributes[]>([]);
+  const [ordenes, setOrdenes] = useState<Orden_MantenimientoAttributes[]>([]);
+  const [presupuestos, setPresupuestos] = useState<PresupuestoAttributes[]>([]);
 
   const fetchData = async (fetchFunction, setData) => {
     try {
@@ -43,7 +43,7 @@ const AppProvider = ({ children }) => {
     fetchData(window.context.getTipo_Mantenimiento_All, setTipoMantenimientos)
     fetchData(window.context.getCategorias_All, setCategorias)
     fetchData(window.context.getEstados_Revision_All, setEstados)
-  }, [equipos, tipo_mantenimiento, categorias, estados, usuarios, ordenes, presupuestos])
+  }, [])
 
   return (
     <AppContext.Provider
@@ -67,5 +67,5 @@ const AppProvider = ({ children }) => {
 export default AppProvider;
 
 
-export { AppContext, AppProvider }
+export { AppContext, AppProvider };
 

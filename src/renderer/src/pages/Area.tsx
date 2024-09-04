@@ -2,12 +2,12 @@
 import { RootLayout } from '@renderer/components/AppLayout'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Categorias, Equipos } from 'src/main/db/Models'
+import { CategoriasAttributes, EquiposAttributes } from 'src/shared/types'
 
 const Area = (): JSX.Element => {
   const { area: categoriaID } = useParams()
-  const [producto, setProducto] = useState<Equipos[] | null>(null)
-  const [categoria, setCategoria] = useState<Categorias | null>(null)
+  const [producto, setProducto] = useState<EquiposAttributes[] | null>(null)
+  const [categoria, setCategoria] = useState<CategoriasAttributes | null>(null)
 
   useEffect(() => {
     window.context
@@ -16,7 +16,7 @@ const Area = (): JSX.Element => {
         setCategoria(response)
       })
       .catch((error) => console.log(error))
-    if (categoria?.dataValues.Nombre_Categoria !== 'Todos') {
+    if (categoria?.Nombre_Categoria !== 'Todos') {
       window.context
         .getEquipos_By_Categoria(categoriaID)
         .then((response) => {
@@ -38,7 +38,7 @@ const Area = (): JSX.Element => {
       <main className="w-full h-full px-2">
         <section className="w-full grid grid-cols-6 grid-rows-1 my-2">
           <h4 className="text-2xl font-bold w-full col-span-2">
-            Area - {categoria?.dataValues.Nombre_Categoria}
+            Area - {categoria?.Nombre_Categoria}
           </h4>
         </section>
         <table className="w-full mt-2 text-left text-lg">
@@ -49,7 +49,7 @@ const Area = (): JSX.Element => {
             <th>Comentarios</th>
           </thead>
           <tbody>
-            {producto?.map((item: Equipos, index) => {
+            {producto?.map((item: EquiposAttributes, index) => {
               if (item.Estado === 1 || item.Estado === 2 || item.Estado === 3) {
                 return (
                   <ItemOfList_ComponentsContentEsp indicador="warning" key={index} item={item} />
@@ -71,41 +71,41 @@ const Area = (): JSX.Element => {
 
 export default Area
 
-const ItemOfList_ComponentsContent = ({ item }: { item: Equipos }): JSX.Element => {
+const ItemOfList_ComponentsContent = ({ item }: { item: EquiposAttributes }): JSX.Element => {
   const navigate = useNavigate()
   return (
     <tr className="hover:bg-[#b70909] hover:text-white p-2 transition-all duration-300 cursor-pointer text-lg">
       <td
         onClick={() =>
-          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+          navigate(`/home/${item.CategoriasID}/${item.ID_Equipo}`)
         }
       >
-        {item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}
+        {item.ID_Equipo + ' ' + item.Nombre}
       </td>
       <td
         onClick={() =>
-          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+          navigate(`/home/${item.CategoriasID}/${item.ID_Equipo}`)
         }
       >
-        {item.dataValues.Identificacion}
+        {item.Identificacion}
       </td>
       <td
         onClick={() =>
-          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+          navigate(`/home/${item.CategoriasID}/${item.ID_Equipo}`)
         }
       >
-        {item.dataValues.Origen}
+        {item.Origen}
       </td>
       <td
         onClick={() =>
-          navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)
+          navigate(`/home/${item.CategoriasID}/${item.ID_Equipo}`)
         }
       >
-        {item.dataValues.Comentarios}
+        {item.Comentarios}
       </td>
-      <td onClick={() => navigate(`/home/calendario/${item.dataValues.ID_Equipo}`)}>Ver Fechas</td>
+      <td onClick={() => navigate(`/home/calendario/${item.ID_Equipo}`)}>Ver Fechas</td>
       {JSON.parse(localStorage.getItem('user') ?? '').role === 'admin' && (
-        <td onClick={() => window.context.deleteEquipos_By_Id(item.dataValues.ID_Equipo ?? -1)}>
+        <td onClick={() => window.context.deleteEquipos_By_Id(item.ID_Equipo ?? -1)}>
           Borrar
         </td>
       )}
@@ -117,7 +117,7 @@ const ItemOfList_ComponentsContentEsp = ({
   item,
   indicador
 }: {
-  item: Equipos
+  item: EquiposAttributes
   indicador: 'warning' | 'danger'
 }): JSX.Element => {
   const navigate = useNavigate()
@@ -125,12 +125,12 @@ const ItemOfList_ComponentsContentEsp = ({
   return (
     <tr
       className={`cursor-pointer text-lg duration-300 ${indicador === 'warning' ? 'bg-yellow-500 hover:bg-yellow-700' : 'bg-red-500 hover:bg-red-700'}`}
-      onClick={() => navigate(`/home/${item.dataValues.CategoriasID}/${item.dataValues.ID_Equipo}`)}
+      onClick={() => navigate(`/home/${item.CategoriasID}/${item.ID_Equipo}`)}
     >
-      <td>{item.dataValues.ID_Equipo + ' ' + item.dataValues.Nombre}</td>
-      <td>{item.dataValues.Identificacion}</td>
-      <td>{item.dataValues.Origen}</td>
-      <td>{item.dataValues.Comentarios}</td>
+      <td>{item.ID_Equipo + ' ' + item.Nombre}</td>
+      <td>{item.Identificacion}</td>
+      <td>{item.Origen}</td>
+      <td>{item.Comentarios}</td>
       <td onClick={() => navigate('/home/calendario/maquinaria')}>
         {indicador === 'warning' ? 'Mantenimiento - Ver Fechas' : 'Baja - Ver Fechas'}{' '}
         <span className={`rounded-sm ${indicador === 'warning' ? 'bg-yellow-200' : 'bg-red-200'}`}>

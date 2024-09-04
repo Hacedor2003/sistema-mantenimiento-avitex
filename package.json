@@ -25,6 +25,7 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@ohmry/electron-vite-title-bar": "^1.0.6",
     "electron-updater": "^6.1.7",
+    "node-gyp": "^10.2.0",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "react-date-range": "^2.0.1",

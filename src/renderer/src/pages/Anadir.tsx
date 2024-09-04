@@ -1,22 +1,15 @@
 /* eslint-disable prettier/prettier */
+import { AppContext } from '@renderer/Data/Store'
+import { fechaType } from '@renderer/Interface'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
-import { useContext, useEffect, useState } from 'react'
-import { Categorias, Estados_Revision, Tipo_Mantenimiento } from 'src/main/db/Models'
 import { addDays } from 'date-fns'
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { DateRange } from 'react-date-range'
-import 'react-date-range/dist/styles.css' // main css file
-import 'react-date-range/dist/theme/default.css' // theme css file
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 import { useParams } from 'react-router-dom'
-import { AppContext } from '@renderer/Data/Store'
 
-export interface fechaType {
-  startDate: Date
-  endDate: Date
-  key: string
-  tipoMantenimiento: string
-}
 
 const Anadir = (): JSX.Element => {
   const { opcion: ver } = useParams()
@@ -41,9 +34,8 @@ const Anadir = (): JSX.Element => {
   ])
   const [fecha_lubricamiento, setFecha_lubricamiento] = useState<fechaType[]>([])
 
-  const [estadoData, setEstadoData] = useState<Estados_Revision[]>([])
-  const [tipoMantenimientoData, setTipoMantenimientoData] = useState<Tipo_Mantenimiento[]>([])
-  const [categoriaData, setcategoriaData] = useState<Categorias[]>([])
+  const { categorias, tipo_mantenimiento, estados } = context.data
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -129,12 +121,6 @@ const Anadir = (): JSX.Element => {
     }
   }
 
-  useEffect(() => {
-    const { categorias, tipo_mantenimiento, estados } = context.data
-    setcategoriaData(categorias.data)
-    setTipoMantenimientoData(tipo_mantenimiento.data)
-    setEstadoData(estados.data)
-  }, [])
 
   useEffect(() => {
     setFecha_mantenimiento((prevFecha) => {
@@ -277,9 +263,9 @@ const Anadir = (): JSX.Element => {
                 className="w-fit border border-black p-2 rounded-md cursor-pointer"
               >
                 <option value={-1}> Tipo de Estado </option>
-                {estadoData.map((estadoItem, index) => (
-                  <option key={index} value={estadoItem.dataValues.ID_Estado}>
-                    {estadoItem.dataValues.Nombre_Estado}
+                {estados.data.map((estadoItem, index) => (
+                  <option key={index} value={estadoItem.ID_Estado}>
+                    {estadoItem.Nombre_Estado}
                   </option>
                 ))}
               </select>
@@ -290,9 +276,9 @@ const Anadir = (): JSX.Element => {
                 className="w-fit border border-black p-2 rounded-md cursor-pointer"
               >
                 <option value={-1}> Tipo de Area </option>
-                {categoriaData.map((categoriaItem, index) => (
-                  <option key={index} value={categoriaItem.dataValues.ID_Categoria}>
-                    {categoriaItem.dataValues.Nombre_Categoria}
+                {categorias.data.map((categoriaItem, index) => (
+                  <option key={index} value={categoriaItem.ID_Categoria}>
+                    {categoriaItem.Nombre_Categoria}
                   </option>
                 ))}
               </select>
@@ -338,12 +324,12 @@ const Anadir = (): JSX.Element => {
                             }
                           >
                             <option value={-1}> Tipo de Mantenimiento </option>
-                            {tipoMantenimientoData.map((mantenimientoItem, index) => (
+                            {tipo_mantenimiento.data.map((mantenimientoItem, index) => (
                               <option
                                 key={index}
-                                value={mantenimientoItem.dataValues.ID_Tipo_Mantenimiento}
+                                value={mantenimientoItem.ID_Tipo_Mantenimiento}
                               >
-                                {mantenimientoItem.dataValues.Tipo}
+                                {mantenimientoItem.Tipo}
                               </option>
                             ))}
                           </select>

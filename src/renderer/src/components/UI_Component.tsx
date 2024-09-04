@@ -4,14 +4,16 @@ import React from "react"
 export const Button_UI = ({
   type,
   texto,
-  funcion
+  funcion,
+  className
 }: {
   funcion: () => void
   texto: string
-  type: 'submit' | 'reset' | 'button' | undefined
+    type: 'submit' | 'reset' | 'button' | undefined
+    className?:string
 }) => (
   <button
-    className="active:opacity-50 self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-white text-black"
+    className={`active:opacity-50 self-center border border-black w-fit hover:bg-[#b70909] hover:text-white transition-all duration-300 p-2 rounded-xl hover:rounded-sm bg-white text-black ${className}`}
     type={type}
     onClick={funcion}
   >

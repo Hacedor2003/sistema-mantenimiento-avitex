@@ -3,20 +3,11 @@ import { AppContext } from '@renderer/Data/Store'
 import { RootLayout } from '@renderer/components/AppLayout'
 import { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Categorias, Equipos, Estados_Revision } from 'src/main/db/Models'
+import { EquiposAttributes } from 'src/shared/types'
 
 const Home = (): JSX.Element => {
-  const [lista_areas, setLista_areas] = useState<Categorias[]>([])
-  const [productos, setProductos] = useState<Equipos[]>([])
-  const [listEstados, setListEstados] = useState<Estados_Revision[]>([])
   const context = useContext(AppContext)
-
-  useEffect(() => {
-    const { categorias, estados, equipos } = context.data
-    setLista_areas(categorias.data)
-    setListEstados(estados.data)
-    setProductos(equipos.data)
-  }, [])
+  const { categorias: lista_areas, estados: listEstados, equipos: productos } = context.data
 
   return (
     <RootLayout>
@@ -24,12 +15,12 @@ const Home = (): JSX.Element => {
         <ul className="min-w-[301px] flex flex-col items-start gap-y-2 font-normal border-b-4 border-x-4 border-[#b70909] p-2">
           <li className="flex flex-col items-start border-b-2 border-[#b70909] w-full">
             <p className="font-bold">Total de Equipos: </p>
-            <span>{productos.length}</span>
+            <span>{productos.data.length}</span>
           </li>
-          {listEstados.map((item, index) => {
+          {listEstados.data.map((item, index) => {
             let productLength = 0
-            productos.forEach((itemProduct) =>
-              itemProduct.dataValues.Estado === item.dataValues.ID_Estado
+            productos.data.forEach((itemProduct) =>
+              itemProduct.Estado === item.ID_Estado
                 ? (productLength += 1)
                 : null
             )
@@ -38,17 +29,17 @@ const Home = (): JSX.Element => {
                 className="flex flex-col items-start border-b-2 border-[#b70909] w-full"
                 key={index}
               >
-                <p className="font-bold first-letter:uppercase">{item.dataValues.Nombre_Estado}</p>
+                <p className="font-bold first-letter:uppercase">{item.Nombre_Estado}</p>
                 <span>{productLength}</span>
               </li>
             )
           })}
         </ul>
         <ul className="px-2 flex flex-row flex-wrap justify-around gap-2">
-          {lista_areas.map((item, index) => (
+          {lista_areas.data.map((item, index) => (
             <ItemOfList_NavigationContent
-              nombre={item.dataValues.Nombre_Categoria}
-              id={item.dataValues.ID_Categoria ?? -1}
+              nombre={item.Nombre_Categoria}
+              id={item.ID_Categoria ?? -1}
               key={index}
             />
           ))}
@@ -67,7 +58,7 @@ const ItemOfList_NavigationContent = ({
   nombre: string
   id: number
 }): JSX.Element => {
-  const [producto, setProducto] = useState<Equipos[] | null>(null)
+  const [producto, setProducto] = useState<EquiposAttributes[] | null>(null)
   useEffect(() => {
     if (nombre !== 'Todos') {
       window.context

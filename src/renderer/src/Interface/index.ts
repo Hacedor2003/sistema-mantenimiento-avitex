@@ -1,16 +1,23 @@
 /* eslint-disable prettier/prettier */
 
-import { Categorias, Equipos, Estados_Revision, Orden_Mantenimiento, Presupuesto, Tipo_Mantenimiento, Usuarios } from "src/main/db/Models";
+import { CategoriasAttributes, EquiposAttributes, Estados_RevisionAttributes, Orden_MantenimientoAttributes, PresupuestoAttributes, Tipo_MantenimientoAttributes, UsuariosAttributes } from "src/shared/types";
 
 
 export interface Context_Interface {
   data: {
-    equipos: { data: Equipos[]; setData: React.Dispatch<React.SetStateAction<Equipos[]>> }
-    tipo_mantenimiento: { data: Tipo_Mantenimiento[]; setData: React.Dispatch<React.SetStateAction<Tipo_Mantenimiento[]>>}
-    categorias: { data: Categorias[]; setData: React.Dispatch<React.SetStateAction<Categorias[]>> }
-    estados: { data: Estados_Revision[]; setData: React.Dispatch<React.SetStateAction<Estados_Revision[]>> }
-    usuarios: { data: Usuarios[]; setData: React.Dispatch<React.SetStateAction<Usuarios[]>> }
-    ordenes: { data: Orden_Mantenimiento[]; setData: React.Dispatch<React.SetStateAction<Orden_Mantenimiento[]>> }
-    presupuestos: { data: Presupuesto[]; setData: React.Dispatch<React.SetStateAction<Presupuesto[]>> }
+    equipos: { data: EquiposAttributes[]; setData: React.Dispatch<React.SetStateAction<EquiposAttributes[]>> }
+    tipo_mantenimiento: { data: Tipo_MantenimientoAttributes[]; setData: React.Dispatch<React.SetStateAction<Tipo_MantenimientoAttributes[]>>}
+    categorias: { data: CategoriasAttributes[]; setData: React.Dispatch<React.SetStateAction<CategoriasAttributes[]>> }
+    estados: { data: Estados_RevisionAttributes[]; setData: React.Dispatch<React.SetStateAction<Estados_RevisionAttributes[]>> }
+    usuarios: { data: UsuariosAttributes[]; setData: React.Dispatch<React.SetStateAction<UsuariosAttributes[]>> }
+    ordenes: { data: Orden_MantenimientoAttributes[]; setData: React.Dispatch<React.SetStateAction<Orden_MantenimientoAttributes[]>> }
+    presupuestos: { data: PresupuestoAttributes[]; setData: React.Dispatch<React.SetStateAction<PresupuestoAttributes[]>> }
   }
+}
+
+export interface fechaType {
+  startDate: Date
+  endDate: Date
+  key: string
+  tipoMantenimiento: string
 }
