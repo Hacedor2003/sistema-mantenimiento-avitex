@@ -65,7 +65,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   //DB
-  //await connectDB()
+  await connectDB()
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
