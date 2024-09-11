@@ -1,91 +1,63 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import connectDB from './db/db'
-import { join } from 'path'
 import {
-  createEquipos,
-  createTipo_Mantenimiento,
   createCategorias,
+  createEquipos,
   createEstados_Revision,
-  createUsuarios,
-  createOrden_Mantenimiento
+  createOrden_Mantenimiento,
+  createTipo_Mantenimiento,
+  createUsuarios
 } from './lib/Hook_Create'
 import {
-  deleteEquipos_By_Id,
-  deleteTipo_Mantenimiento_By_Id,
   deleteCategorias_By_Id,
+  deleteEquipos_By_Id,
   deleteEstados_Revision_By_Id,
-  deleteUsuarios_By_Id,
-  deleteOrden_Mantenimiento_By_Id
+  deleteOrden_Mantenimiento_By_Id,
+  deleteTipo_Mantenimiento_By_Id,
+  deleteUsuarios_By_Id
 } from './lib/Hook_Delete'
 import {
-  editEquipos_By_Id,
-  editTipo_Mantenimiento_By_Id,
   editCategorias_By_Id,
+  editEquipos_By_Id,
   editEstados_Revision_By_Id,
-  editUsuarios_By_Id,
   editOrden_Mantenimiento_By_Id,
-  editPresupuesto_By_Id
+  editPresupuesto_By_Id,
+  editTipo_Mantenimiento_By_Id,
+  editUsuarios_By_Id
 } from './lib/Hook_Edit'
 import {
-  getEquipos_All,
-  getEquipos_By_Id,
-  getTipo_Mantenimiento_All,
-  getTipo_Mantenimiento_By_Tipo,
   getCategorias_All,
-  getCategorias_By_Nombre,
-  getEstados_Revision_All,
-  getEstados_Revision_By_Nombre,
-  getUsuarios_All,
-  getUsuarios_By_Rol,
-  getOrden_Mantenimiento_All,
-  getEquipos_By_Categoria,
   getCategorias_By_ID,
+  getCategorias_By_Nombre,
+  getEquipos_All,
+  getEquipos_By_Categoria,
+  getEquipos_By_Id,
+  getEstados_Revision_All,
+  getEstados_Revision_By_Id,
+  getEstados_Revision_By_Nombre,
+  getOrden_Mantenimiento_All,
   getPresupuestos_All,
   getPresupuestos_By_Id,
+  getTipo_Mantenimiento_All,
   getTipo_Mantenimiento_By_Id,
-  getEstados_Revision_By_Id
+  getTipo_Mantenimiento_By_Tipo,
+  getUsuarios_All,
+  getUsuarios_By_Rol
 } from './lib/Hook_Get'
+import { MainScreen } from './MainScreen'
+
+//Basic flags
+autoUpdater.forceDevUpdateConfig = true
+autoUpdater.autoDownload = false
+autoUpdater.autoInstallOnAppQuit = true
+
+let mainWindow
 
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 1000,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    center: true,
-    title: 'Sistema de Mantenimiento',
-    frame: true,
-    vibrancy: 'under-window',
-    visualEffectState: 'active',
-    titleBarStyle: 'default',
-    trafficLightPosition: { x: 15, y: 10 },
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: true,
-      contextIsolation: true
-    }
-  })
-
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
-
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
-  })
-
-  // HMR for renderer base on electron-vite cli.
-  // Load the remote URL for development or the local html file for production.
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
+  mainWindow = new MainScreen()
 }
 
 // This method will be called when Electron has finished
@@ -93,7 +65,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   //DB
-  await connectDB()
+  //await connectDB()
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -172,6 +144,29 @@ app.whenReady().then(async () => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
+
+  autoUpdater.checkForUpdates()
+  mainWindow.showMessage(`Checking for updates. Current version ${app.getVersion()}`)
+})
+
+/*New Update Available*/
+autoUpdater.on('update-available', () => {
+  mainWindow.showMessage(`Update available. Current version ${app.getVersion()}`)
+  const pth = autoUpdater.downloadUpdate()
+  mainWindow.showMessage(pth)
+})
+
+autoUpdater.on('update-not-available', () => {
+  mainWindow.showMessage(`No update available. Current version ${app.getVersion()}`)
+})
+
+/*Download Completion Message*/
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.showMessage(`Update downloaded. Current version ${app.getVersion()}`)
+})
+
+autoUpdater.on('error', (info) => {
+  mainWindow.showMessage(info)
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

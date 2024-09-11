@@ -4,7 +4,13 @@ if (!process.contextIsolated) {
   throw new Error('contextIsolation must be enabled in the BrowserWindow')
 }
 
+const bridge = {
+  updateMessage: (callback) => ipcRenderer.on('updateMessage', callback)
+}
+
 try {
+  contextBridge.exposeInMainWorld('bridge', bridge)
+
   contextBridge.exposeInMainWorld('context', {
     //Get
     getEquipos_All: (...args) => ipcRenderer.invoke('getEquipos_All', ...args),

@@ -1,8 +1,15 @@
-import { ComponentProps } from 'react'
+import React, { ComponentProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
+export function updateMessage(event, message) {
+  console.log('message logged in view')
+  const elemE = document.getElementById('message')
+  elemE!.innerHTML = message
+}
+
 export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element => {
+  window.bridge.updateMessage(updateMessage)
   return (
     <main className="flex flex-col items-center h-screen text-black select-none">
       <Sidebar />
@@ -10,6 +17,7 @@ export const RootLayout = ({ children }: ComponentProps<'main'>): JSX.Element =>
         {children}
       </section>
       <p>Derechos Reservados a Bit Tec SRL</p>
+      <p id="message"></p>
     </main>
   )
 }

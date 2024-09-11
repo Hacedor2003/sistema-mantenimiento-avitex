@@ -10,6 +10,11 @@ import {
 
 declare global {
   interface Window {
+    bridge: {
+      updateMessage: (
+        callback: (event: Electron.IpcRendererEvent, ...args: any[]) => void
+      ) => Electron.IpcRenderer
+    }
     context: {
       getEquipos_All: () => Promise<EquiposAttributes[]>
       getEquipos_By_Id: (id) => Promise<EquiposAttributes | null>

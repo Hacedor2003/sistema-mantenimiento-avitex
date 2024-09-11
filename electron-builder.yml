@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.hacedor.sistemamantenimiento
 productName: sistema-mantenimiento
 directories:
   buildResources: build

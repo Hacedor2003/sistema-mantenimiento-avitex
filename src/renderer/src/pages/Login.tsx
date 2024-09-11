@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { AppContext } from '@renderer/Data/Store'
+import { updateMessage } from '@renderer/components/AppLayout'
 import { Button_UI, Input_UI } from '@renderer/components/UI_Component'
 import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -10,10 +11,10 @@ const Login = (): JSX.Element => {
   const [error, setError] = useState(false)
   const navigate = useNavigate()
   const context = useContext(AppContext)
+  window.bridge.updateMessage(updateMessage)
 
   const handleSubmit = (event): void => {
     event.preventDefault()
-
 
     if (carnet === 'bryanlenier' && contrasena === 'espinosa') {
       setError(false)
@@ -29,8 +30,7 @@ const Login = (): JSX.Element => {
       navigate('/home')
     } else if (carnet !== 'bryanlenier' && contrasena !== 'espinosa') {
       const userFind = context.data.usuarios.data.find(
-        (userDb) =>
-          userDb.identificacion === carnet && userDb.contrasena === contrasena
+        (userDb) => userDb.identificacion === carnet && userDb.contrasena === contrasena
       )
       if (userFind) {
         setError(false)
@@ -80,6 +80,7 @@ const Login = (): JSX.Element => {
           )}
         </form>
         <p>Derechos Reservados a Bit Tec SRL</p>
+        <p id="message"></p>
       </section>
     </main>
   )
