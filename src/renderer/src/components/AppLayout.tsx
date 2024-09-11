@@ -1,8 +1,8 @@
-import React, { ComponentProps } from 'react'
+import { ComponentProps } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
-export function updateMessage(event, message) {
+export function updateMessage(_, message) {
   console.log('message logged in view')
   const elemE = document.getElementById('message')
   elemE!.innerHTML = message
