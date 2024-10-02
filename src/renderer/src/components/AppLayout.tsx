@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
 
 export function updateMessage(_, message) {
-  console.log('message logged in view')
   const elemE = document.getElementById('message')
   elemE!.innerHTML = message
 }

@@ -1,3 +1,4 @@
+import { IpcRendererEvent } from 'electron'
 import {
   CategoriasAttributes,
   EquiposAttributes,

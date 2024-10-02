@@ -15,7 +15,7 @@ export class MainScreen {
       autoHideMenuBar: true,
       ...(process.platform === 'linux' ? { icon } : {}),
       center: true,
-      title: 'Sistema de Mantenimiento',
+      title: 'Sistema de Manteminiento',
       frame: true,
       vibrancy: 'under-window',
       visualEffectState: 'active',
@@ -62,6 +62,6 @@ export class MainScreen {
   }
 
   handleMessages() {
-    
+    return
   }
 }

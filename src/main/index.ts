@@ -146,23 +146,23 @@ app.whenReady().then(async () => {
   })
 
   autoUpdater.checkForUpdates()
-  mainWindow.showMessage(`Checking for updates. Current version ${app.getVersion()}`)
+  mainWindow.showMessage(`Revisando actualizacion. Version Actual ${app.getVersion()}`)
 })
 
 /*New Update Available*/
 autoUpdater.on('update-available', () => {
-  mainWindow.showMessage(`Update available. Current version ${app.getVersion()}`)
+  mainWindow.showMessage(`Actualizacion disponible. Version Actual ${app.getVersion()}`)
   const pth = autoUpdater.downloadUpdate()
   mainWindow.showMessage(pth)
 })
 
 autoUpdater.on('update-not-available', () => {
-  mainWindow.showMessage(`No update available. Current version ${app.getVersion()}`)
+  mainWindow.showMessage(`No Actualizacion disponible. Version Actual ${app.getVersion()}`)
 })
 
 /*Download Completion Message*/
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.showMessage(`Update downloaded. Current version ${app.getVersion()}`)
+  mainWindow.showMessage(`Descargando Actualizacion. Version Actual ${app.getVersion()}`)
 })
 
 autoUpdater.on('error', (info) => {
