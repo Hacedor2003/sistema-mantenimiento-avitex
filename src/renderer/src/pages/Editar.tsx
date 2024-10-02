@@ -536,7 +536,7 @@ const Editar = () => {
             {maquinariasFilter.map((maquinariaItem, index) => (
               <li
                 key={index}
-                className="flex flex-col"
+                className="p-3 rounded-lg flex flex-col hover:bg-gray-300 transition-all duration-300 ease-in-out"
                 onClick={() => {
                   setSelectedMaquinaria(maquinariaItem)
                   setFechaMantenimiento(maquinariaItem.fecha_mantenimiento)
@@ -610,16 +610,26 @@ const Editar = () => {
                       <h4 className="text-xl">Escoga la fecha del Mantenimiento:</h4>
                       <input
                         className="border border-black p-2 my-1 rounded-lg"
-                        type="date"
+                        type="datetime-local"
                         name="newFechaMantenimiento"
-                        onChange={(event) => setNewFechaMantenimiento(e => { return { ...e, date: event.target.value } })}
+                        onChange={(event) =>
+                          setNewFechaMantenimiento((e) => {
+                            console.log(event.target.value);
+                            
+                            return { ...e, date: event.target.value }
+                          })
+                        }
                         value={newFechaMantenimiento.date}
                       />
                       <select
                         id="inputMantenimientoFecha"
                         className="w-fit border border-black p-2 rounded-md cursor-pointer"
                         name="newTipoMantenimientoFecha"
-                        onChange={(event) => setNewFechaMantenimiento(e => { return { ...e, tipo_mantenimiento: +event.target.value } })}
+                        onChange={(event) =>
+                          setNewFechaMantenimiento((e) => {
+                            return { ...e, tipo_mantenimiento: +event.target.value }
+                          })
+                        }
                         value={newFechaMantenimiento.tipo_mantenimiento}
                       >
                         <option key={123} value={-1}>
@@ -716,7 +726,7 @@ const Editar = () => {
                         <h3 className="text-xl font-bold">Lubricaciones</h3>
                         <ul>
                           {fechaLubricacion.map((item, index) => {
-                            let fecha;
+                            let fecha
                             if (item instanceof Object) {
                               fecha = new Date(item.startDate).toLocaleDateString()
                             } else {
@@ -724,10 +734,7 @@ const Editar = () => {
                             }
 
                             return (
-                              <li
-                                key={fecha}
-                                className="p-1 flex flex-row items-center"
-                              >
+                              <li key={fecha} className="p-1 flex flex-row items-center">
                                 <div className="mr-2">
                                   <p>Fecha:</p>
                                   <p>{fecha}</p>
